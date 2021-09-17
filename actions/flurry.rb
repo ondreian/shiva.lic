@@ -1,0 +1,34 @@
+module Shiva
+  class Flurry < Action
+    def priority
+      50
+    end
+
+    def available?(foe)
+      not foe.nil? and
+      not Effects::Cooldowns.active?("Flurry") and
+      Skills.edgedweapons > 150 and
+      checkstamina > 50 and
+      not hidden? and
+      @env.foes.size < 4 and
+      rand > 0.6
+    end
+
+    def flurry(foe)
+      Timer.await() if checkrt > 5
+      Stance.offensive
+      fput "weapon flurry #%s" % foe.id
+      ttl = Time.now + 5
+      while line=get
+        break if line.include?("The mesmerizing sway of body and blade glides to its inevitable end")
+        break unless GameObj[foe.id]
+        break if foe.dead? or foe.gone?
+        break if Time.now > ttl
+      end
+    end
+
+    def apply(foe)
+      return self.flurry foe
+    end
+  end
+end
