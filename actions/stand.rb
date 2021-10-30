@@ -5,7 +5,9 @@ module Shiva
     end
 
     def available?
-      not standing?
+      not standing? and 
+      not muckled? and 
+      not Effects::Debuffs.active?("Jaws")
     end
 
     def apply()

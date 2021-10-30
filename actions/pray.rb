@@ -1,6 +1,6 @@
 module Shiva
   class Pray < Action
-    def self.allowed
+    def allowed
       [Duskruin]
     end
 

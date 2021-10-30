@@ -1,6 +1,7 @@
 module Shiva
   class Ambush < Action
     DEFAULT_AIMING = %i(head neck right_leg)
+    SPEAR_AIMING   = %i(left_eye right_eye head neck)
 
     def priority
       91
@@ -25,6 +26,11 @@ module Shiva
       %r[What were you referring to],
     )
 
+    def aiming
+      return SPEAR_AIMING if %w(spear harpoon).include?(Char.right.noun)
+      return DEFAULT_AIMING
+    end
+
     def ambush(creature)
       Stance.offensive
       result = dothistimeout("ambush ##{creature.id}", 1, Outcomes)
@@ -32,7 +38,7 @@ module Shiva
       # look and parse the next best killshot while in roundtime
       unless creature.dead?
         Char.aim(
-          creature.kill_shot(priority || DEFAULT_AIMING))
+          creature.kill_shot(self.aiming))
       end
       Timer.await
     end
@@ -41,13 +47,6 @@ module Shiva
       Stance.offensive
       dothistimeout("kill ##{creature.id}", 1, Outcomes)
       Timer.await
-    end
-
-    def ambush(foe)
-      Char.aim foe.kill_shot(DEFAULT_AIMING)
-      Stance.offensive
-      put "ambush #%s" % foe.id
-      Timer.await()
     end
 
     def apply(foe)

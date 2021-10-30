@@ -1,25 +1,25 @@
 module Shiva
-  class BullRush < Action
+  class CarnsCry < Action
     def priority
-      75
+      (70..80).to_a.sample
     end
 
     def available?(foe)
-      CMan.bull_rush > 3 and
+      Char.prof.eql?("Warrior") and
+      Effects::Spells.active?("Griffin's Voice") and
       checkstamina > 50 and
       @env.foes.size > 2 and
       not foe.nil? and
       foe.status.empty?
     end
 
-    def bull_rush(foe)
+    def carns_cry()
       Timer.await()
-      Stance.offensive
-      fput "cman bull #%s" % foe.id
+      fput "warcry cry all"
     end
 
     def apply(foe)
-      return self.bull_rush foe
+      return self.carns_cry
     end
   end
 end

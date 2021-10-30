@@ -14,7 +14,7 @@ module Shiva
     end
 
     def subdue(foe)
-      Log.out(foe, label: %i(subdue))
+      #Log.out(foe, label: %i(subdue))
       Stance.offensive
       dothistimeout "subdue #%s" % foe.id, 1, Regexp.union(
         %r[You spring from hiding],

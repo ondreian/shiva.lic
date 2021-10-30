@@ -8,7 +8,8 @@ module Shiva
       (@ttl || 0).to_i
     end
 
-    def available?
+    def available?(foe)
+      foe.nil? and
       self.ttl < Time.now.to_i and
       Spell[215].known? and
       Spell[215].affordable? and

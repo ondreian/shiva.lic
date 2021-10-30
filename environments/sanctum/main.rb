@@ -4,17 +4,24 @@ module Shiva
       Danger = %w(shaper sentinel fanatic lurk monstrosity)
 
       def foes
+        return [] unless Claim.mine?
         Foes.sort_by do |foe|
-          if foe.name =~ /grizzled|ancient/ or checkbounty.include?(foe.noun)
+          if foe.name =~ /grizzled|ancient/ or foe.noun.eql?("shaper")
             0
+          elsif checkbounty.include?(foe.noun)
+            1
           else
-            1 + Danger.index(foe.noun) - foe.status.size
+            2 + Danger.index(foe.noun) - foe.status.size
           end
         end
       end
 
       def foe
-        self.foes.first
+        if Claim.mine?
+          self.foes.first
+        else
+          nil
+        end
       end
 
       def act(env)

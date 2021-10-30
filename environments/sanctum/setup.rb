@@ -4,7 +4,7 @@ module Shiva
   module Sanctum
     class Setup < Stage
       def scripts
-        %w(reaction lte effect-watcher claim)
+        %w(reaction lte effect-watcher)
       end
 
       def apply(env)

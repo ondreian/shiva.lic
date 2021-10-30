@@ -2,7 +2,9 @@ module Shiva
   class Environment
     attr_reader :actions, :name, :namespace, :stage,
                 :setup, :main, :teardown,
-                :area, :last_action, :seen
+                :last_action, :seen
+
+    attr_accessor :area
 
     def initialize(name)
       @name      = name.capitalize

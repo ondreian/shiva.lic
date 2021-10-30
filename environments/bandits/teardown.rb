@@ -28,8 +28,8 @@ module Shiva
 
       def apply(env)
         exit unless Group.leader? or Group.empty?
+        $cluster_cli.stop("shiva") if Group.leader?
         Char.unhide if Char.hidden?
-        wait_until {Room.current.id.eql?(Location.resting_room) } unless Group.leader? or Group.empty?
         self.heal!
         self.turn_in!
         Script.run "go2", Location.resting_room

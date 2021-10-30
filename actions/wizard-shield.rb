@@ -6,7 +6,7 @@ module Shiva
 
     def available?
       Spell[919].known? and
-      Spell[919].affordable? and
+      checkmana > 100 and
       not Spell[919].active?
     end
 

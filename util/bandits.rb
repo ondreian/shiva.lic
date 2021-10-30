@@ -166,8 +166,9 @@ module Shiva
     end
 
     def self.rooms(area)
+      fail "area cannot be nil" if area.nil?
       Cache.memoize(area) do
-        Log.out(%[building candidate room list], label: %i[area])
+        Log.out(%[building candidate room list for #{area}], label: %i[area])
         list = Room.list.select(&Filter.is_valid_room?).map(&:id)
         Log.out(%[found #{list.size} candidate rooms], label: %i[area])
         list
@@ -176,8 +177,11 @@ module Shiva
 
     def self.crawl(area)
       Char.stand.unhide
-      fput "search" if Claim.current? and Kernel::rand > 0.66
-      return if bandit_count > 0 && Claim.current?
+      if Claim.current? and Kernel::rand > 0.66
+        fput "search"
+        fput "look"
+        waitrt?
+      end
       waitcastrt?
       waitrt?
       self.poll_bandits!
@@ -189,5 +193,6 @@ module Shiva
     end
 
     Cache.memoize("Widowmaker's Road") { (29021..29030).to_a }
+    self.add_bandit_hook
   end
 end

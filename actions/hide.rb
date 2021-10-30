@@ -1,6 +1,13 @@
 module Shiva
   class Hide < Action
     PERCEPTIVE = %w(ursian lion griffin)
+    Deny = %w(4212003)
+
+    class Outcomes
+      Deny = %r{You look around, but can't see anywhere to hide.}
+      Ok   = %r{You attempt to blend with the surroundings,}
+      All  = Regexp.union(Deny)
+    end
 
     def priority
       if @env.foes.any? {|foe| PERCEPTIVE.include?(foe.noun) }
@@ -23,12 +30,16 @@ module Shiva
       not Effects::Debuffs.active?("Jaws") and
       not hidden? and
       not Opts["open"] and
-      env?
+      env? and 
+      not Deny.include?(XMLData.room_id.to_s)
     end
 
     def apply()
       Timer.await()
-      fput "hide"
+      case dothistimeout("hide", 2, Outcomes::All)
+      when Outcomes::Deny
+        Deny << XMLData.room_id.to_s
+      end
     end
   end
 end

@@ -4,12 +4,16 @@ module Shiva
       15
     end
 
+    def allowed
+      [Shiva::Bandits]
+    end
+
     def available?(foe)
-      return false unless @env.name.eql?("Bandits")
       return false unless Group.leader? or Group.empty?
-      return true if foe.nil?
+      return false if (Group.members.map(&:noun) - checkpcs.to_a).size > 0
+      return false if Group.members.map(&:status).flatten.compact.size > 0
       return true unless Claim.mine?
-      return false unless Group.members.map(&:status).flatten.empty?
+      return true if foe.nil?
       return false
     end
 

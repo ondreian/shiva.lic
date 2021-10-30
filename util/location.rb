@@ -4,9 +4,10 @@ module Shiva
       Room[Room.current.find_nearest_by_tag("town")].location
     end
 
-    Oberwood = 18698
+    Oberwood     = 18698
     HandOfArkati = 29623
-    Bases = [Oberwood, HandOfArkati]
+    NorthMarket  = 1438
+    Bases = [Oberwood, HandOfArkati, NorthMarket]
 
     def self.resting_room
       return Vars["shiva/base"] if Vars["shiva/base"]

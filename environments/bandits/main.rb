@@ -8,6 +8,7 @@ module Shiva
       end
 
       def foe
+        return nil unless Claim.mine? 
         self.foes.sample
       end
 
@@ -29,14 +30,25 @@ module Shiva
 
       def needs_more?
         return true if Bounty.type.eql?(:bandits) or Bounty.type.eql?(:help_bandits)
-        return false if Group.empty?
+        return true if Group.size > 0 and not Group.leader?
+        return true if Group.size > 0 and self.group_members_need_more?
+        return true unless Group.members.map(&:status).compact.empty?
         return true unless @env.foes.empty?
+        # don't wander endlessly
+        return false if @env.best_action(self.foe).is_a?(Shiva::Wander)
+        return true unless @env.best_action(self.foe).eql?(:noop)
         return true unless Creatures.dead.empty?
-        return self.group_members_need_more?
+        false
+      end
+
+      def kill_lte!
+        return unless Script.running?("lte")
+        Script.kill("lte") if Bounty.task.number < 5
       end
 
       def apply(env)
         while self.needs_more?
+          self.kill_lte!
           wait_while("waiting on noop...") {@env.best_action(self.foe).eql?(:noop)}
           self.act(self.foe)
           sleep 0.1

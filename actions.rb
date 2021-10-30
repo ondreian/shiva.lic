@@ -8,6 +8,7 @@ module Shiva
     end
 
     def self.eval_with_foe(action, method, foe)
+      #Log.out("%s.%s" % [action.class.name, method], label: %i(eval_with_foe))
       if action.method(method).arity == 1
         action.send(method, foe)
       else
@@ -24,13 +25,12 @@ module Shiva
 
     def self.create_for_env(env)
       Known
-        .reject {|action|
-          action.respond_to?(:allowed) and 
-          not action.allowed.include?(env.namespace)
-        }
         .map {|action|
           Log.out(action.name, label: %i(action loaded)) if Opts["debug"]
           action.new(env)
+        }
+        .reject {|action|
+          action.respond_to?(:allowed) and not action.allowed.include?(env.namespace)
         }
     end
   end
