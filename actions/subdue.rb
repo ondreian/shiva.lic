@@ -1,7 +1,7 @@
 module Shiva
   class Subdue < Action
     def priority
-      89
+      60
     end
 
     def available?(foe)
@@ -20,6 +20,7 @@ module Shiva
         %r[You spring from hiding],
         %r[wait]
       )
+      sleep 0.5
       Timer.await() if checkrt > 6
     end
 

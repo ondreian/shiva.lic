@@ -1,7 +1,7 @@
 module Shiva
   class BullRush < Action
     def priority
-      75
+      70
     end
 
     def available?(foe)

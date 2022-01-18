@@ -12,9 +12,11 @@ module Shiva
       not Spell[1035].active? and
       CMan.berserk > 5 and
       Char.stamina > 35 and
-      @env.foes.size > 2 and
-      not Effects::Debuffs.active?("Strained Muscles") and
+      muckled? and
       Group.empty?
+      #@env.foes.size > 2 and
+      #not Effects::Debuffs.active?("Strained Muscles") and
+      #Group.empty?
     end
 
     def apply(_foe)

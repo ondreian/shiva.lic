@@ -1,17 +1,18 @@
 module Shiva
   class Flurry < Action
     def priority
-      50
+      rand > 0.5 ? 6 : 40
     end
 
     def available?(foe)
       not foe.nil? and
       not Effects::Cooldowns.active?("Flurry") and
+      not Effects::Buffs.active?("Slashing Strikes") and
+      not Spell[117].active? and
       Skills.edgedweapons > 150 and
       checkstamina > 50 and
       not hidden? and
-      @env.foes.size < 4 and
-      rand > 0.6
+      @env.foes.size < 4
     end
 
     def flurry(foe)

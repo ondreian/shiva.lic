@@ -4,7 +4,7 @@ module Shiva
                 :setup, :main, :teardown,
                 :last_action, :seen
 
-    attr_accessor :area
+    attr_accessor :area, :state
 
     def initialize(name)
       @name      = name.capitalize
@@ -12,6 +12,7 @@ module Shiva
       @stage     = :unknown
       @area      = Opts["area"] || Bounty.task.area
       @seen      = []
+      @state     = nil
     end
 
     def start_scripts(scripts)
@@ -40,6 +41,10 @@ module Shiva
       Log.out(proposed_action.is_a?(Symbol) ? proposed_action : proposed_action.class.name, 
         label: %i(proposed action)) unless proposed_action == @last_action
       @last_action = proposed_action
+    end
+
+    def action(query)
+      @actions.find {|a| a.class.name =~ /#{query}/}
     end
 
     def setup!

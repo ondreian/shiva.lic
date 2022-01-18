@@ -1,7 +1,7 @@
 module Shiva
   class GuardantThruster < Action
     def priority
-      10_000
+      rand > 0.5 ? 6 : 40
     end
 
     def available?(foe)

@@ -80,7 +80,7 @@ module Shiva
         self.krakens_fall_setup if Location.nearest_town =~ /Kraken's Fall/
         self.deposit_silver if percentencumbrance > 0
         fail "weird encumbrance" if percentencumbrance > 0
-        wait_while("waiting on mana") {percentmana < 70}
+        wait_while("waiting on mana") {percentmana < 30}
         if Opts["task"]
           Script.run("go2", Location.resting_room)
           exit

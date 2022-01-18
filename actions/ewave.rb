@@ -1,7 +1,7 @@
 module Shiva
   class Ewave < Action
     def priority
-      5
+      1_000
     end
 
     def available?(foe)

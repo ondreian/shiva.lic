@@ -13,7 +13,8 @@ module Shiva
       self.ttl < Time.now.to_i and
       Spell[215].known? and
       Spell[215].affordable? and
-      Group.size > 0
+      Group.size > 0 and
+      not checkpcs.include?("Pixelia")
     end
 
     def apply(foe)

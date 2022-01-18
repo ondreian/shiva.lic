@@ -8,7 +8,6 @@ module Shiva
       end
 
       def apply(env)
-        @env.area.claim!
         Char.arm
         Group.check
       end

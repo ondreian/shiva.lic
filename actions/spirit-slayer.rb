@@ -8,7 +8,8 @@ module Shiva
       foe.nil? and
       Spell[240].known? and
       percentmana > 60 and
-      not Spell[240].active?
+      not Spell[240].active? and
+      Group.size < 3
     end
 
     def apply(foe)

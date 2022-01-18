@@ -1,11 +1,10 @@
 module Shiva
   class SymbolOfProtection < Action
     def priority
-      10
+      5
     end
 
     def available?
-      return false
       Society.status.eql?("Order of Voln") and
       not Effects::Buffs.active?("Symbol of Protection")
     end

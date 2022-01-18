@@ -7,7 +7,7 @@ module Shiva
     Oberwood     = 18698
     HandOfArkati = 29623
     NorthMarket  = 1438
-    Bases = [Oberwood, HandOfArkati, NorthMarket]
+    Bases = [Oberwood, HandOfArkati]
 
     def self.resting_room
       return Vars["shiva/base"] if Vars["shiva/base"]

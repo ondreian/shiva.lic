@@ -1,7 +1,7 @@
 module Shiva
   class WhirlingBlade < Action
     def priority
-      (70..90).to_a.sample
+      5
     end
 
     def available?(foe)

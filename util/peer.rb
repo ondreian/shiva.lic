@@ -13,7 +13,7 @@ module Shiva
       if line.include?("Also here:")
         state[:pcs] = line.scan(EXIST_TAG).flatten
       end
-      return nil if line =~ /You peer|You can't peer through|roomDesc|roomName/ 
+      return line if line =~ /You peer|You can't peer through|roomDesc|roomName/ 
       if line.include?("You are unable to determine what lies beyond") or line.include?("but see nothing of interest.")
         DownstreamHook.remove(PEER_HOOK)
         return line

@@ -7,7 +7,8 @@ module Shiva
     def available?
       Spell[515].known? and
       Spell[515].affordable? and
-      not Spell[515].active?
+      not Spell[515].active? and
+      Group.empty?
     end
 
     def apply()

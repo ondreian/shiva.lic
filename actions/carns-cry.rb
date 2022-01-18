@@ -6,9 +6,8 @@ module Shiva
 
     def available?(foe)
       Char.prof.eql?("Warrior") and
-      Effects::Spells.active?("Griffin's Voice") and
       checkstamina > 50 and
-      @env.foes.size > 2 and
+      @env.foes.size > 1 and
       not foe.nil? and
       foe.status.empty?
     end

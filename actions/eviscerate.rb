@@ -1,22 +1,24 @@
 module Shiva
   class Eviscerate < Action
-    def priority
-      [89, 91].sample
+    def priority(foe)
+      50
     end
 
     def available?(foe)
       not foe.nil? and
       not @env.seen.include?(foe.id) and
-      @env.foes.size > 1 and
+      not foe.status.empty? and
+      (@env.foes.size > 1 or %w(master).include?(foe.noun)) and
       not foe.tall? and
+      not %w(cerebralite).include?(foe.noun) and
       Char.name.eql?("Ondreian") and
-      not Effects::Cooldowns.active?("Cyclone") and
       checkstamina > 40 and
       hidden? and
       rand > 0.3
     end
 
     def eviscerate(foe)
+      waitrt?
       Stance.offensive
       put "cman eviscerate #%s" % foe.id
       @env.seen << foe.id

@@ -6,9 +6,10 @@ module Shiva
 
     def available?
       Spell[140].known? and
-      checkmana > 100 and
+      checkmana > 200 and
       not Spell[140].active? and
-      %w(Empath Cleric).include?(Char.prof)
+      %w(Empath Cleric).include?(Char.prof) and
+      Group.members.empty?
     end
 
     def apply()

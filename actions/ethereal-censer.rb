@@ -7,6 +7,7 @@ module Shiva
     def available?(foe)
       not Effects::Buffs.active?("Ethereal Censer") and
       not foe.nil? and
+      not foe.name.include?("Vvrael") and
       Spell[320].known? and
       Spell[320].affordable?
     end

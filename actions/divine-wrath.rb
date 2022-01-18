@@ -1,5 +1,5 @@
 module Shiva
-  class SonicDisruption < Action
+  class DivineWrath < Action
     HordeSize = 2
 
     def initialize(env)
@@ -8,7 +8,7 @@ module Shiva
     end
 
     def priority
-      31
+      20
     end
 
     def duskruin?
@@ -22,14 +22,14 @@ module Shiva
     end
 
     def normal_check?
-      percentmana > 60 and
+      Spell[335].affordable? and
       @env.foes.size >= HordeSize
     end
 
     def available?(foe)
-      return false unless Spell[1030].known?
-      return true if foe.noun.eql?("shaper")
-
+      return false unless Spell[335].known?
+      return false if Effects::Cooldowns.active?("Divine Wrath")
+      
       if self.duskruin?
         self.duskruin_check?
       else
@@ -38,19 +38,13 @@ module Shiva
     end
 
     def aoe()
-      multifput "prep 1030", "cast"
-    end
-
-    def focus(foe)
-      fput "incant 1030 #%s" % foe.id
+      waitcastrt?
+      fput "incant 335"
+      waitcastrt?
     end
 
     def apply(foe)
-      if @env.foes.size >= HordeSize
-        self.aoe
-      else
-        self.focus(foe)
-      end
+      self.aoe
       sleep 1
       waitcastrt?
     end

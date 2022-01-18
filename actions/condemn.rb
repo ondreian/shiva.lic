@@ -6,8 +6,10 @@ module Shiva
 
     def available?(foe)
       not foe.nil? and
+      not foe.name.include?("Vvrael") and
       Spell[309].known? and
-      Spell[309].affordable?
+      Spell[309].affordable? and
+      Wounds.nsys < 2
     end
 
     def apply(foe)

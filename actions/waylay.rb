@@ -1,11 +1,15 @@
 module Shiva
   class Waylay < Action
     def priority(foe)
-      if foe.noun.eql? "monstrosity"
+      if foe.noun.eql?("monstrosity") or (foe.noun.eql?("destroyer") && self.dagger?)
         89
       else
         100
       end
+    end
+
+    def dagger?
+      %w(knife dagger dirk).include?(Char.right.noun)
     end
 
     def has_melee_skill?

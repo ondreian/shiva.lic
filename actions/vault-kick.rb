@@ -1,10 +1,12 @@
 module Shiva
-  class Charge < Action
+  class VaultKick < Action
     def priority
       (89...100).to_a.sample
     end
 
     def available?(foe)
+      Wounds.leftLeg < 2 and
+      Wounds.rightLeg < 2 and
       not foe.nil? and
       foe.status.empty? and
       Char.name.eql?("Etanamir") and

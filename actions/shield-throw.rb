@@ -1,20 +1,25 @@
 module Shiva
   class ShieldThrow < Action
     def priority
-      5
+      4
+    end
+
+    def shield?
+      %w(buckler targe shield).include?(Char.left.noun)
     end
 
     def available?(foe)
       checkrt < 1 and
       not Effects::Debuffs.active?("Jaws") and
       not foe.nil? and
-      not foe.tags.include?(:undead) and
       not Effects::Cooldowns.active?("Shield Throw") and
+      not Effects::Debuffs.active?("Sunder Shield") and
       Skills.shielduse > 150 and
       %w(Warrior Rogue).include?(Char.prof) and
       checkstamina > 80 and
       not hidden? and
-      @env.foes.size > 1
+      @env.foes.size > 1 and
+      self.shield?
     end
 
     def shield_throw(foe)

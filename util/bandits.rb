@@ -175,13 +175,17 @@ module Shiva
       end
     end
 
-    def self.crawl(area)
-      Char.stand.unhide
-      if Claim.current? and Kernel::rand > 0.66
+    def self.search()
+      if Claim.current? and Kernel::rand > 0.66 and Skills.perception > (Char.level * 1.5)
         fput "search"
         fput "look"
         waitrt?
       end
+    end
+
+    def self.crawl(area)
+      Char.stand.unhide
+      # self.search
       waitcastrt?
       waitrt?
       self.poll_bandits!
