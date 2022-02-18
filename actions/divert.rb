@@ -5,9 +5,8 @@ module Shiva
     end
 
     def available?(foe)
-      not foe.nil? and
+      not @env.namespace.eql?(Duskruin) and
       @env.foes.size > 2 and
-      foe.status.empty? and
       Char.name.eql?("Ondreian") and
       checkstamina > 20 and
       hidden?
@@ -22,8 +21,8 @@ module Shiva
       waitrt?
     end
 
-    def apply(foe)
-      return self.divert foe
+    def apply()
+      return self.divert @env.foes.select {|f| f.status.empty?}.sample
     end
   end
 end

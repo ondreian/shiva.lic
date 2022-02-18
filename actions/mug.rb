@@ -7,7 +7,9 @@ module Shiva
     end
 
     def available?(foe)
+      not @env.namespace.eql?(Duskruin) and
       not foe.nil? and
+      not checkloot.to_a.include?("thorny vine") and
       not Mugged.include?(foe.id) and
       not foe.status.empty? and
       Char.name.eql?("Ondreian") and
@@ -22,7 +24,7 @@ module Shiva
       put "cman mug #%s" % foe.id
       Mugged << foe.id
       sleep 0.5
-      Timer.await()
+      waitrt?
     end
 
     def apply(foe)

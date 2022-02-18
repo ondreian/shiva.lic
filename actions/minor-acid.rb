@@ -5,6 +5,7 @@ module Shiva
     end
 
     def available?(foe)
+      Claim.mine? and
       not foe.nil? and
       not foe.name.include?("Vvrael") and
       Spell[904].known? and

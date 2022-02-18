@@ -16,6 +16,7 @@ module Shiva
       Spell[1013].known? and
       Spell[1013].affordable? and
       checkmana > 20 and
+      @env.foes.size < 2 and
       Wounds.nsys < 2
     end
 
@@ -27,11 +28,13 @@ module Shiva
 
     Err = Regexp.union(
       %r{dissipating it harmlessly.},
-      %r{Your armor prevents the song from working correctly.}
+      %r{Your armor prevents the song from working correctly.},
+      %r{d100 == 1 FUMBLE!}
     )
 
     def apply(foe)
       Stance.guarded
+      return if foe.dead?
       fput "prep 1013"
       return if foe.dead?
       result = dothistimeout("cast #%s 712" % foe.id, 2, Regexp.union(Ok, Err))

@@ -27,7 +27,8 @@ module Shiva
           item.noun.eql?("disk") or
           item.noun.eql?("bandana") or
           item.type.include?("food") or
-          item.type.nil?
+          item.type.include?("herb") or
+          item.type.include?("cursed")
         }
         .reject {|item| @seen.include?(item.id)}
     end
@@ -62,22 +63,23 @@ module Shiva
       end
     end
 
-    def slow_loot
-      Containers.lootsack.add(*GameObj.loot.reject {|i|
-        i.name =~ Dangerous or
-        Trash.include?(i) or
-        i.type =~ /junk|food|herb/
-      })
+    def slow_loot(area_loot)
+      Containers.lootsack.add(*area_loot)
     end
 
-
+    def loot_silvers
+      fput "get coins"
+      waitrt?
+    end
 
     def apply()
       Log.out(self.loot.map(&:name), label: %i(loot))
-      self.nonce self.loot
+      this_loot = self.nonce self.loot
       empty_left_hand
+      self.loot_silvers if GameObj.loot.any? {|i| i.name.eql?(%[some silver coins])}
+      this_loot.reject! {|i| i.name.eql?(%[some silver coins])}
       if dangerous?
-        self.slow_loot
+        self.slow_loot(this_loot)
       else
         self.fast_loot
       end

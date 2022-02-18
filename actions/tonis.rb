@@ -11,8 +11,8 @@ module Shiva
     end
 
     def apply()
-      fput "release" unless checkprep.eql?("None")
-      wait_until {checkprep.eql?("None")}
+      fput "release" unless checkprep.eql?("None") or checkprep.eql?("Song of Tonis")
+      wait_until {checkprep.eql?("None") or checkprep.eql?("Song of Tonis")}
       fput "incant 1035"
     end
   end

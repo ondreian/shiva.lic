@@ -13,7 +13,8 @@ module Shiva
 
       attr_accessor :round
 
-      def initialize()
+      def initialize(env)
+        super(env)
         @round = 1
         DownstreamHook.add("shiva/round-count", -> line {
           begin

@@ -1,7 +1,7 @@
 module Shiva
   module Sanctum
     class Main < Stage
-      Danger = %w(shaper sentinel fanatic lurk monstrosity)
+      Danger = %w(shaper sidewinder sentinel fanatic lurk monstrosity)
 
       def foes
         return [] unless Claim.mine?

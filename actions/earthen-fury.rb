@@ -14,10 +14,17 @@ module Shiva
       Wounds.nsys < 2
     end
 
+    Ok = %r{suddenly frosts and rumbles violently!}
+    Err = Regexp.union(%r{dissipating it harmlessly.})
+    Outcomes = Regexp.union(Ok, Err)
+
     def apply(foe)
       Stance.guarded
-      @env.seen << foe.id
-      fput "target #%s\rincant 917" % foe.id
+      case dothistimeout "target #%s\rincant 917" % foe.id, 3, Outcomes
+      when Ok
+        @env.seen << foe.id
+      end
+
       if Spell[515].active?
         sleep 0.5
       else

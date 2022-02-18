@@ -28,7 +28,7 @@ module Shiva
 
     def apply(foe)
       Stance.guarded
-      self.missing.each {|num| Spell[num].cast}
+      Spell[self.missing.first].cast
     end
   end
 end

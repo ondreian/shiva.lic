@@ -31,6 +31,18 @@ module Shiva
         wait_while {Foes.empty?}
       end
 
+      def activate_group
+        return unless Group.leader?
+        return if Group.empty?
+        Group.members.map(&:noun).map do |member|
+          Cluster.cast(member, 
+            channel: :script, 
+            script:  :shiva,
+            args:    %(--env=duskruin),
+          )
+        end
+      end
+
       def reset
         :noop
       end
@@ -40,7 +52,7 @@ module Shiva
         Group.check
         Support.small_statue if Char.spell(1712).minutes < 8
         Support.pure_potion if Char.spell(211).minutes < 8
-        Spell[1035].cast if Spell[1035].known?
+        Spell[1035].cast if Spell[1035].known? and not Spell[1035].active?
         self.enter_arena
         Char.arm
         Script.start("lte")

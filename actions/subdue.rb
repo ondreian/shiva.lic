@@ -6,10 +6,12 @@ module Shiva
 
     def available?(foe)
       Char.prof.eql?("Rogue") and
+      not @env.namespace.eql?(Duskruin) and
       checkstamina > 20 and
       hidden? and
       foe.status.empty? and
       not foe.tall? and
+      not Spell[1035].active? and
       rand > 0.2
     end
 

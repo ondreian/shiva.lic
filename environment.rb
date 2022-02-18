@@ -15,6 +15,10 @@ module Shiva
       @state     = nil
     end
 
+    def is?(other)
+      @namespace.eql?(other)
+    end
+
     def start_scripts(scripts)
       scripts.each {|script| Script.start(script)}
       before_dying {scripts.each {|script| Script.kill(script)}}

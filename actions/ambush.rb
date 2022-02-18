@@ -1,10 +1,12 @@
 module Shiva
   class Ambush < Action
-    DEFAULT_AIMING = %i(head neck right_leg)
+    DEFAULT_AIMING = %i(head neck back)
     SPEAR_AIMING   = %i(left_eye right_eye head neck)
     CERERBRALITE   = %i(head left_eye right_eye)
     DAGGER_AIMING  = SPEAR_AIMING
     DENY           = []
+
+    attr_accessor :area
 
     def priority
       91
@@ -70,9 +72,6 @@ module Shiva
 
     def warrior(foe)
       return self._ambush(foe)
-      with_stances(
-        before: Char.left.nil? ? "Executioner's Stance" : nil,
-         after: "Stance of the Mongoose")  { self._ambush(foe) }
     end
 
     def _ambush(foe)
@@ -80,9 +79,17 @@ module Shiva
       return self.kill(foe) if result =~ /You cannot aim/
     end
 
+    def get_best_area(foe)
+      @area = foe.kill_shot self.aiming(foe)
+      Char.aim(@area)
+      @area
+    end
+
     def ambush(foe)
-      Stance.offensive
+      self.get_best_area(foe) unless self.aiming(foe).include?(@area)
       waitrt?
+      Stance.offensive
+      Log.out("ambushing %s" % @area, label: %i(ambush area))
       case Char.prof
       when "Rogue"
         self.rogue(foe)
@@ -93,14 +100,12 @@ module Shiva
       end
       # look and parse the next best killshot while in roundtime
       unless foe.dead?
-        area = foe.kill_shot(self.aiming(foe))
-        Log.out("%s -> %s" % [foe.name, area], label: %i(killshot))
+        self.get_best_area(foe)
+        Log.out("%s -> %s" % [foe.name, @area], label: %i(killshot))
 
-        if foe.noun.eql?("destroyer") and not %w(head neck).include?(area)
+        if foe.noun.eql?("destroyer") and not %w(head neck).include?(@area)
           return DENY << foe.id
         end
-
-        Char.aim(area)
       end
       Timer.await
     end

@@ -28,7 +28,7 @@ module Shiva
 
     def available?(foe)
       return false unless Spell[1030].known?
-      return true if foe.noun.eql?("shaper")
+      return true if foe.noun.eql?("shaper") and Group.empty?
 
       if self.duskruin?
         self.duskruin_check?
@@ -46,6 +46,7 @@ module Shiva
     end
 
     def apply(foe)
+      fput "release" unless checkprep.eql?("None") or checkprep.eql?("Sonic Disruption")
       if @env.foes.size >= HordeSize
         self.aoe
       else

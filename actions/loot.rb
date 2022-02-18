@@ -16,6 +16,7 @@ module Shiva
 
     def available?
       Claim.mine? and
+      not @env.namespace.eql?(Duskruin) and
       not self.dead.empty? and
       self.should_unhide? and
       Wounds.head < 2 and

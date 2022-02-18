@@ -21,7 +21,9 @@ module Shiva
     def available?(foe)
       return false unless Group.leader? or Group.empty?
       return false if Group.members.map(&:status).flatten.compact.size > 0
-      return true if @env.foes.size > 3 and Group.empty?
+      #return true if Group.empty? and @env.foes.size > 1 and @env.is?(Shiva::Sanctum)
+      return true if Skills.multiopponentcombat < 30 and @env.foes.select {|f| f.status.empty? }.size > 1 and Group.empty?
+      return true if @env.foes.select {|f| f.status.empty? }.size > 3 and Group.empty?
       return true if not Group.empty? and @env.foes.size > Group.size
       return true if GameObj.loot.to_a.map(&:name).include?("mass of undulating liquified rock")
       return true if checkloot.include?('fissure')
@@ -33,13 +35,17 @@ module Shiva
 
     def wander
       sleep 0.1
+      start_id = XMLData.room_id
+      ttl = Time.now + 3
       move self.paths.sample
       waitrt?
-      self.wander if checkloot.include?('fissure')
-      self.wander if GameObj.targets.size > 3
-      self.wander if GameObj.loot.to_a.map(&:name).include?("mass of undulating liquified rock")
-      self.wander unless Claim.mine?
-      self.wander if (checkpcs.to_a - Cluster.connected).size > 0
+      wait_while("waiting on room change") {XMLData.room_id.eql?(start_id) and Time.now < ttl}
+      return self.wander unless Claim.mine?
+      return self.wander if checkloot.include?('fissure')
+      return self.wander if GameObj.targets.size > 3
+      return self.wander if GameObj.loot.to_a.map(&:name).include?("mass of undulating liquified rock")
+      return self.wander if (checkpcs.to_a - Cluster.connected).size > 0
+      :mine
     end
 
     def apply()

@@ -40,7 +40,8 @@ module Shiva
         Cluster.request(healer, channel: :heal)
       end
       ttl = Time.now + 5
-      wait_while {cutthroat? && Time.now < ttl} if cutthroat?
+      wait_while("waiting on blood...") {percenthealth < 100 && Time.now < ttl}
+      wait_while("waiting on cutthroat") {cutthroat? && Time.now < ttl} if cutthroat?
     end
 
     def self.request_mana(mana = nil)

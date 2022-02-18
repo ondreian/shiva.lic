@@ -5,7 +5,7 @@ module Shiva
 
       def foes
         return [] unless Claim.mine?
-        Foes.sort_by do |foe|
+        Foes.reject {|foe| foe.noun.eql?("doll")}.sort_by do |foe|
           if foe.name =~ /grizzled|ancient/ or foe.noun.eql?("master")
             0
           elsif checkbounty.include?(foe.noun)

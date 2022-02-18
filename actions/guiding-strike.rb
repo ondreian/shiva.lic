@@ -6,11 +6,12 @@ module Shiva
 
     def available?(foe)
       Spell[117].known? and
-      percentmana > 50 and
+      percentmana > 20 and
       Char.prof.eql?("Rogue") and
       not Spell[117].active? and
       not hidden? and
-      (@env.foes.size == 0 or %w(master).include?(foe.noun))
+      %w(shaper master).include?(foe.noun) and
+      Group.empty?
     end
 
     def apply()

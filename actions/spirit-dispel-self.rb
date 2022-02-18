@@ -4,9 +4,15 @@ module Shiva
       1
     end
 
+    def effected?
+      Effects::Debuffs.active?("Sounds") or
+      Effects::Debuffs.active?("Condemn") or
+      Effects::Debuffs.active?("Slow")
+    end
+
     def available?
       Spell[119].known? and
-      Effects::Debuffs.active?("Condemn")
+      self.effected?
     end
 
     def apply()

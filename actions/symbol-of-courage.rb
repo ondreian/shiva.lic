@@ -6,6 +6,7 @@ module Shiva
 
     def available?
       Society.status.eql?("Order of Voln") and
+      Society.rank > 10 and
       not Effects::Buffs.active?("Symbol of Courage")
     end
 
