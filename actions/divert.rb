@@ -6,7 +6,7 @@ module Shiva
 
     def available?(foe)
       not @env.namespace.eql?(Duskruin) and
-      @env.foes.size > 2 and
+      @env.foes.size > 4 and
       Char.name.eql?("Ondreian") and
       checkstamina > 20 and
       hidden?
@@ -14,6 +14,8 @@ module Shiva
 
     def divert(foe)
       waitrt?
+      loot = @env.action("LootArea")
+      loot.apply if Claim.mine?
       Stance.offensive
       put "cman divert %s sneak" % foe.noun
       @env.seen << foe.id

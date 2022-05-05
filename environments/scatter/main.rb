@@ -26,15 +26,19 @@ module Shiva
 
       def act(env)
         foe = self.foe
-        Action.call env.best_action(foe), foe
+        proposed_action = env.best_action(foe)
+        Action.call proposed_action, foe
         sleep 0.1
+        proposed_action.class.name.split("::").last.downcase.to_sym
       end
 
       def apply(env)
         before_dying { Script.kill("wander-scatter") }
         loop {
           wait_until {Claim.mine? or checkpcs.nil?}
-          self.act(env)
+          action = self.act(env)
+          Log.out(action, label: %i(previous action))
+          break if action.eql?(:rest)
         }
       end
     end

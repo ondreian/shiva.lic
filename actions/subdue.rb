@@ -4,10 +4,14 @@ module Shiva
       60
     end
 
+    def cost
+      Effects::Buffs.active?("Shadow Dance") ? 0 : 20
+    end
+
     def available?(foe)
       Char.prof.eql?("Rogue") and
       not @env.namespace.eql?(Duskruin) and
-      checkstamina > 20 and
+      checkstamina > self.cost and
       hidden? and
       foe.status.empty? and
       not foe.tall? and

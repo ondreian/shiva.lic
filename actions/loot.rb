@@ -1,5 +1,7 @@
 module Shiva
   class Loot < Action
+    Skinnable = %w(cerebralite lich sidewinder crawler)
+
     def priority
       2
     end
@@ -10,7 +12,7 @@ module Shiva
 
     def should_unhide?
       return true unless hidden?
-      return true if hidden? and @env.foes.size < 3
+      return true if hidden? and @env.foes.size < 5
       return false
     end
 
@@ -27,14 +29,19 @@ module Shiva
       Group.empty?)
     end
 
+    def maybe_skin(creature)
+      return unless Skinnable.include?(creature.noun)
+      return unless %w(dirk dagger knife).include?(Char.right.noun)
+      return unless (Skills.survival + Skills.firstaid) / (Char.level * 0.5) > 0.5
+      fput "skin #%s" % creature.id
+    end
+
     def apply()
       waitrt?
       self.dead.each {|foe|
-        if foe.name.include?("monstrosity")
-          fput "target #%s" % foe.id
-        end
-
-        Creature.new(foe).search()
+        creature = Creature.new(foe)
+        self.maybe_skin(creature)
+        creature.search()
       }
     end
   end

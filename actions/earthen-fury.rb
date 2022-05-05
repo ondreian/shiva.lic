@@ -6,7 +6,6 @@ module Shiva
 
     def available?(foe)
       not foe.nil? and
-      not @env.seen.include?(foe.id) and
       not foe.name.include?("Vvrael") and
       Spell[917].known? and
       Spell[917].affordable? and

@@ -8,7 +8,7 @@ module Shiva
       Society.status.eql?("Guardians of Sunfist") and
       (Char.max_mana - checkmana) >= 50 and
       checkstamina > 50 and
-      not Effects::Debuffs.active?("Strained Muscles")
+      not Effects::Debuffs.active?("Overexerted")
     end
 
     def apply()

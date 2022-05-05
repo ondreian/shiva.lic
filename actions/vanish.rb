@@ -9,7 +9,8 @@ module Shiva
       checkrt > 10 and
       @env.foes.size > 1 and
       checkstamina > 50 and
-      not muckled?
+      not muckled? and
+      not hidden?
     end
 
     def apply()

@@ -1,7 +1,7 @@
 module Shiva
   class ArmoredEvasion < Action
     def priority
-      10
+      5
     end
 
     def active?

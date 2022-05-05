@@ -4,12 +4,13 @@ module Shiva
     Seen  = []
 
     def priority
-      6
+      (40..60).to_a.sample
     end
 
     def available?(foe)
       Nouns.include?(foe.noun) and
       Char.prof.eql?("Rogue") and
+      not Effects::Buffs.active?("Shadow Dance") and
       foe.status.empty? and
       Seen.count(foe.id) < 2 and
       checkstamina > 20 and

@@ -10,13 +10,13 @@ module Shiva
       Char.prof.eql?("Rogue") and
       not Spell[117].active? and
       not hidden? and
-      %w(shaper master).include?(foe.noun) and
+      (%w(shaper master).include?(foe.noun) or percentmana > 100) and
       Group.empty?
     end
 
     def apply()
       Spell[117].cast
-      #waitcastrt?
+      Char.hide if Skills.stalkingandhiding > Char.level
     end
   end
 end

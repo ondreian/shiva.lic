@@ -17,7 +17,8 @@ module Shiva
       Spell[1013].affordable? and
       checkmana > 20 and
       @env.foes.size < 2 and
-      Wounds.nsys < 2
+      Wounds.nsys < 2 and
+      Group.size.eql?(2)
     end
 
     Ok  = Regexp.union(

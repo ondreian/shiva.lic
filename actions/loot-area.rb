@@ -1,6 +1,6 @@
 module Shiva
   class LootArea < Action
-    Dangerous = /doomstone|oblivion|urglaes/
+    Dangerous = /doomstone|urglaes/
 
     attr_reader :seen
     def initialize(*args)
@@ -9,35 +9,53 @@ module Shiva
     end
 
     def priority
-      3
+      self.heirloom? ? 1 : 3
+    end
+
+    def unseen()
+      self.loot.reject { |item| @seen.include?(item.id)}
     end
 
     def nonce(items)
+      items.reject! {|item| @seen.include?(item.id)}
       @seen.concat items.map(&:id)
       @seen.uniq!
       return items
     end
 
+    def cursed?(item)
+      return true if item.name =~ /oblivion quartz/ && Char.level < 100
+      return false if item.name =~ /oblivion quartz/
+      return item.type.include?("cursed")
+    end
+
     def loot
-      GameObj.loot.to_a
-        .reject {|item| 
-          Trash.include?(item) or 
-          item.id.start_with?("-") or 
-          item.type.include?("junk") or
-          item.noun.eql?("disk") or
-          item.noun.eql?("bandana") or
-          item.type.include?("food") or
-          item.type.include?("herb") or
-          item.type.include?("cursed")
-        }
-        .reject {|item| @seen.include?(item.id)}
+      GameObj.loot.to_a.reject {|item| 
+        Trash.include?(item) or 
+        item.id.start_with?("-") or 
+        item.type.include?("junk") or
+        item.noun.eql?("disk") or
+        item.noun.eql?("bandana") or
+        item.type.include?("food") or
+        item.type.include?("herb") or
+        self.cursed?(item)
+      }
+    end
+
+    def heirloom?
+      Bounty.task.heirloom and GameObj.loot.any? {|i| i.name.end_with?(Bounty.task.heirloom)}
+    end
+
+    def safe?
+      return true if self.heirloom?
+      @env.foes.empty?
     end
 
     def available?
       Claim.mine? and
-      self.loot.size > 0 and
+      self.unseen.size > 0 and
       (Group.leader? or Group.empty?) and
-      @env.foes.empty?
+      self.safe?
     end
 
     def dangerous?
@@ -73,8 +91,9 @@ module Shiva
     end
 
     def apply()
-      Log.out(self.loot.map(&:name), label: %i(loot))
       this_loot = self.nonce self.loot
+      return if this_loot.empty?
+      Log.out(self.loot.map(&:name), label: %i(loot))
       empty_left_hand
       self.loot_silvers if GameObj.loot.any? {|i| i.name.eql?(%[some silver coins])}
       this_loot.reject! {|i| i.name.eql?(%[some silver coins])}
@@ -82,6 +101,7 @@ module Shiva
         self.slow_loot(this_loot)
       else
         self.fast_loot
+        self.slow_loot(self.loot) if self.loot
       end
       empty_left_hand unless Char.left.nil?
       fill_left_hand

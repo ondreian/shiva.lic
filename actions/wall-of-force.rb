@@ -1,15 +1,17 @@
 module Shiva
   class WallOfForce < Action
     def priority
-      5
+      7
     end
 
-    def available?
+    def available?(foe)
       Spell[140].known? and
-      checkmana > 200 and
+      checkmana > 400 and
       not Spell[140].active? and
       %w(Empath Cleric).include?(Char.prof) and
-      Group.members.empty?
+      Group.members.empty? and
+      foe.nil? and
+      GameObj.targets.to_a.empty?
     end
 
     def apply()

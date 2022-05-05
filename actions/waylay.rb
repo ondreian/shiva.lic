@@ -9,7 +9,7 @@ module Shiva
     end
 
     def dagger?
-      %w(knife dagger dirk).include?(Char.right.noun)
+      %w(knife dagger dirk coustille).include?(Char.right.noun)
     end
 
     def has_melee_skill?
@@ -28,7 +28,11 @@ module Shiva
       Char.aim :clear
       Timer.await()
       Stance.offensive
-      fput "waylay #%s" % foe.id
+      if Effects::Buffs.active?("Shadow Dance") && hidden?
+        fput "feat silentstrike waylay #%s" % foe.id
+      else
+        fput "waylay #%s" % foe.id
+      end
     end
 
     def apply(foe)

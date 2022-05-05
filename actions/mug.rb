@@ -3,13 +3,14 @@ module Shiva
     Mugged = []
 
     def priority(foe)
-      50
+      62
     end
 
     def available?(foe)
       not @env.namespace.eql?(Duskruin) and
       not foe.nil? and
       not checkloot.to_a.include?("thorny vine") and
+      not Effects::Buffs.active?("Shadow Dance") and
       not Mugged.include?(foe.id) and
       not foe.status.empty? and
       Char.name.eql?("Ondreian") and

@@ -1,5 +1,6 @@
 module Shiva
   class ChannelSpiritDispel < Action
+
     def priority
       1
     end
@@ -7,7 +8,9 @@ module Shiva
     def effected?
       Effects::Debuffs.active?("Sounds") or
       Effects::Debuffs.active?("Condemn") or
-      Effects::Debuffs.active?("Slow")
+      Effects::Debuffs.active?("Slow") or 
+      Effects::Debuffs.active?("Wild Entropy") or
+      Effects::Debuffs.active?("Powersink")
     end
 
     def available?

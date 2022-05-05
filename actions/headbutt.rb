@@ -1,6 +1,6 @@
 module Shiva
   class Headbutt < Action
-    Nouns = %w(siphon crawler master)
+    Nouns = %w(siphon crawler)
     Seen  = []
 
     def priority
@@ -10,6 +10,7 @@ module Shiva
     def available?(foe)
       Nouns.include?(foe.noun) and
       Char.prof.eql?("Rogue") and
+      not Effects::Buffs.active?("Shrouded") and
       foe.status.empty? and
       Seen.count(foe.id) < 2 and
       checkstamina > 20 and

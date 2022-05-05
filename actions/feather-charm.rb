@@ -12,10 +12,15 @@ module Shiva
       Effects::Spells.active?("Feather Charm")
     end
 
+    def loot_boost?
+      Effects::Buffs.active?("Major Loot Boost") or Effects::Buffs.active?("Minor Loot Boost")
+    end
+
     def available?(foe)
       (foe.nil? or hidden?) and
       not self.charm.nil? and
       not self.active? and
+      self.loot_boost? and
       percentencumbrance > 0
     end
 

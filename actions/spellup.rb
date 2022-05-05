@@ -10,7 +10,7 @@ module Shiva
     )
 
     def priority
-      3
+      4
     end
 
     def missing

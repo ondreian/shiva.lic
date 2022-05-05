@@ -67,11 +67,18 @@ module Shiva
     def rogue(foe)
       with_stances(
         before: "Predator's Eye",
-         after: "Duck and Weave") { self._ambush(foe) }
+         after: "Duck and Weave") { 
+          (Effects::Buffs.active?("Shadow Dance") && hidden?) ? self._silent_strike(foe) : self._ambush(foe)
+          }
     end
 
     def warrior(foe)
       return self._ambush(foe)
+    end
+
+    def _silent_strike(foe)
+      result = dothistimeout("feat silentstrike ##{foe.id}", 1, Outcomes)
+      return self.kill(foe) if result =~ /You cannot aim/
     end
 
     def _ambush(foe)
@@ -118,6 +125,7 @@ module Shiva
 
     def apply(foe)
       waitrt?
+      return if foe.dead? or foe.gone?
       return self.ambush foe
     end
   end

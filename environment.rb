@@ -7,6 +7,7 @@ module Shiva
     attr_accessor :area, :state
 
     def initialize(name)
+      $shiva_graceful_exit = false
       @name      = name.capitalize
       @namespace = Shiva.const_get(@name)
       @stage     = :unknown

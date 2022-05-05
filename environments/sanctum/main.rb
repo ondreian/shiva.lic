@@ -5,7 +5,7 @@ module Shiva
 
       def foes
         return [] unless Claim.mine?
-        Foes.sort_by do |foe|
+        Foes.select do |foe| Danger.include?(foe.noun) end.sort_by do |foe|
           if foe.name =~ /grizzled|ancient/ or foe.noun.eql?("shaper")
             0
           elsif checkbounty.include?(foe.noun)
@@ -13,7 +13,7 @@ module Shiva
           else
             2 + Danger.index(foe.noun) - foe.status.size
           end
-        end
+        end.reject {|foe| foe.noun.eql?("monstrosity") or foe.noun.eql?("arm")}
       end
 
       def foe

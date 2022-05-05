@@ -1,13 +1,18 @@
 module Shiva
   class MinorAcid < Action
     def priority
-      (85...95).to_a.sample
+      1_000 #(85...95).to_a.sample
+    end
+
+    def high_ds?(noun)
+      %w(shaper master).include?(noun)
     end
 
     def available?(foe)
       Claim.mine? and
       not foe.nil? and
       not foe.name.include?("Vvrael") and
+      not self.high_ds?(foe.noun) and
       Spell[904].known? and
       Spell[904].affordable? and
       checkmana > 20 and

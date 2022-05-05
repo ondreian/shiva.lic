@@ -2,6 +2,8 @@ module Shiva
   class SonicDisruption < Action
     HordeSize = 2
 
+    attr_accessor :renew_room
+
     def initialize(env)
       @first_use = true
       super(env)
@@ -39,19 +41,34 @@ module Shiva
 
     def aoe()
       multifput "prep 1030", "cast"
+      @last_cast_type = :aoe
     end
 
     def focus(foe)
       fput "incant 1030 #%s" % foe.id
+      @last_cast_type = foe.id
+    end
+
+    def renew()
+      fput "renew 1030"
     end
 
     def apply(foe)
       fput "release" unless checkprep.eql?("None") or checkprep.eql?("Sonic Disruption")
       if @env.foes.size >= HordeSize
-        self.aoe
+        if @renew_room == XMLData.room_id.eql?(@renew_room) && @last_cast_type.eql?(:aoe)
+          self.renew
+        else
+          self.aoe
+        end
       else
-        self.focus(foe)
+        if @renew_room == XMLData.room_id.eql?(@renew_room) && @last_cast_type.eql?(foe.id)
+          self.renew
+        else
+          self.focus(foe)
+        end
       end
+      @renew_room = XMLData.room_id
       sleep 1
       waitcastrt?
     end

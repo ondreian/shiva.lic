@@ -18,6 +18,8 @@ module Shiva
 
     def apply(_foe)
       fput "warcry sean"
+      ttl = Time.now + 2
+      wait_until {Effects::Buffs.active?("Empowered (+20)") or Time.now > ttl}
     end
   end
 end

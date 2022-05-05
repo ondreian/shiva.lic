@@ -1,7 +1,7 @@
 module Shiva
   class Stand < Action
     def priority
-      1
+      1.1
     end
 
     def available?

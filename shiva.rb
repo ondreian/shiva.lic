@@ -1,12 +1,16 @@
 
 
 module Shiva
+  def self.root()
+    File.join Dir.home, "gemstone", "shiva"
+  end
+
   def self.import(file)
-    load File.join(LICH_DIR, "shiva", file)
+    load File.join(self.root, file)
   end
 
   def self.load_all_modules
-    Dir[File.join(LICH_DIR, "shiva", "**", "*.rb")].sort.reverse
+    Dir[File.join(self.root, "**", "*.rb")].sort.reverse
       .each {|asset|
         load(asset)
         # Log.out "loaded %s" % asset, label: %i(load)
@@ -14,7 +18,7 @@ module Shiva
   end
 
   def self.reload_actions(verbose: false)
-    Dir[File.join(LICH_DIR, "shiva", "actions", "**", "*.rb")]
+    Dir[File.join(self.root, "actions", "**", "*.rb")]
       .each {|asset|
         load(asset)
         Log.out "loaded %s" % asset, label: %i(load) if verbose
