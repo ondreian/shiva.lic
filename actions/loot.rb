@@ -1,6 +1,6 @@
 module Shiva
   class Loot < Action
-    Skinnable = %w(cerebralite lich sidewinder crawler)
+    Skinnable = %w(cerebralite lich sidewinder crawler warg mastodon)
 
     def priority
       2
@@ -11,6 +11,8 @@ module Shiva
     end
 
     def should_unhide?
+      return false if @env.foes.any? {|f| %w(crawler siphon).include?(f.noun)} and hidden?
+      return false if @env.foes.any? {|f| f.name =~ /grizzled|ancient/} and hidden?
       return true unless hidden?
       return true if hidden? and @env.foes.size < 5
       return false

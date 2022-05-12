@@ -1,7 +1,13 @@
 module Shiva
   class VaultKick < Action
+    Nouns = %w(spear harpoon longhammer)
+    
     def priority
       (89...100).to_a.sample
+    end
+
+    def polearm?
+      Nouns.include?(Char.right)
     end
 
     def available?(foe)
@@ -9,7 +15,8 @@ module Shiva
       Wounds.rightLeg < 2 and
       not foe.nil? and
       foe.status.empty? and
-      Char.name.eql?("Etanamir") and
+      CMan.vault_kick and
+      self.polearm? and
       checkstamina > 30
     end
 

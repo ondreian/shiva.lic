@@ -1,12 +1,15 @@
 module Shiva
-  module Scatter
+  module Hinterwilds
     class Main < Stage
-      Danger = %w(crawler siphon master destroyer cerebralite doll)
+      Danger = %w(
+        warg hinterboar wendigo bloodspeaker cannibal
+        golem berserker skald shield-maiden mastodon
+      )
 
       def foes
         return [] unless Claim.mine?
-        Foes.reject {|foe| foe.noun.eql?("doll")}.sort_by do |foe|
-          if foe.name =~ /grizzled|ancient/ or foe.noun.eql?("master")
+        Foes.sort_by do |foe|
+          if foe.name =~ /grizzled|ancient/
             0
           elsif checkbounty.include?(foe.noun) and not Group.empty?
             1
@@ -16,13 +19,10 @@ module Shiva
         end
       end
 
-    
       def apply(env)
-        env.reset_start_time!
-
         loop {
           wait_until {Claim.mine? or checkpcs.nil?}
-          action = Common::Act.call(env, self.foe)
+          action = Common::Act.call(self.env, self.foe)
           Log.out(action, label: %i(previous action))
           break if action.eql?(:rest)
         }

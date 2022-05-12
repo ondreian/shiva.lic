@@ -2,18 +2,27 @@ module Shiva
   class Environment
     attr_reader :actions, :name, :namespace, :stage,
                 :setup, :main, :teardown,
-                :last_action, :seen
+                :last_action, :seen, :start_time
 
     attr_accessor :area, :state
 
     def initialize(name)
       $shiva_graceful_exit = false
-      @name      = name.capitalize
-      @namespace = Shiva.const_get(@name)
-      @stage     = :unknown
-      @area      = Opts["area"] || Bounty.task.area
-      @seen      = []
-      @state     = nil
+      @name       = name.capitalize
+      @namespace  = Shiva.const_get(@name)
+      @stage      = :unknown
+      @area       = Opts["area"] || Bounty.task.area
+      @seen       = []
+      @state      = nil
+      @start_time = Time.now
+    end
+
+    def reset_start_time!
+      @start_time = Time.now
+    end
+
+    def uptime()
+      Time.now - @start_time
     end
 
     def is?(other)

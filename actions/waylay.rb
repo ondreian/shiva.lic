@@ -19,19 +19,20 @@ module Shiva
 
     def available?(foe)
       not foe.nil? and
+      hidden? and
       self.has_melee_skill? and
       Skills.ambush > Char.level * 1.5 and
       hidden?
     end
 
     def waylay(foe)
-      Char.aim :clear
+      #Char.aim :clear
       Timer.await()
       Stance.offensive
       if Effects::Buffs.active?("Shadow Dance") && hidden?
-        fput "feat silentstrike waylay #%s" % foe.id
+        fput "feat silentstrike waylay #%s clear" % foe.id
       else
-        fput "waylay #%s" % foe.id
+        fput "waylay #%s clear" % foe.id
       end
     end
 

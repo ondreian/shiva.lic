@@ -1,5 +1,7 @@
 module Shiva
   class Wander < Action
+    # Long, spectral talons materialize from midair to tear viciously at your body!
+    
     AllowedWays = %w(
                nw n ne
                w  out  e
@@ -28,7 +30,7 @@ module Shiva
     end
 
     def max_foes
-      return 5 if Char.name.eql?("Ondreian")
+      return 5 if Skills.multiopponentcombat > 100
       return Group.size + 1
     end
 
@@ -49,6 +51,13 @@ module Shiva
       return false
     end
 
+    def recover_from_rifting()
+      return if XMLData.room_title.eql?("[The Rift, Scatter]")
+      Char.unhide if Char.hidden?
+      Log.out("recovering from being rifted...", label: %i(recover rifted))
+      return Script.run("go2", "scatter")
+    end
+
     def wander(reason: nil)
       Log.out("reason=%s uuid=%s" % [reason, XMLData.room_id], label: %i(wander reason)) unless reason.nil?
       #start_id = XMLData.room_id
@@ -62,7 +71,7 @@ module Shiva
       #wait_while("waiting on room change") {XMLData.room_id.eql?(start_id) and Time.now < ttl}
       return self.wander(reason: :claim) unless Claim.mine?
       return self.wander(reason: :fissure) if checkloot.include?('fissure')
-      return self.wander(reason: :swarm) if GameObj.targets.size > 3
+      return self.wander(reason: :swarm) if @env.foes.size > self.max_foes
       return self.wander(reason: :magma) if GameObj.loot.to_a.map(&:name).include?("mass of undulating liquified rock")
       return self.wander(reason: :poach) if (checkpcs.to_a - Cluster.connected).size > 0
       :mine
@@ -79,11 +88,7 @@ module Shiva
         Stance.forward
         Bandits.crawl(@env.area)
       when :scatter
-        unless XMLData.room_title.eql?("[The Rift, Scatter]")
-          Char.unhide if Char.hidden?
-          Log.out("recovering from being rifted...", label: %i(recover rifted))
-          return Script.run("go2", "scatter")
-        end
+        self.recover_from_rifting
         self.wander
       when :sanctum
         #Char.unhide

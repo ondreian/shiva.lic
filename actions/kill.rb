@@ -17,7 +17,7 @@ module Shiva
 
     def kill(foe)
       Stance.offensive
-      put "kill #%s" % foe.id
+      put "attack #%s clear" % foe.id
       Timer.await()
     end
 

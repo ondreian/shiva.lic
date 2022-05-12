@@ -17,6 +17,7 @@ module Shiva
       @env.foes.size.eql?(1) and
       not Effects::Cooldowns.active?("Garrote") and
       not Effects::Buffs.active?("Enh. Agility (+10)") and
+      not Effects::Debuffs.active?("Rift Slow") and
       not self.garrote.nil? and
       not @env.namespace.eql?(Duskruin) and
       checkstamina > self.cost and
@@ -44,7 +45,7 @@ module Shiva
       loop {
         sleep 0.1
         line = get?
-        break if foe.dead?
+        break if foe.dead? or foe.gone?
         break if Time.now > ttl
         next if line.nil?
         break if line =~ %r[You release the garrote and let your victim's corpse fall to the ground.]
@@ -53,9 +54,12 @@ module Shiva
     end
 
     def apply(foe)
+      waitrt?
       Stance.defensive
       Char.unarm
-      wait_until {Char.right.nil? && Char.left.nil?}
+      ttl = Time.now + 3
+      wait_until {Char.right.nil? && Char.left.nil? or Time.now > ttl}
+      return Char.arm if foe.dead? or foe.gone?
       self.garrote.use {
         Char.hide
         Stance.offensive

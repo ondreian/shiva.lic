@@ -1,7 +1,7 @@
 require_relative "../../stage"
 
 module Shiva
-  module Scatter
+  module Hinterwilds
     class Setup < Stage
       Entry = 12240 # [The Rift, Scatter]
 
@@ -12,7 +12,7 @@ module Shiva
       def get_bounty!
         return :not_allowed unless Group.empty?
         return :skip if %i(cull dangerous heirloom).include?(Bounty.type)
-        Task.advance("Icemule Trace")
+        Task.advance("Hinterwilds")
       end
 
       def apply(env)

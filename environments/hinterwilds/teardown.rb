@@ -1,10 +1,12 @@
 module Shiva
-  module Sanctum
+  module Hinterwilds
     class Teardown < Stage
       def apply(env)
         waitcastrt?
         waitrt?
-        Common::Teardown.cleanup("Solhaven")
+        Script.run("ring", "4")
+        # Common::Teardown.cleanup("Hinterwilds")
+        exit
       end
     end
   end

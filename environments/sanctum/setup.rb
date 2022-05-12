@@ -17,6 +17,12 @@ module Shiva
         end
       end
 
+      def get_bounty!
+        return :not_allowed unless Group.empty?
+        return :skip if %i(cull dangerous heirloom).include?(Bounty.type)
+        Task.advance("Solhaven")
+      end
+
       def bard
         fput "incant 1009" unless checkleft
       end
@@ -39,6 +45,7 @@ module Shiva
         Char.arm
         self.bard if Char.prof.eql?("Bard")
         return if XMLData.room_title.include?("[Sanctum of Scales") or not Group.leader?
+        self.get_bounty!
         self.transport
         fail "did not travel to sanctum" unless Room.current.id.eql?(Entry)
         self.activate_group

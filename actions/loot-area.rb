@@ -38,6 +38,7 @@ module Shiva
         item.noun.eql?("bandana") or
         item.type.include?("food") or
         item.type.include?("herb") or
+        item.name.eql?("a razern spear head") or
         self.cursed?(item)
       }
     end

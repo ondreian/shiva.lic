@@ -9,7 +9,7 @@ module Shiva
     end
 
     def available?
-      Char.name.eql?("Ondreian") and # todo: hard-coded for now
+      Armor.known?("Armored Evasion") and # todo: hard-coded for now
       not Effects::Debuffs.active?("Strained Muscles") and
       not self.active?
     end

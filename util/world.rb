@@ -3,9 +3,11 @@ module World
   @_cache = {}
 
   def self.by_town(tag)
-    @_cache[tag] ||= Hash[Map.list.select {|r| r.tags.include? tag }.map {|r| 
-      [Room[r.find_nearest_by_tag("town")].location, r]
-    }]
+    Hash[Towns.map {|town| [town.location, Room[town.find_nearest_by_tag(tag)]] }]
+  end
+
+  def self.tag_for_town(town, tag)
+    self.by_town(tag).find {|k,v| k.downcase.include?(town.downcase) }.last
   end
   
   def self.advguilds_by_town()
@@ -14,5 +16,9 @@ module World
 
   def self.gemshops_by_town()
     self.by_town "gemshop"
+  end
+
+  def self.furriers_by_town()
+    self.by_town "furrier"
   end
 end

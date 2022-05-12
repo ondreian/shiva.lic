@@ -11,7 +11,7 @@ module Shiva
       (@env.foes.size > 1 or %w(master).include?(foe.noun)) and
       not foe.tall? and
       not %w(cerebralite).include?(foe.noun) and
-      Char.name.eql?("Ondreian") and
+      CMan.eviscerate > 3 and
       checkstamina > 40 and
       hidden? and
       rand > 0.3

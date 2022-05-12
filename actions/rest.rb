@@ -8,15 +8,10 @@ module Shiva
     
     def initialize(*args)
       super(*args)
-      @start_time = Time.now
-    end
-
-    def uptime()
-      Time.now - @start_time
     end
 
     def priority
-      1
+      3
     end
 
     def allowed
@@ -56,7 +51,7 @@ module Shiva
       return :wounded if self.wounded?
       return :health if self.bleeding?
       return :bounty if Bounty.task.type.eql?(:report_to_guard) && percentmind.eql?(100)
-      return :uptime if self.uptime > (20 * Minute) && percentmind.eql?(100)
+      return :uptime if @env.uptime > (20 * Minute) && percentmind.eql?(100)
       return :mana if self.out_of_mana?
       return false
     end
@@ -64,6 +59,7 @@ module Shiva
     def available?(foe)
       return false unless Group.leader?
       @reason = self.reason
+      $shiva_rest_reason = @reason if @reason.is_a?(Symbol)
       @reason.is_a?(Symbol)
     end
 

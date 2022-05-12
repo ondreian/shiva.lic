@@ -5,9 +5,9 @@ module Shiva
     end
 
     def available?(foe)
-      %w(Ondreian).include?(Char.name) and
+      Vars["shiva/swap"] and
       self.needs_swap?(foe) and
-      @env.namespace.eql?(Duskruin).eql?(Sanctum)
+      @env.namespace.eql?(Sanctum)
     end
 
     def needs_swap?(foe)

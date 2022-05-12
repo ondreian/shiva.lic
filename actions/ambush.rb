@@ -24,6 +24,7 @@ module Shiva
     def available?(foe)
       self.prefer_waylay?(foe) or
       (not DENY.include?(foe.id) and
+      hidden? and
       self.has_melee_skill? and
       Skills.ambush > 24 and
       not foe.nil? and

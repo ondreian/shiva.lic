@@ -25,15 +25,20 @@ module Shiva
       end
 
       def act(env)
-        foe = self.foe
-        Action.call env.best_action(foe), foe
+       foe = self.foe
+        proposed_action = env.best_action(foe)
+        Action.call proposed_action, foe
         sleep 0.1
+        return proposed_action if proposed_action.eql?(:noop)
+        proposed_action.class.name.split("::").last.downcase.to_sym
       end
 
       def apply(env)
         loop {
-          wait_until {Claim.mine?}
-          self.act(env)
+          wait_until {Claim.mine? or checkpcs.nil?}
+          action = self.act(env)
+          #Log.out(action, label: %i(previous action)) 
+          break if action.eql?(:rest)
         }
       end
     end

@@ -13,7 +13,7 @@ module Shiva
       not Effects::Buffs.active?("Shadow Dance") and
       not Mugged.include?(foe.id) and
       not foe.status.empty? and
-      Char.name.eql?("Ondreian") and
+      CMan.mug > 0 and
       checkstamina > 40 and
       hidden? and
       rand > 0.1

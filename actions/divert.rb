@@ -7,7 +7,7 @@ module Shiva
     def available?(foe)
       not @env.namespace.eql?(Duskruin) and
       @env.foes.size > 4 and
-      Char.name.eql?("Ondreian") and
+      CMan.divert > 3 and
       checkstamina > 20 and
       hidden?
     end
