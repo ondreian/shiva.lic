@@ -8,13 +8,18 @@ module Shiva
       Effects::Buffs.active?("Shadow Dance") ? 0 : 20
     end
 
+    def can?(foe)
+      return true if not foe.tall? and foe.status.empty?
+      return true if foe.tall? and foe.prone?
+      return false
+    end
+
     def available?(foe)
-      Char.prof.eql?("Rogue") and
-      not @env.namespace.eql?(Duskruin) and
+      CMan.subdue > 2 and
+      not self.env.name.eql?(:duskruin) and
       checkstamina > self.cost and
       hidden? and
-      foe.status.empty? and
-      not foe.tall? and
+      self.can?(foe) and
       not Spell[1035].active? and
       rand > 0.2
     end
@@ -22,8 +27,9 @@ module Shiva
     def subdue(foe)
       #Log.out(foe, label: %i(subdue))
       Stance.offensive
-      dothistimeout "subdue #%s" % foe.id, 1, Regexp.union(
+      result = dothistimeout "subdue #%s" % foe.id, 1, Regexp.union(
         %r[You spring from hiding],
+        %r[head is out of reach!],
         %r[wait]
       )
       sleep 0.5

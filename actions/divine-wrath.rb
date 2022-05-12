@@ -12,18 +12,18 @@ module Shiva
     end
 
     def duskruin?
-      @env.namespace.eql?(Duskruin)
+      self.env.name.eql?(:duskruin)
     end
 
     def duskruin_check?
-      @env.foes.size > 1 and
+      self.env.foes.size > 1 and
       percentmana > 40 and
-      (@env.main.round > 9 or @env.main.round % 5 == 0)
+      (self.env.main.round > 9 or self.env.main.round % 5 == 0)
     end
 
     def normal_check?
       Spell[335].affordable? and
-      @env.foes.size >= HordeSize
+      self.env.foes.size >= HordeSize
     end
 
     def available?(foe)

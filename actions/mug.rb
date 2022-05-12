@@ -7,7 +7,7 @@ module Shiva
     end
 
     def available?(foe)
-      not @env.namespace.eql?(Duskruin) and
+      not self.env.name.eql?(:duskruin) and
       not foe.nil? and
       not checkloot.to_a.include?("thorny vine") and
       not Effects::Buffs.active?("Shadow Dance") and

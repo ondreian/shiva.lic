@@ -11,7 +11,7 @@ module Shiva
 
     def available?(foe)
       not foe.nil? and
-      @env.foes.size > 0 and
+      self.env.foes.size > 0 and
       self.has_melee_skill?
     end
 

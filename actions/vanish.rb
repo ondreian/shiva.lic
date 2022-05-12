@@ -7,7 +7,7 @@ module Shiva
     def available?
       Char.prof.eql?("Rogue") and
       checkrt > 10 and
-      @env.foes.size > 1 and
+      self.env.foes.size > 1 and
       checkstamina > 50 and
       not muckled? and
       not hidden?

@@ -10,12 +10,20 @@ module Shiva
       end
     end
 
-    def initialize(env)
-      @env = env
-    end
-
     def self.inherited(action)
       Actions.register(action)
+    end
+
+    def initialize(controller)
+      @controller = controller
+    end
+
+    def controller
+      @controller
+    end
+
+    def env
+      @controller.env
     end
   end
 end

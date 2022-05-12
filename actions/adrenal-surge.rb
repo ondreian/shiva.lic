@@ -9,7 +9,7 @@ module Shiva
       Spell[1107].known? and
       stamina < 50 and
       not Effects::Cooldowns.active?("Adrenal Surge") and
-      @env.foes.empty?
+      self.env.foes.empty?
     end
 
     def apply()

@@ -11,7 +11,7 @@ module Shiva
     def available?(foe)
       return false if self.statue.nil?
       return false if Effects::Spells.active?("Spirit Guard")
-      return @env.foes.size == 0
+      return self.env.foes.size == 0
     end
 
     def apply()

@@ -14,7 +14,7 @@ module Shiva
       Char.stamina > 35 and
       muckled? and
       Group.empty?
-      #@env.foes.size > 2 and
+      #self.env.foes.size > 2 and
       #not Effects::Debuffs.active?("Strained Muscles") and
       #Group.empty?
     end
@@ -26,7 +26,7 @@ module Shiva
       wait_until {Spell["Berserk"].active? or Time.now > ttl}
       loop do
         sleep 0.1
-        fput "stop berserk" unless @env.stage.eql?(:main)
+        fput "stop berserk" unless self.env.stage.eql?(:main)
         break unless Spell["Berserk"].active?
       end
     end

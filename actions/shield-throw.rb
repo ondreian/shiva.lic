@@ -18,7 +18,7 @@ module Shiva
       %w(Warrior Rogue).include?(Char.prof) and
       checkstamina > 80 and
       not hidden? and
-      @env.foes.size > 1 and
+      self.env.foes.size > 1 and
       self.shield?
     end
 

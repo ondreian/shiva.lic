@@ -14,12 +14,12 @@ module Shiva
       Nouns.include?(foe.noun) and
       CMan.garrote > 0 and
       not foe.status.empty? and
-      @env.foes.size.eql?(1) and
+      self.env.foes.size.eql?(1) and
       not Effects::Cooldowns.active?("Garrote") and
       not Effects::Buffs.active?("Enh. Agility (+10)") and
       not Effects::Debuffs.active?("Rift Slow") and
       not self.garrote.nil? and
-      not @env.namespace.eql?(Duskruin) and
+      not self.env.name.eql?(:duskruin) and
       checkstamina > self.cost and
       Group.empty? and
       hidden? and

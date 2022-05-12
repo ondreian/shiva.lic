@@ -21,7 +21,7 @@ module Shiva
       Stance.guarded
       case dothistimeout "target #%s\rincant 917" % foe.id, 3, Outcomes
       when Ok
-        @env.seen << foe.id
+        self.env.seen << foe.id
       end
 
       if Spell[515].active?

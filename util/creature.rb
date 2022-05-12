@@ -1,5 +1,5 @@
 class Creature
   def tall?
-    self.name =~ /mammoth|yeti|giant\b|cyclops|monstrosity|construct/
+    self.name =~ /titan|giga|massive\s|mammoth|yeti|giant\b|cyclops|monstrosity|construct/
   end
 end

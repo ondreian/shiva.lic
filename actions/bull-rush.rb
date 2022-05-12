@@ -7,7 +7,7 @@ module Shiva
     def available?(foe)
       CMan.bull_rush > 3 and
       checkstamina > 50 and
-      @env.foes.size > 2 and
+      self.env.foes.size > 2 and
       not foe.nil? and
       foe.status.empty?
     end

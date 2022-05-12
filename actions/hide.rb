@@ -12,7 +12,7 @@ module Shiva
     end
 
     def priority
-      if @env.foes.any? {|foe| PERCEPTIVE_NOUNS.include?(foe.noun) }
+      if self.env.foes.any? {|foe| PERCEPTIVE_NOUNS.include?(foe.noun) }
         1_000
       else
         7
@@ -21,16 +21,16 @@ module Shiva
 
     def env?
       return false if Group.leader? and not Group.empty?
-      return false if @env.name.eql?("Bandits") and not Group.empty?
-      return false if @env.name.eql?("Osa")
-      return @env.foes.size > 0 if @env.name.eql?("Bandits")
+      return false if self.env.name.eql?("Bandits") and not Group.empty?
+      return false if self.env.name.eql?("Osa")
+      return self.env.foes.size > 0 if self.env.name.eql?("Bandits")
       return true
     end
 
     def available?
       Skills.stalkingandhiding > (Char.level * 2) and
       not Effects::Debuffs.active?("Jaws") and
-      not @env.foes.any? {|foe| Perceptive.count(foe.id) > 2} and
+      not self.env.foes.any? {|foe| Perceptive.count(foe.id) > 2} and
       not hidden? and
       not Opts["open"] and
       self.env? and

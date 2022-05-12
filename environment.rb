@@ -1,93 +1,91 @@
 module Shiva
   class Environment
-    attr_reader :actions, :name, :namespace, :stage,
-                :setup, :main, :teardown,
-                :last_action, :seen, :start_time
+    All = []
 
-    attr_accessor :area, :state
+    def self.find(name)
+      name = name.downcase.to_sym if name.is_a?(String)
+      All.find {|env| env.name.eql?(name)}
+    end
+
+    def self.define(name, &block)
+      fail "#{name} is already defined" if self.find(name)
+      env = self.new(name)
+      env.dsl(&block)
+      All << env
+      return env
+    end
+
+    attr_reader :name, :entry, :town,
+                :scripts, :foes, :boundaries,
+                :seen
 
     def initialize(name)
-      $shiva_graceful_exit = false
-      @name       = name.capitalize
-      @namespace  = Shiva.const_get(@name)
-      @stage      = :unknown
-      @area       = Opts["area"] || Bounty.task.area
-      @seen       = []
-      @state      = nil
-      @start_time = Time.now
-    end
-
-    def reset_start_time!
-      @start_time = Time.now
-    end
-
-    def uptime()
-      Time.now - @start_time
-    end
-
-    def is?(other)
-      @namespace.eql?(other)
-    end
-
-    def start_scripts(scripts)
-      scripts.each {|script| Script.start(script)}
-      before_dying {scripts.each {|script| Script.kill(script)}}
-    end
-
-    def foes
-      return @main.foes if @main.respond_to?(:foes)
-      return Foes
+      @name = name
+      self.reset!
     end
 
     def reset!
-      @actions  = Actions.create_for_env(self)
-      @main     = @namespace.const_get(:Main).new(self)
-      @teardown = @namespace.const_get(:Teardown).new(self)
-      @setup    = @namespace.const_get(:Setup).new(self)
+      @seen = []
     end
 
-    def load
-      Log.out File.join __DIR__, "environments", @name.downcase
+    def rooms()
+      return [] if @boundaries.nil? or @entry.nil?
+      @_subgraph ||= self._rooms()
     end
 
-    def best_action(foe)
-      proposed_action = Shiva::Actions.best_action(@actions, foe)
-      Log.out(proposed_action.is_a?(Symbol) ? proposed_action : proposed_action.class.name, 
-        label: %i(proposed action)) unless proposed_action == @last_action
-      @last_action = proposed_action
+    def _rooms()
+      _subgraph   = []
+      _boundaries = @boundaries.map(&:to_s)
+      _pending    = []
+      entry_room  = Room[@entry.to_i]
+      process_room = -> room {
+        room.wayto.keys
+          .reject {|id| _boundaries.include?(id) or _subgraph.include?(id) }
+          .each {|id|
+            _pending  << id
+            _subgraph << id
+          }
+      }
+      process_room.(entry_room)
+
+      until _pending.empty?
+        next_room_id = _pending.shift
+        process_room.(Room[next_room_id.to_i])
+        fail "infinite expansion detected in #{self.name} / did you forget a boundary?" if _pending.size > 500
+      end
+
+      return _subgraph
     end
 
-    def action(query)
-      @actions.find {|a| a.class.name =~ /#{query}/}
+    def dsl(&block)
+      self.instance_eval(&block)
     end
 
-    def setup!
-      @stage = :setup
-      @setup.apply(self)
-      if @setup.respond_to?(:scripts)
-        Log.out("starting scripts: %s" % @setup.scripts.join(", "), label: %i(setup scripts))
-        self.start_scripts @setup.scripts
+    def define_before_teardown(&block)
+      self.class.send(:define_method, :before_teardown, &block)
+    end
+
+    def define_before_setup(&block)
+      self.class.send(:define_method, :before_setup, &block)
+    end
+
+    def foes
+      return [] unless Claim.mine?
+      return GameObj.targets.map {|f| Creature.new(f)} if @foes.nil?
+
+      Foes.select {|foe| @foes.include?(foe.noun) }.sort_by do |foe|
+        if foe.name =~ /grizzled|ancient/
+          0
+        elsif checkbounty.include?(foe.noun) and not Group.empty?
+          1
+        else
+          2 + @foes.index(foe.noun) - foe.status.size
+        end
       end
     end
 
-    def main!
-      @stage = :main
-      @main.apply(self)
-    end
-
-    def teardown!
-      @stage = :teardown
-      @teardown.apply(self)
-    end
-
-    def apply
-      self.reset!
-      loop {
-        self.setup!
-        self.main!
-        self.teardown!
-        self.reset!
-      }
+    def foe
+      self.foes.first
     end
   end
 end

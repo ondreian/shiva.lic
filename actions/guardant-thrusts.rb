@@ -6,12 +6,12 @@ module Shiva
 
     def available?(foe)
       not foe.nil? and
-      @env.foes.size < 2 and
+      self.env.foes.size < 2 and
       not Effects::Cooldowns.active?("Guardant Thrusts") and
       Skills.polearmweapons > 150 and
       checkstamina > 50 and
       not hidden? and
-      @env.foes.size > 2 and
+      self.env.foes.size > 2 and
       rand > 0.6
     end
 

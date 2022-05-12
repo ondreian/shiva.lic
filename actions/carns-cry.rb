@@ -7,7 +7,7 @@ module Shiva
     def available?(foe)
       Char.prof.eql?("Warrior") and
       checkstamina > 50 and
-      @env.foes.size > 5 and
+      self.env.foes.size > 5 and
       not foe.nil? and
       foe.status.empty?
     end

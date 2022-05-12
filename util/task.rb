@@ -103,4 +103,17 @@ module Task
       fail "Bounty(#{Bounty.task.type}) / not implemented"
     end
   end
+
+  def self.can_complete?
+    case Bounty.type
+    when :report_to_guard, :heirloom_found, :succeeded
+      return true
+    when :gem
+      return Containers.lootsack.where(name: Bounty.gem).size > 0
+    when :skin
+      return Containers.lootsack.where(name: Bounty.skin.slice(0..-2)).size > 0
+    else
+      false
+    end
+  end
 end

@@ -6,14 +6,14 @@ module Shiva
 
     def available?(foe)
       Claim.mine? and
-      @env.foes.size > 1 and
+      self.env.foes.size > 1 and
       not foe.nil? and
       not foe.name.include?("Vvrael") and
       Spell[518].known? and
       Spell[518].affordable? and
       checkmana > 20 and
       Wounds.nsys < 2 and
-      @env.foes.reject {|f| f.name =~ /vvrael|crawler/i}.map(&:status).select(&:empty?).size > 1
+      self.env.foes.reject {|f| f.name =~ /vvrael|crawler/i}.map(&:status).select(&:empty?).size > 1
     end
 
     def apply(foe)

@@ -7,7 +7,7 @@ module Shiva
     def available?(foe)
       Vars["shiva/swap"] and
       self.needs_swap?(foe) and
-      @env.namespace.eql?(Sanctum)
+      self.env.name.eql?(:sanctum)
     end
 
     def needs_swap?(foe)

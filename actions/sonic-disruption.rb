@@ -14,18 +14,18 @@ module Shiva
     end
 
     def duskruin?
-      @env.namespace.eql?(Duskruin)
+      self.env.name.eql?(:duskruin)
     end
 
     def duskruin_check?
-      @env.foes.size > 1 and
+      self.env.foes.size > 1 and
       percentmana > 40 and
-      (@env.main.round > 9 or @env.main.round % 5 == 0)
+      (self.env.main.round > 9 or self.env.main.round % 5 == 0)
     end
 
     def normal_check?
       percentmana > 60 and
-      @env.foes.size >= HordeSize
+      self.env.foes.size >= HordeSize
     end
 
     def available?(foe)
@@ -55,7 +55,7 @@ module Shiva
 
     def apply(foe)
       fput "release" unless checkprep.eql?("None") or checkprep.eql?("Sonic Disruption")
-      if @env.foes.size >= HordeSize
+      if self.env.foes.size >= HordeSize
         if @renew_room == XMLData.room_id.eql?(@renew_room) && @last_cast_type.eql?(:aoe)
           self.renew
         else

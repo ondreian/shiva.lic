@@ -12,7 +12,7 @@ module Shiva
       Skills.edgedweapons > 150 and
       checkstamina > 50 and
       not hidden? and
-      @env.foes.size < 4
+      self.env.foes.size < 4
     end
 
     def flurry(foe)

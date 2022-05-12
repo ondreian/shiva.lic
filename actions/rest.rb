@@ -14,10 +14,6 @@ module Shiva
       3
     end
 
-    def allowed
-      [Shiva::Scatter, Shiva::Sanctum]
-    end
-
     def wounds
       Injuries.map {|m| Wounds.send(m)}
     end
@@ -46,18 +42,19 @@ module Shiva
       return :burrowed if Effects::Debuffs.active?("Burrowed")
       return :over_exerted if Effects::Debuffs.active?("Overexerted")
       return :full_containers if Char.left.type =~ /box/ and not Script.running?("give")
-      return :state if @env.state.eql?(:rest)
+      # return :state if self.env.state.eql?(:rest)
       return :encumbrance if percentencumbrance > 10
       return :wounded if self.wounded?
       return :health if self.bleeding?
-      return :bounty if Bounty.task.type.eql?(:report_to_guard) && percentmind.eql?(100)
-      return :uptime if @env.uptime > (20 * Minute) && percentmind.eql?(100)
+      return :bounty if Task.can_complete? && percentmind.eql?(100)
+      return :uptime if @controller.uptime > (20 * Minute) && percentmind.eql?(100)
       return :mana if self.out_of_mana?
       return false
     end
 
     def available?(foe)
       return false unless Group.leader?
+      return false unless @env.boundaries
       @reason = self.reason
       $shiva_rest_reason = @reason if @reason.is_a?(Symbol)
       @reason.is_a?(Symbol)
@@ -65,7 +62,7 @@ module Shiva
 
     def apply()
       Log.out(@reason, label: %i(rest reason))
-      loot = @env.action("LootArea")
+      loot = @controller.action(:lootarea)
       loot.apply if Claim.mine?
     end
   end

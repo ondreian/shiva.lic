@@ -12,7 +12,7 @@ module Shiva
     def available?(foe)
       return false if self.cube.nil?
       return false if Effects::Spells.active?("Martial Prowess")
-      return @env.foes.size == 0
+      return self.env.foes.size == 0
     end
 
     def apply()

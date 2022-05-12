@@ -1,7 +1,7 @@
 module Shiva
   class Cutthroat < Action
     Cutthroat = []
-    Nouns = %w(shaper master siphon)
+    Nouns     = %w(shaper master siphon)
 
     def priority
       61
@@ -13,7 +13,7 @@ module Shiva
 
     def available?(foe)
       Char.prof.eql?("Rogue") and
-      not @env.namespace.eql?(Duskruin) and
+      not self.env.name.eql?(:duskruin) and
       checkstamina > self.cost and
       hidden? and
       not Cutthroat.include?(foe.id) and

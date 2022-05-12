@@ -1,9 +1,5 @@
 module Shiva
   class Pray < Action
-    def allowed
-      [Duskruin]
-    end
-
     def initialize(env)
       @count = 0
       super(env)
@@ -27,6 +23,7 @@ module Shiva
     end
 
     def available?
+      self.env.name.eql?(:duskruin) and
       self.needs_resource? and
       @count < self.max_prayers
     end

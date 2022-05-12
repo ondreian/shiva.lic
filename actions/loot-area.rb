@@ -49,7 +49,7 @@ module Shiva
 
     def safe?
       return true if self.heirloom?
-      @env.foes.empty?
+      self.env.foes.empty?
     end
 
     def available?
@@ -76,7 +76,7 @@ module Shiva
     def fast_loot
       case dothistimeout "loot area", 3, Regexp.union(Ok, Err)
       when Err
-        @env.state = :rest
+        self.env.state = :rest
       when Ok
         :ok
       end

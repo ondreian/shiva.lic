@@ -5,15 +5,15 @@ module Shiva
     end
 
     def available?
-      not @env.foes.any? {|foe| @env.seen.include?(foe.id) } and
-      @env.foes.size > 2 and
+      not self.env.foes.any? {|foe| self.env.seen.include?(foe.id) } and
+      self.env.foes.size > 2 and
       Spell[1117].known? and
       Spell[1117].affordable?
     end
 
     def apply()
       fput "incant 1117"
-      @env.foes.each {|foe| @env.seen << foe.id}
+      self.env.foes.each {|foe| self.env.seen << foe.id}
       waitcastrt?
     end
   end

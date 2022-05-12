@@ -6,9 +6,9 @@ module Shiva
 
     def available?(foe)
       not foe.nil? and
-      not @env.seen.include?(foe.id) and
+      not self.env.seen.include?(foe.id) and
       not foe.status.empty? and
-      (@env.foes.size > 1 or %w(master).include?(foe.noun)) and
+      (self.env.foes.size > 1 or %w(master).include?(foe.noun)) and
       not foe.tall? and
       not %w(cerebralite).include?(foe.noun) and
       CMan.eviscerate > 3 and
@@ -21,7 +21,7 @@ module Shiva
       waitrt?
       Stance.offensive
       put "cman eviscerate #%s" % foe.id
-      @env.seen << foe.id
+      self.env.seen << foe.id
       Timer.await()
     end
 

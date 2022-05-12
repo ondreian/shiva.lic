@@ -17,7 +17,7 @@ module Shiva
       Spell[1005].known? and
       Spell[1005].affordable? and
       checkmana > 20 and
-      @env.foes.size < 2 and
+      self.env.foes.size < 2 and
       Wounds.nsys < 2
     end
 

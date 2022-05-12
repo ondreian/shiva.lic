@@ -10,8 +10,8 @@ module Shiva
       Spell[410].affordable? and
       not hidden? and
       percentmana > 10 and
-      @env.foes.size > 1 and
-      @env.foes.reject {|f| f.name =~ /vvrael|crawler|cerebralite/i}.map(&:status).select(&:empty?).size > 1 and
+      self.env.foes.size > 1 and
+      self.env.foes.reject {|f| f.name =~ /vvrael|crawler|cerebralite/i}.map(&:status).select(&:empty?).size > 1 and
       (@ttl and Time.now > @ttl)
     end
 

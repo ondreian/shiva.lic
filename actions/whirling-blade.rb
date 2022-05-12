@@ -9,7 +9,7 @@ module Shiva
       Skills.edgedweapons > 150 and
       checkstamina > 50 and
       not hidden? and
-      @env.foes.size > 2 and
+      self.env.foes.size > 2 and
       not foe.nil? and
       rand > 0.6
     end

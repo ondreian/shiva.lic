@@ -20,7 +20,7 @@ module Shiva
       Skills.thrownweapons > Char.level and
       Skills.polearmweapons > Char.level and
       self.holding_chainspear? and
-      @env.foes.size > 0
+      self.env.foes.size > 0
     end
 
     def retract_chainspear(n = 1)

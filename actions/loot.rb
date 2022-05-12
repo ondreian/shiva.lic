@@ -11,16 +11,16 @@ module Shiva
     end
 
     def should_unhide?
-      return false if @env.foes.any? {|f| %w(crawler siphon).include?(f.noun)} and hidden?
-      return false if @env.foes.any? {|f| f.name =~ /grizzled|ancient/} and hidden?
+      return false if self.env.foes.any? {|f| %w(crawler siphon).include?(f.noun)} and hidden?
+      return false if self.env.foes.any? {|f| f.name =~ /grizzled|ancient/} and hidden?
       return true unless hidden?
-      return true if hidden? and @env.foes.size < 5
+      return true if hidden? and self.env.foes.size < 5
       return false
     end
 
     def available?
       Claim.mine? and
-      not @env.namespace.eql?(Duskruin) and
+      not self.env.name.eql?(:duskruin) and
       not self.dead.empty? and
       self.should_unhide? and
       Wounds.head < 2 and

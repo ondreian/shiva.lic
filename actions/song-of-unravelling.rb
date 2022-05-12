@@ -11,12 +11,12 @@ module Shiva
     def available?(foe)
       not foe.nil? and
       not foe.dead? and
-      not @env.seen.include?(foe.id) and
+      not self.env.seen.include?(foe.id) and
       self.needs_dispel?(foe) and
       Spell[1013].known? and
       Spell[1013].affordable? and
       checkmana > 20 and
-      @env.foes.size < 2 and
+      self.env.foes.size < 2 and
       Wounds.nsys < 2 and
       Group.size.eql?(2)
     end
@@ -42,7 +42,7 @@ module Shiva
       Log.out(result, label: %(unravel))
       case result
       when Ok
-        @env.seen << foe.id
+        self.env.seen << foe.id
       when Err
         :err
       else
