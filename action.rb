@@ -25,5 +25,9 @@ module Shiva
     def env
       @controller.env
     end
+
+    def to_sym
+      self.class.name.split("::").last.downcase.to_sym
+    end
   end
 end

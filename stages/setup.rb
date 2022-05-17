@@ -21,6 +21,7 @@ module Shiva
       self.get_bounty!
       fail "you are encumbered" unless percentencumbrance.eql?(0)
       fail "you are injured"    if Char.total_wound_severity > 0
+      wait_while("wait/mana") { percentmana < 80 } unless %w(Rogue Warrior).include?(Char.prof)
       return Log.out("entry not defined for #{self.env.name}", %i(setup travel skip)) unless self.env.entry
       Script.run("go2", self.env.entry.to_s)
       fail "did not travel to #{Room[self.env.entry].title.first}" unless Room.current.id.eql?(self.env.entry)

@@ -54,7 +54,9 @@ module Shiva
     end
 
     def apply(foe)
+      sleep 0.3
       waitrt?
+      return if foe.dead? or foe.gone?
       Stance.defensive
       Char.unarm
       ttl = Time.now + 3
@@ -67,6 +69,7 @@ module Shiva
         self.wait_for_death(foe) if res =~ Outcomes::Ok
         waitrt?
       }
+      sleep 0.3
       10.times {
         break if Char.right.nil? && Char.left.nil?
         Containers.harness.add(*[Char.right, Char.left].compact)

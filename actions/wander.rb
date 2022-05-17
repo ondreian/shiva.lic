@@ -1,7 +1,9 @@
 module Shiva
   class Wander < Action
     def paths
-      Room.current.wayto.select {|id, wayto| self.env.rooms.include?(id)}.map(&:last)
+      Room.current.wayto.select {|id, wayto|
+        self.env.rooms.include?(id) and wayto.is_a?(String)
+      }.map(&:last)
     end
 
     def call_wayto(wayto)
@@ -14,6 +16,13 @@ module Shiva
 
     def priority
       GameObj.targets.map(&:noun).include?("monstrosity") ? 4 : 8
+    end
+
+    def recover_from_rifting()
+      return :ok if self.env.rooms.include?(Room.current.id.to_s)
+      Char.unhide if Char.hidden?
+      Log.out("recovering from being teleported...", label: %i(recover teleported))
+      return Script.run("go2", self.env.entry.to_s)
     end
 
     def antimagic?
@@ -31,40 +40,34 @@ module Shiva
       return false if Script.running?("mend")
       return false unless Group.leader? or Group.empty?
       return false if Group.members.map(&:status).flatten.compact.size > 0
-      return true if self.antimagic?
-      return true if GameObj.targets.any? {|foe| foe.noun.eql?("monstrosity")} and Group.empty?
-      #return true if Group.empty? and self.env.foes.size > 1 and self.env.is?(Shiva::Sanctum)
-      #return true if Skills.multiopponentcombat < 30 and self.env.foes.select {|f| f.status.empty? }.size > 1 and Group.empty?
-      return true if self.env.foes.size > self.max_foes
-      return true if GameObj.loot.to_a.map(&:name).include?("mass of undulating liquified rock")
-      return true if checkloot.include?('fissure')
-      return true if foe.nil?
-      return true unless Claim.mine?
-      return false if (Group.members.map(&:noun) - checkpcs.to_a).size > 0
+      return self.reason != false
+    end
+
+    def reason()
+      return :claim       unless Claim.mine?
+      return :monstrosity if GameObj.targets.any? {|f| f.noun.eql?("monstrosity")}
+      return :fissure     if checkloot.include?('fissure')
+      return :swarm       if self.env.foes.size > self.max_foes
+      return :magma       if GameObj.loot.to_a.map(&:name).include?("mass of undulating liquified rock")
+      return :antimagic   if self.antimagic?
+      return :empty       if self.env.foes.empty?
       return false
     end
 
-    def recover_from_rifting()
-      return if XMLData.room_title.eql?("[The Rift, Scatter]")
-      Char.unhide if Char.hidden?
-      Log.out("recovering from being rifted...", label: %i(recover rifted))
-      return Script.run("go2", "scatter")
-    end
-
-    def wander(reason: nil)
+    def wander(reason: nil, tries: 0)
+      return if reason == false
+      # give another action an opportunity to do something
+      return if tries > 3
+      self.recover_from_rifting
+      sleep 0.1
       Log.out("reason=%s uuid=%s" % [reason, XMLData.room_id], label: %i(wander reason)) unless reason.nil?
       Char.stand unless standing?
-      loot = @controller.action(:lootarea)
-      loot.apply if Claim.mine?
-      Log.out(self.paths.join(", "), label: %i(wander paths))
+      # Log.out(self.paths.join(", "), label: %i(wander paths))
       self.call_wayto self.paths.sample
       waitrt?
-      return self.wander(reason: :claim) unless Claim.mine?
-      return self.wander(reason: :fissure) if checkloot.include?('fissure')
-      return self.wander(reason: :swarm) if self.env.foes.size > self.max_foes
-      return self.wander(reason: :magma) if GameObj.loot.to_a.map(&:name).include?("mass of undulating liquified rock")
-      return self.wander(reason: :poach) if (checkpcs.to_a - Cluster.connected).size > 0
-      :mine
+      #r = self.reason
+      #return :mine if r == false
+      #return self.wander(reason: r, tries: tries + 1)
     end
 
     def apply()
@@ -77,11 +80,8 @@ module Shiva
         Log.out("wander -> bandits", label: %i(action))
         Stance.forward
         Bandits.crawl(self.env.area)
-      when :scatter
-        self.recover_from_rifting
-        self.wander
       else
-        self.wander
+        self.wander(reason: self.reason)
       end
     end
   end

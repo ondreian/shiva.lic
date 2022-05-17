@@ -11,7 +11,6 @@ module Shiva
       controller.reset_start_time!
 
       loop {
-        wait_until {Claim.mine? or checkpcs.nil?}
         action = Common::Act.call(self.controller, self.env.foe)
         Log.out(action, label: %i(previous action)) unless action.eql?(@previous_action)
         @previous_action = action

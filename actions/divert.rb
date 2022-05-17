@@ -14,7 +14,7 @@ module Shiva
 
     def divert(foe)
       waitrt?
-      loot = self.env.action("LootArea")
+      loot = self.controller.action(:lootarea)
       loot.apply if Claim.mine?
       Stance.offensive
       put "cman divert %s sneak" % foe.noun

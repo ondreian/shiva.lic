@@ -6,7 +6,7 @@ module Shiva
         Action.call(proposed_action, foe)
         sleep 0.1
         return proposed_action if proposed_action.is_a?(Symbol)
-        proposed_action.class.name.split("::").last.downcase.to_sym
+        proposed_action.to_sym
       end
     end
   end

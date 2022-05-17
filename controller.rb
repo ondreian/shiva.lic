@@ -22,7 +22,7 @@ module Shiva
 
     def start_scripts(scripts)
       scripts.each {|script| Script.start(script)}
-      before_dying {scripts.each {|script| Script.kill(script)}}
+      before_dying {scripts.each {|script| Script.kill(script) if Script.running?(script)}}
     end
 
     def reset!
@@ -38,7 +38,7 @@ module Shiva
 
     def best_action(foe)
       proposed_action = Shiva::Actions.best_action(@actions, foe)
-      Log.out(proposed_action.is_a?(Symbol) ? proposed_action : proposed_action.class.name, 
+      Log.out(proposed_action.is_a?(Symbol) ? proposed_action : proposed_action.to_sym, 
         label: %i(proposed action)) unless proposed_action == @last_action
       @last_action = proposed_action
     end
@@ -54,9 +54,9 @@ module Shiva
     def setup!
       @stage = :setup
       @setup.apply()
-      if @setup.respond_to?(:scripts)
-        Log.out("starting scripts: %s" % @setup.scripts.join(", "), label: %i(setup scripts))
-        self.start_scripts @setup.scripts
+      if @env.scripts.is_a?(Array)
+        Log.out("starting scripts: %s" % @env.scripts.join(", "), label: %i(setup scripts))
+        self.start_scripts @env.scripts
       end
     end
 

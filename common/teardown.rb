@@ -4,7 +4,7 @@ module Shiva
       def self.turn_in_bounty(town)
         return :not_allowed unless Group.empty?
         return :skip if %i(cull dangerous heirloom).include?(Bounty.type)
-        return :skip if Bounty.type.eql?(:gem) and Containers.lootsack.where(name: Bounty.gem).empty?
+        return :skip if %i(gem skin).include?(Bounty.type) and Task.sellables.empty?
         Task.advance(town)
       end
 
@@ -64,6 +64,16 @@ module Shiva
         Script.run("spa", "--floor --loot")
       end
 
+      def self.loop_bounty(town)
+        return unless Effects::Buffs.time_left("Major Loot Boost") < 3
+        loop {
+          wait_while("mind/saturated") { Mind.saturated? }
+          self.turn_in_bounty(town)
+          self.return_to_base
+          break unless Bounty.type.eql?(:succeeded)
+        }
+      end
+
       def self.cleanup(town)
         self.turn_in_bounty(town) if %i(report_to_guard skin heirloom_found).include? Bounty.type
         self.return_to_base
@@ -78,10 +88,13 @@ module Shiva
         wait_while("waiting on hands") {Char.left or Char.right} unless Char.left.type =~ /box/
         self.box_routine()
         Script.run("boxes", "loot") unless self.others?
+        
         if Bounty.type.eql?(:gem)
           self.turn_in_bounty(town)
           self.return_to_base
         end
+
+        self.loop_bounty(town)
         self.sell_loot()
         fput "boost exp" if Mind.saturated? and not Effects::Buffs.active?("Doubled Experience Boost") and Effects::Buffs.time_left("Major Loot Boost") < 3
         Script.run("waggle")

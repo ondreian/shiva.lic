@@ -42,7 +42,6 @@ module Shiva
       return :burrowed if Effects::Debuffs.active?("Burrowed")
       return :over_exerted if Effects::Debuffs.active?("Overexerted")
       return :full_containers if Char.left.type =~ /box/ and not Script.running?("give")
-      # return :state if self.env.state.eql?(:rest)
       return :encumbrance if percentencumbrance > 10
       return :wounded if self.wounded?
       return :health if self.bleeding?
@@ -54,7 +53,7 @@ module Shiva
 
     def available?(foe)
       return false unless Group.leader?
-      return false unless @env.boundaries
+      return false unless self.env.boundaries
       @reason = self.reason
       $shiva_rest_reason = @reason if @reason.is_a?(Symbol)
       @reason.is_a?(Symbol)
