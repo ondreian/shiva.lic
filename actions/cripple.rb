@@ -1,22 +1,25 @@
 module Shiva
   class Cripple < Action
-    Nouns = %w(destroyer master)
+    Immune = %w(crawler cerebralite)
     Seen  = []
 
     def priority
       (40..60).to_a.sample
     end
 
+    def cost
+      Effects::Buffs.active?("Stamina Second Wind") ? 0 : 7
+    end
+
     def available?(foe)
-      Nouns.include?(foe.noun) and
-      Char.prof.eql?("Rogue") and
+      not Immune.include?(foe.noun) and
+      Weapon.cripple > 3 and
       not Effects::Buffs.active?("Shadow Dance") and
       foe.status.empty? and
       Seen.count(foe.id) < 2 and
-      checkstamina > 20 and
+      checkstamina > (self.cost * 3) and
       not hidden? and
       foe.status.empty? and
-      not foe.tall? and
       rand > 0.2
     end
 

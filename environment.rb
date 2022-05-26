@@ -18,6 +18,7 @@ module Shiva
     attr_reader :name, :entry, :town,
                 :scripts, :foes, :boundaries,
                 :seen
+    attr_accessor :state
 
     def initialize(name)
       @name = name
@@ -59,14 +60,6 @@ module Shiva
 
     def dsl(&block)
       self.instance_eval(&block)
-    end
-
-    def define_before_teardown(&block)
-      self.class.send(:define_method, :before_teardown, &block)
-    end
-
-    def define_before_setup(&block)
-      self.class.send(:define_method, :before_setup, &block)
     end
 
     def foes

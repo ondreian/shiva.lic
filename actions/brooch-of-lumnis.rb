@@ -9,7 +9,7 @@ module Shiva
     end
 
     def priority
-      5
+      3
     end
 
     def day

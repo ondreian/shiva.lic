@@ -15,6 +15,7 @@ module Shiva
         Log.out(action, label: %i(previous action)) unless action.eql?(@previous_action)
         @previous_action = action
         break if @previous_action.eql?(:rest)
+        sleep 0.1
       }
     end
   end

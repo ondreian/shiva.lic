@@ -1,14 +1,20 @@
 module Shiva
   class Cutthroat < Action
     Cutthroat = []
-    Nouns     = %w(shaper master siphon)
+    Immune    = %w(crawler cerebralite golem hinterboar)
 
     def priority
       61
     end
 
     def cost
-      Effects::Buffs.active?("Shadow Dance") ? 0 : 20
+      return 0 if Effects::Buffs.active?("Shadow Dance")
+      return 0 if Effects::Buffs.active?("Stamina Second Wind")
+      return 20
+    end
+
+    def reachable?(foe)
+      not foe.tall? or foe.prone? or foe.status.include?(:frozen)
     end
 
     def available?(foe)
@@ -17,7 +23,8 @@ module Shiva
       checkstamina > self.cost and
       hidden? and
       not Cutthroat.include?(foe.id) and
-      Nouns.include?(foe.noun)
+      self.reachable?(foe) and
+      not Immune.include?(foe.noun)
     end
 
     def cutthroat(foe)

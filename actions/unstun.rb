@@ -1,7 +1,7 @@
 module Shiva
   class Unstun < Action
     def priority
-      10
+      4
     end
 
     def stunned_member

@@ -1,7 +1,8 @@
 module Shiva
   class Waylay < Action
+    Nouns = %w(monstrosity destroyer crusader golem)
     def priority(foe)
-      if foe.noun.eql?("monstrosity") or (foe.noun.eql?("destroyer") && self.dagger?)
+      if Nouns.include?(foe.noun) && self.dagger?
         89
       else
         100

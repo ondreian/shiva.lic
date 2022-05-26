@@ -16,6 +16,8 @@ module Shiva
     def apply(foe)
       waitcastrt?
       Spell[240].cast()
+      ttl = Time.now + 2
+      wait_until {Spell[240].active? or Time.now > ttl}
     end
   end
 end

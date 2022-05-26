@@ -1,0 +1,35 @@
+module Shiva
+  class ShieldBash < Action
+    Immune = %w(crawler cerebralite golem)
+
+    def priority
+      (5...9).to_a.sample
+    end
+
+    def cost
+      Effects::Buffs.active?("Stamina Second Wind") ? 0 : 9
+    end
+
+    def available?(foe)
+      Shield.bash > 2 and
+      checkstamina > (self.cost * 6) and
+      ((foe.tall? and foe.status.empty?) or (not hidden? and foe.status.empty? and percentstamina > 80)) and
+      not Immune.include?(foe.noun)
+    end
+
+    def shield_bash(foe)
+      Stance.offensive
+      dothistimeout "shield bash #%s" % foe.id, 1, Regexp.union(
+        %r`You lunge forward`,
+        %r`would be a rather awkward proposition`,
+        %r`wait`
+      )
+      sleep 0.5
+      Timer.await() if checkrt > 6
+    end
+
+    def apply(foe)
+      return self.shield_bash foe
+    end
+  end
+end

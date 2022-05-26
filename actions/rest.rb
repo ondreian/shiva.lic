@@ -11,7 +11,7 @@ module Shiva
     end
 
     def priority
-      3
+      4
     end
 
     def wounds
@@ -45,9 +45,11 @@ module Shiva
       return :encumbrance if percentencumbrance > 10
       return :wounded if self.wounded?
       return :health if self.bleeding?
-      return :bounty if Task.can_complete? && percentmind.eql?(100)
+      return :bounty if Task.can_complete? && percentmind.eql?(100) && Group.empty?
       return :uptime if @controller.uptime > (20 * Minute) && percentmind.eql?(100)
       return :mana if self.out_of_mana?
+      return :unknown if @env.state.eql?(:rest)
+      return :hypothermia if Hypothermia.status > 60
       return false
     end
 

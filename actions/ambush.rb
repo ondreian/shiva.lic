@@ -18,17 +18,26 @@ module Shiva
     end
 
     def prefer_waylay?(foe)
-      foe.noun.eql?("destroyer") and dagger?
+      %w(destroyer golem).include?(foe.noun) and dagger?
+    end
+
+    def in_reach?(foe)
+      return true if foe.tall? and (foe.status.include?(:frozen) or foe.status.include?(:prone))
+      return true if !foe.tall?
+      return false
+    end
+
+    def able?(foe)
+      hidden? and
+      not DENY.include?(foe.id) and
+      self.has_melee_skill? and
+      Skills.ambush > Char.level and
+      not foe.nil? and
+      self.in_reach?(foe)
     end
 
     def available?(foe)
-      self.prefer_waylay?(foe) or
-      (not DENY.include?(foe.id) and
-      hidden? and
-      self.has_melee_skill? and
-      Skills.ambush > 24 and
-      not foe.nil? and
-      not foe.tall?)
+      self.prefer_waylay?(foe) or self.able?(foe)
     end
 
     Outcomes = Regexp.union(

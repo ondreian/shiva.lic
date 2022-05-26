@@ -4,6 +4,6 @@ module Shiva
     @boundaries = %w(25177 25158 25231)
     @town       = %[Solhaven]
     @scripts    = %w(reaction lte effect-watcher)
-    @foes       = %w(shaper sidewinder sentinel fanatic lurk monstrosity)
+    @foes       = %w(shaper sidewinder sentinel fanatic lurk)
   end
 end

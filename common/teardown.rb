@@ -51,21 +51,22 @@ module Shiva
       end
       
       def self.box_routine()
-        Log.out("others=%s box=%s" % [self.others?, self.box?], label: %i(teardown)) # if self.others? and self.box?
+        return unless Room.current.id.eql? 18698
         Containers.lootsack.where(type: /box/).each { |box|
           box.take
           fput "drop #%s" % box.id
           wait_until("waiting on box drop") {GameObj.loot.map(&:id).include?(box.id)}
         }
+        wait_while("waiting on another pc") {GameObj.pcs.to_a.empty?}
         return if Skills.pickinglocks < Char.level * 2 # no lockpicking skill
         box_count = GameObj.loot.to_a.select {|i| i.type.include?("box")}.size
         return if box_count.eql?(0)
-        return self.message("Greys", box_count) if Mind.saturated? or Effects::Buffs.time_left("Major Loot Boost") > 3
+        return self.message("Greys", box_count) if Mind.saturated? or Boost.loot?
         Script.run("spa", "--floor --loot")
       end
 
       def self.loop_bounty(town)
-        return unless Effects::Buffs.time_left("Major Loot Boost") < 3
+        return if Boost.loot?
         loop {
           wait_while("mind/saturated") { Mind.saturated? }
           self.turn_in_bounty(town)
@@ -89,17 +90,17 @@ module Shiva
         self.box_routine()
         Script.run("boxes", "loot") unless self.others?
         
-        if Bounty.type.eql?(:gem)
+        if Bounty.type.eql?(:gem) and Task.sellables.size > 0
           self.turn_in_bounty(town)
           self.return_to_base
         end
 
         self.loop_bounty(town)
         self.sell_loot()
-        fput "boost exp" if Mind.saturated? and not Effects::Buffs.active?("Doubled Experience Boost") and Effects::Buffs.time_left("Major Loot Boost") < 3
+        fput "boost exp" if Mind.saturated? and not Effects::Buffs.active?("Doubled Experience Boost") and Boost.loot?
         Script.run("waggle")
-        exit if $shiva_graceful_exit.eql?(true) or not Group.empty?
-        wait_while("waiting on mind") {percentmind > 80} unless Effects::Buffs.time_left("Major Loot Boost") > 3
+        exit if $shiva_graceful_exit.eql?(true) or not Group.empty? or not Opts["daemon"]
+        wait_while("waiting on mind") {percentmind > 80} unless Boost.loot?
       end
     end
   end

@@ -11,13 +11,14 @@ module Task
 
   def self.cycle(town)
     Bounty.remove
-    return unless self.expedites?
+    return if not self.expedites? or Mind.saturated?
     self.log()
     dothistimeout("ask #%s for exp" % Bounty.npc.id, 4, %r[I'll expedite your task reassignment.])
     @last_expedite_expiry = Time.now + (15 * 60)
   end
 
   def self.room(town, tag)
+    Log.out("{town=%s, tag=%s}" % [town, tag], label: %i(town tag))
     World.tag_for_town(town, tag) or fail "could not find #{tag} for : #{town}"
     #World.by_town(tag).find {|k, v| k.include?(town)}.last or fail "could not find #{tag} for : #{town}"
   end
@@ -40,12 +41,13 @@ module Task
 
   def self.advance(town)
     guild = self.room(town, "advguild")
+    guild.id.go2
     self.log()
     sleep 0.2
     case Bounty.type
     when :none
       return :cooldown if Effects::Cooldowns.active?("Next Bounty") and not self.expedites?
-      guild.id.go2
+      return :saturated if Mind.saturated? and Effects::Cooldowns.active?("Next Bounty")
       self.cycle(town) if Effects::Cooldowns.active?("Next Bounty") and self.expedites?
       Bounty.ask_for_bounty
       self.advance(town)
@@ -61,7 +63,7 @@ module Task
       return :waiting if Time.now < @last_expedite_expiry
       self.advance(town)
     when :gem
-      return self.sell_by_tag(town, "gemshop", Bounty.task.gem) if Bounty.task.gem !~ /urglaes/
+      return self.sell_by_tag(town, "gemshop", Bounty.task.gem) if Bounty.task.gem !~ /urglaes|aster opal|doomstone/
       self.cycle(town)
       return self.advance(town)  
     when :get_skin_bounty

@@ -3,18 +3,17 @@ module Shiva
     Immune = %w(crawler cerebralite)
 
     def priority
-      (40..60).to_a.sample
+      6
     end
 
     def cost
-      8
+      Effects::Buffs.active?("Stamina Second Wind") ? 0 : 8
     end
 
     def available?(foe)
-      Char.prof.eql?("Rogue") and
-      checkstamina > self.cost and
-      not hidden? and
-      foe.status.empty? and
+      CMan.sweep > 2 and
+      checkstamina > (self.cost * 3) and
+      ((foe.tall? and foe.status.empty?) or (not hidden? and foe.status.empty?)) and
       not Immune.include?(foe.noun)
     end
 

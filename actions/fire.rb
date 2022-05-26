@@ -15,10 +15,11 @@ module Shiva
 
     def available?(foe)
       not foe.nil? and
-      Skills.rangedweapons > Char.level * 1.5
+      Skills.rangedweapons > Char.level * 1.5 and
+      self.holding_bow?
     end
 
-    def hurl(foe)
+    def shoot(foe)
       Timer.await()
       Stance.offensive
       foe.fire()
@@ -27,7 +28,7 @@ module Shiva
 
     def apply(foe)
       Log.out("{foe=%s, level=%s}" % [foe.name, foe.level], label: %i(foe))
-      return self.hurl foe
+      return self.shoot foe
     end
   end
 end

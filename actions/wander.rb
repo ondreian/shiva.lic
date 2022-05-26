@@ -15,7 +15,7 @@ module Shiva
     end
 
     def priority
-      GameObj.targets.map(&:noun).include?("monstrosity") ? 4 : 8
+      GameObj.targets.map(&:noun).include?("monstrosity") ? 2 : 8
     end
 
     def recover_from_rifting()
@@ -31,16 +31,23 @@ module Shiva
     end
 
     def max_foes
+      return 3 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Hinterwilds")
       return 5 if Skills.multiopponentcombat > 100
       return Group.size + 1
     end
 
     def available?(foe)
+      return false if Opts["manual"]
       return false unless self.env.boundaries.is_a?(Array) and not self.env.boundaries.empty?
       return false if Script.running?("mend")
       return false unless Group.leader? or Group.empty?
       return false if Group.members.map(&:status).flatten.compact.size > 0
+      return false if Char.total_wound_severity > 0 and Char.prof.eql?("Empath") and GameObj.targets.empty?
       return self.reason != false
+    end
+
+    def room_objs
+      GameObj.loot.to_a.map(&:name)
     end
 
     def reason()
@@ -48,18 +55,17 @@ module Shiva
       return :monstrosity if GameObj.targets.any? {|f| f.noun.eql?("monstrosity")}
       return :fissure     if checkloot.include?('fissure')
       return :swarm       if self.env.foes.size > self.max_foes
-      return :magma       if GameObj.loot.to_a.map(&:name).include?("mass of undulating liquified rock")
+      return :magma       if self.room_objs.include?("mass of undulating liquified rock")
+      return :cyclone     if self.room_objs.include?("frigid cyclone")
       return :antimagic   if self.antimagic?
       return :empty       if self.env.foes.empty?
       return false
     end
 
-    def wander(reason: nil, tries: 0)
+    def wander(reason: nil)
       return if reason == false
-      # give another action an opportunity to do something
-      return if tries > 3
       self.recover_from_rifting
-      sleep 0.1
+      #sleep 0.1
       Log.out("reason=%s uuid=%s" % [reason, XMLData.room_id], label: %i(wander reason)) unless reason.nil?
       Char.stand unless standing?
       # Log.out(self.paths.join(", "), label: %i(wander paths))
@@ -70,9 +76,16 @@ module Shiva
       #return self.wander(reason: r, tries: tries + 1)
     end
 
-    def apply()
+    def pre_move_hook()
+      return unless Claim.mine?
+      search = @controller.action(:loot)
+      search.apply
       loot = @controller.action(:lootarea)
-      loot.apply if Claim.mine?
+      loot.apply
+    end
+
+    def apply()
+      self.pre_move_hook
       waitcastrt?
       waitrt?
       case self.env.name.downcase.to_sym

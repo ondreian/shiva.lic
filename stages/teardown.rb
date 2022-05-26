@@ -10,7 +10,6 @@ module Shiva
     def apply()
       self.env.before_teardown if self.env.respond_to?(:before_teardown)
       Common::Teardown.cleanup(self.env.town) if self.env.town
-      exit if Opts["once"]
     end
   end
 end

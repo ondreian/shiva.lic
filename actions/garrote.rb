@@ -63,7 +63,8 @@ module Shiva
       wait_until {Char.right.nil? && Char.left.nil? or Time.now > ttl}
       return Char.arm if foe.dead? or foe.gone?
       self.garrote.use {
-        Char.hide
+        3.times {fput "hide"; break if hidden?}
+        next unless hidden?
         Stance.offensive
         res = dothistimeout("cman garrote #%s" % foe.id, 1, Outcomes::All)
         self.wait_for_death(foe) if res =~ Outcomes::Ok

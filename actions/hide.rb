@@ -21,9 +21,9 @@ module Shiva
 
     def env?
       return false if Group.leader? and not Group.empty?
-      return false if self.env.name.eql?("Bandits") and not Group.empty?
-      return false if self.env.name.eql?("Osa")
-      return self.env.foes.size > 0 if self.env.name.eql?("Bandits")
+      return false if self.env.name.eql?(:bandits) and not Group.empty?
+      return false if self.env.name.eql?(:osa)
+      return self.env.foes.size > 0 if self.env.name.eql?(:bandits)
       return true
     end
 
@@ -32,6 +32,7 @@ module Shiva
       not Effects::Debuffs.active?("Jaws") and
       not self.env.foes.any? {|foe| Perceptive.count(foe.id) > 2} and
       not hidden? and
+      not invisible? and
       not Opts["open"] and
       self.env? and
       not Wounds.head > 1 and

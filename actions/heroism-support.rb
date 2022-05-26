@@ -1,7 +1,7 @@
 module Shiva
   class HeroismSupport < Action
     def priority
-      8
+      7
     end
 
     def ttl
@@ -19,7 +19,8 @@ module Shiva
 
     def apply(foe)
       waitcastrt?
-      fput "incant 215"
+      waitrt?
+      Spell[215].cast
       @ttl = Time.now + 120
     end
   end

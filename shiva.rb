@@ -18,6 +18,7 @@ module Shiva
   end
 
   def self.reload_actions(verbose: false)
+    Shiva::Trash.reload
     Dir[File.join(self.root, "actions", "**", "*.rb")]
       .each {|asset|
         load(asset)
@@ -25,9 +26,10 @@ module Shiva
       }
   end
 
-  def self.run_in_env(env_name)
+  def self.run_with_env(env_name)
     Shiva.load_all_modules
-    controller = Shiva::Controller.new(env_name)
+    controller = Shiva::Controller.new()
+    controller.set_env(env_name)
     $shiva = controller
     controller.run()
   end
@@ -49,7 +51,7 @@ module Shiva
     if Opts["simulate"]
       Shiva.simulate
     elsif Opts["env"]
-      Shiva.run_in_env Opts["env"]
+      Shiva.run_with_env Opts["env"]
     elsif Opts["load"]
       Shiva.load_all_modules
     else

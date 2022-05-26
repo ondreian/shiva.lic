@@ -4,12 +4,14 @@ module Shiva
                 :setup, :main, :teardown,
                 :last_action, :seen, :start_time
 
-    def initialize(name)
+    def initialize()
       $shiva_graceful_exit = false
-      @name       = name.capitalize
-      @env        = Shiva::Environment.find(name) or fail "could not find environment : #{name}"
       @stage      = :unknown
       @start_time = Time.now
+    end
+
+    def set_env(name)
+      @env = Shiva::Environment.find(name) or fail "could not find environment : #{name}"
     end
 
     def reset_start_time!
@@ -23,6 +25,12 @@ module Shiva
     def start_scripts(scripts)
       scripts.each {|script| Script.start(script)}
       before_dying {scripts.each {|script| Script.kill(script) if Script.running?(script)}}
+    end
+
+    def stop_scripts(scripts)
+      scripts.each {|script| 
+        Script.kill(script) if Script.running?(script)
+      }
     end
 
     def reset!
@@ -67,16 +75,22 @@ module Shiva
 
     def teardown!
       @stage = :teardown
+      if @env.scripts.is_a?(Array)
+        Log.out("stopping scripts: %s" % @env.scripts.join(", "), label: %i(setup scripts))
+        self.stop_scripts @env.scripts
+      end
       @teardown.apply()
     end
 
     def run
+      fail "no environment attached" if @env.nil?
       self.reset!
       loop {
         self.setup!
         self.main!
         self.teardown!
         self.reset!
+        exit unless Opts["daemon"]
       }
     end
   end
