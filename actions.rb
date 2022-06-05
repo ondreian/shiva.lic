@@ -23,15 +23,11 @@ module Shiva
         .first or :noop
     end
 
-    def self.create_for_env(env)
-      Known
-        .map {|action|
-          Log.out(action.name, label: %i(action loaded)) if Opts["debug"]
-          action.new(env)
-        }
-        .reject {|action|
-          action.respond_to?(:allowed) and not action.allowed.include?(env.namespace)
-        }
+    def self.create(controller)
+      Known.map {|action|
+        Log.out(action.name, label: %i(action loaded)) if Opts["debug"]
+        action.new(controller)
+      }
     end
   end
 end

@@ -18,7 +18,7 @@ module Shiva
       GameObj.targets.to_a
         .reject do |candidate| candidate.name =~ /animated|arm$/ end
         .map  do |obj| Creature.new(obj) end
-        .reject do |foe| foe.level < (Char.level - 10) end
+        #.reject do |foe| foe.level < (Char.level - 10) end
         .map  do |creature| Foes.add_tags(creature) end
         .sort_by(&:level)
         .each do |creature| yield(creature) if GameObj[creature.id] end
@@ -89,4 +89,4 @@ module Shiva
       return true
     end
   end
-end 
+end

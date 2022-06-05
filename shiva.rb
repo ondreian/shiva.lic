@@ -10,14 +10,15 @@ module Shiva
   end
 
   def self.load_all_modules
-    Dir[File.join(self.root, "**", "*.rb")].sort.reverse
+    Dir[File.join(self.root, "**", "*.rb")].sort {|f| -f.size}.reverse
       .each {|asset|
         load(asset)
-        # Log.out "loaded %s" % asset, label: %i(load)
+        Log.out "loaded %s" % asset, label: %i(load)
       }
   end
 
   def self.reload_actions(verbose: false)
+    Shiva::Trash.reload
     Dir[File.join(self.root, "actions", "**", "*.rb")]
       .each {|asset|
         load(asset)
@@ -25,23 +26,24 @@ module Shiva
       }
   end
 
-  def self.run_in_env(env_name)
+  def self.run_with_env(env_name)
     Shiva.load_all_modules
-    env = Shiva::Environment.new(env_name)
-    $shiva = env
-    env.apply()
+    controller = Shiva::Controller.new()
+    controller.set_env(env_name)
+    $shiva = controller
+    controller.run()
   end
 
   def self.simulate
     Shiva.load_all_modules
-    env = Shiva::Environment.new Opts["env"]
+    controller = Shiva::Controller.new Opts["env"]
     loop do
       sleep 0.1
-      action = env.best_action
+      action = controller.best_action
       next if action.eql?(:noop)
       Log.out("would have used -> %s" % action.class.name, 
         label: %i(simulate))
-      wait_while {env.best_action.eql?(action)}
+      wait_while {controller.best_action.eql?(action)}
     end
   end
 
@@ -49,9 +51,12 @@ module Shiva
     if Opts["simulate"]
       Shiva.simulate
     elsif Opts["env"]
-      Shiva.run_in_env Opts["env"]
+      Shiva.run_with_env Opts["env"]
     elsif Opts["load"]
       Shiva.load_all_modules
+    elsif Opts["sell"]
+      Shiva.load_all_modules
+      Shiva::Teardown.new(OpenStruct.new({env: nil})).sell_loot
     else
       _respond <<~HELP
         <b>;shiva:</b>
