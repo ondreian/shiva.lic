@@ -1,7 +1,7 @@
 module Shiva
   class SigilOfPower < Action
     def priority
-      2
+      Priority.get(:medium)
     end
 
     def available?

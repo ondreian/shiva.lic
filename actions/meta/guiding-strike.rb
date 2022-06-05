@@ -1,7 +1,7 @@
 module Shiva
   class GuidingStrike < Action
     def priority
-      5
+      Priority.get(:medium)
     end
 
     def should?(foe)

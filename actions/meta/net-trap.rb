@@ -1,7 +1,7 @@
 module Shiva
   class NetTrap < Action
     def priority
-      4
+      Priority.get(:high)
     end
 
     def available?

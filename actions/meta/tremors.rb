@@ -1,7 +1,7 @@
 module Shiva
   class Tremors < Action
     def priority
-      10
+      Priority.get(:medium)
     end
 
     def available?(foe)

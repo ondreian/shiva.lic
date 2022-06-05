@@ -1,13 +1,13 @@
 module Shiva
   class SymbolOfMana < Action
     def priority
-      1_000
+      Priority.get(10_000)
     end
 
     def available?
       Society.status.eql?("Order of Voln") and
       (Char.max_mana - checkmana) >= 100 and
-      Society.rank > 10 and
+      Society.rank > 20 and
       not Effects::Cooldowns.active?("Symbol of Mana")
     end
 

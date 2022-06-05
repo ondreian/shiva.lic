@@ -15,7 +15,7 @@ module Shiva
     end
 
     def priority
-      GameObj.targets.map(&:noun).include?("monstrosity") ? 2 : 8
+      GameObj.targets.map(&:noun).include?("monstrosity") ? Priority.get(:high) : Priority.get(:medium)
     end
 
     def recover_from_rifting()
@@ -42,7 +42,8 @@ module Shiva
       return false if Script.running?("mend")
       return false unless Group.leader? or Group.empty?
       return false if Group.members.map(&:status).flatten.compact.size > 0
-      return false if Char.total_wound_severity > 0 and Char.prof.eql?("Empath") and GameObj.targets.empty?
+      return false if Injuries.wounds.any? {|w| w > 0} and Char.prof.eql?("Empath") and GameObj.targets.empty?
+      return false if Injuries.scars.any? {|s| s > 0} and Char.prof.eql?("Empath") and GameObj.targets.empty?
       return self.reason != false
     end
 

@@ -1,5 +1,7 @@
 module Shiva
   class Eviscerate < Action
+    Immune = %w(cerebralite)
+
     def priority(foe)
       50
     end
@@ -8,9 +10,9 @@ module Shiva
       not foe.nil? and
       not self.env.seen.include?(foe.id) and
       not foe.status.empty? and
-      (self.env.foes.size > 1 or %w(master).include?(foe.noun)) and
+      self.env.foes.size > 1 and
       not foe.tall? and
-      not %w(cerebralite).include?(foe.noun) and
+      not Immune.include?(foe.noun) and
       CMan.eviscerate > 3 and
       checkstamina > 40 and
       hidden? and

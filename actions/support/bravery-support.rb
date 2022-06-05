@@ -14,7 +14,8 @@ module Shiva
       self.ttl < Time.now.to_i and
       Spell[211].known? and
       Spell[211].affordable?  and
-      Group.size > 0
+      Group.size > 0 and
+      Vars["support/bravery"]
     end
 
     def apply(foe)

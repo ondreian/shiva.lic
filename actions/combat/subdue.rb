@@ -26,6 +26,7 @@ module Shiva
 
     def subdue(foe)
       #Log.out(foe, label: %i(subdue))
+      return unless hidden?
       Stance.offensive
       _result = dothistimeout "subdue #%s" % foe.id, 1, Regexp.union(
         %r[You spring from hiding],

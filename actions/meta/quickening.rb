@@ -41,7 +41,7 @@ module Shiva
     end
 
     def priority
-      1
+      Priority.get(:high)
     end
 
     def available?

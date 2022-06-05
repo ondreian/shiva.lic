@@ -1,21 +1,13 @@
 module Shiva
   class Rest < Action
     Minute = 60
-
-    Injuries = Wounds.singleton_methods
-      .map(&:to_s)
-      .select do |m| m.downcase == m && m !~ /_/ end.map(&:to_sym)
     
     def initialize(*args)
       super(*args)
     end
 
     def priority
-      4
-    end
-
-    def wounds
-      Injuries.map {|m| Wounds.send(m)}
+      -1
     end
 
     def out_of_mana?
@@ -26,7 +18,7 @@ module Shiva
     end
 
     def wounded?
-      return self.wounds.any? {|w| w > 1} if Group.empty?
+      return Injuries.wounds.any? {|w| w > 1} if Group.empty?
       return false if Char.prof.eql?("Empath")
       Team.has_healer?
     end
@@ -45,7 +37,7 @@ module Shiva
       return :encumbrance if percentencumbrance > 10
       return :wounded if self.wounded?
       return :health if self.bleeding?
-      return :bounty if Task.can_complete? && percentmind.eql?(100) && Group.empty?
+      return :bounty if Task.can_complete? && percentmind.eql?(100) && Group.empty? && !Boost.loot?
       return :uptime if @controller.uptime > (20 * Minute) && percentmind.eql?(100)
       return :mana if self.out_of_mana?
       return :unknown if @env.state.eql?(:rest)
@@ -63,8 +55,11 @@ module Shiva
 
     def apply()
       Log.out(@reason, label: %i(rest reason))
-      loot = @controller.action(:lootarea)
-      loot.apply if Claim.mine?
+      return unless Claim.mine?
+      search_dead_creatures = @controller.action(:loot)
+      search_dead_creatures.apply if search_dead_creatures.available?
+      loot_area = @controller.action(:lootarea)
+      loot_area.apply 
     end
   end
 end

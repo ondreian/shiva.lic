@@ -9,7 +9,7 @@ module Shiva
     end
 
     def priority
-      self.heirloom? ? 1 : 3
+      self.heirloom? ? Priority.get(:high) : Priority.get(:medium)
     end
 
     def unseen()

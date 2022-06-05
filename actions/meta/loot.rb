@@ -3,7 +3,7 @@ module Shiva
     Skinnable = %w(cerebralite lich sidewinder crawler warg mastodon hinterboar)
 
     def priority
-      2
+      Priority.get(:high)
     end
 
     def dead

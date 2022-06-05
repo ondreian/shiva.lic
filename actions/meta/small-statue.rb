@@ -1,7 +1,7 @@
 module Shiva
   class SmallStatue < Action
     def priority
-      5
+      Priority.get(:high)
     end
 
     def statue

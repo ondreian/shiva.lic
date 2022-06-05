@@ -63,7 +63,7 @@ module Task
       return :waiting if Time.now < @last_expedite_expiry
       self.advance(town)
     when :gem
-      return self.sell_by_tag(town, "gemshop", Bounty.task.gem) if Bounty.task.gem !~ /urglaes|aster opal|doomstone/
+      return self.sell_by_tag(town, "gemshop", Bounty.task.gem) if Bounty.task.gem !~ /chalky yellow cube|urglaes|aster opal|doomstone|shadowglass orb|wyrdshard/
       self.cycle(town)
       return self.advance(town)  
     when :get_skin_bounty

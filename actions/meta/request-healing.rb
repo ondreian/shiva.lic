@@ -1,7 +1,7 @@
 module Shiva
   class RequestHealing < Action
     def priority
-      1
+      Priority.get(:high)
     end
 
     def available?

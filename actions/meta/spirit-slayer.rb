@@ -1,7 +1,7 @@
 module Shiva
   class SpiritSlayer < Action
     def priority
-      7
+      Priority.get(:medium)
     end
 
     def available?(foe)

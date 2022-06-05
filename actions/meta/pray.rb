@@ -6,7 +6,7 @@ module Shiva
     end
 
     def priority
-      3
+      Priority.get(:high)
     end
 
     def prayed

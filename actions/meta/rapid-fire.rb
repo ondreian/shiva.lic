@@ -1,7 +1,7 @@
 module Shiva
   class RapidFire < Action
     def priority
-      5
+      Priority.get(:medium)
     end
 
     def available?

@@ -54,6 +54,9 @@ module Shiva
       Shiva.run_with_env Opts["env"]
     elsif Opts["load"]
       Shiva.load_all_modules
+    elsif Opts["sell"]
+      Shiva.load_all_modules
+      Shiva::Teardown.new(OpenStruct.new({env: nil})).sell_loot
     else
       _respond <<~HELP
         <b>;shiva:</b>

@@ -42,6 +42,7 @@ module Shiva
 
     Outcomes = Regexp.union(
       /^You (swing|thrust|throw)/,
+      /^You take aim/,
       /You cannot aim/,
       %r[is already dead],
       %r[What were you referring to],

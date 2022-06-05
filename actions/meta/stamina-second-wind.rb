@@ -3,7 +3,7 @@ module Shiva
     Name = "Stamina Second Wind"
 
     def priority
-      5
+      Priority.get(:medium)
     end
 
     def available?()
