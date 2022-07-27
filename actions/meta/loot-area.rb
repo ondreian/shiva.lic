@@ -1,4 +1,5 @@
 module Shiva
+  # You note some treasure of interest and manage to pick up an engraved thanot chest but quickly realize you have no space in which to stow it.
   class LootArea < Action
     Dangerous = /doomstone|urglaes/
 
@@ -9,7 +10,7 @@ module Shiva
     end
 
     def priority
-      self.heirloom? ? Priority.get(:high) : Priority.get(:medium)
+      Priority.get(:high) - 1
     end
 
     def unseen()
@@ -38,7 +39,9 @@ module Shiva
         item.noun.eql?("bandana") or
         item.type.include?("food") or
         item.type.include?("herb") or
+        item.noun.eql?("kitten") or
         item.name.eql?("a razern spear head") or
+        item.noun.eql?("puppy") or
         self.cursed?(item)
       }
     end

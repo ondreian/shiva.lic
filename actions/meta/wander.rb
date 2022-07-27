@@ -33,6 +33,7 @@ module Shiva
     def max_foes
       return 3 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Hinterwilds")
       return 5 if Skills.multiopponentcombat > 100
+      return 3 if Skills.multiopponentcombat > 50
       return Group.size + 1
     end
 
@@ -85,10 +86,18 @@ module Shiva
       loot.apply
     end
 
+    Stances = ["Duck and Weave"]
+
+    def stance!
+      return if Stances.any? {|stance| Effects::Spells.active?(stance)}
+      Stance.defensive()
+    end
+
     def apply()
       self.pre_move_hook
       waitcastrt?
       waitrt?
+      self.stance!
       case self.env.name.downcase.to_sym
       when :bandits
         Log.out("wander -> bandits", label: %i(action))

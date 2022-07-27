@@ -56,6 +56,7 @@ module Shiva
       Shiva.load_all_modules
     elsif Opts["sell"]
       Shiva.load_all_modules
+      Task.advance($shiva.env.town) if $shiva and %i(gem skin).include?(Bounty.type) and not Task.sellables.empty?
       Shiva::Teardown.new(OpenStruct.new({env: nil})).sell_loot
     else
       _respond <<~HELP

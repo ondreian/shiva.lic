@@ -1,7 +1,7 @@
 module Shiva
-  class HeroismSupport < Action
+  class SpellShieldSupport < Action
     def priority
-      7
+      10_000
     end
 
     def ttl
@@ -11,8 +11,8 @@ module Shiva
     def available?(foe)
       foe.nil? and
       self.ttl < Time.now.to_i and
-      Spell[215].known? and
-      Spell[215].affordable? and
+      Spell[219].known? and
+      Spell[219].affordable? and
       Group.size > 0 and
       not checkpcs.include?("Pixelia")
     end
@@ -20,8 +20,8 @@ module Shiva
     def apply(foe)
       waitcastrt?
       waitrt?
-      Spell[215].cast
-      @ttl = Time.now + 120
+      Spell[219].cast
+      @ttl = Time.now + 60
     end
   end
 end

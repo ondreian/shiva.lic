@@ -14,6 +14,7 @@ module Shiva
       fput "release" unless checkprep.eql?("None") or checkprep.eql?("Song of Tonis")
       wait_until {checkprep.eql?("None") or checkprep.eql?("Song of Tonis")}
       fput "incant 1035"
+      waitcastrt?
     end
   end
 end
