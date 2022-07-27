@@ -73,8 +73,8 @@ module Shiva
       return if Skills.pickinglocks < Char.level * 2 # no lockpicking skill
       box_count = GameObj.loot.to_a.select {|i| i.type.include?("box")}.size
       return if box_count.eql?(0)
-      return self.message("Greys", box_count) if Mind.saturated? or Boost.loot?
-      Script.run("spa", "--floor --loot")
+      return self.message("Greys", box_count) if Mind.saturated? or Boost.loot? or GameObj.pcs.to_a.map(&:noun).include?("Greys")
+      Script.run("spa", "--floor --loot") if Opts.spa
     end
 
     def loop_bounty(town)
@@ -96,11 +96,11 @@ module Shiva
       }
       fail "could not return to base" unless Room.current.id.eql?(self.base)
       Team.request_healing if Char.total_wound_severity > 0 or percenthealth < 100
-      wait_while("waiting on healing") {Char.total_wound_severity > 0}
+      wait_while("waiting on healing") {Char.total_wound_severity > 2}
       Char.unarm
       wait_while("waiting on hands") {Char.left or Char.right} unless Char.left.type =~ /box/
       self.box_routine()
-      Script.run("boxes", "loot") unless self.others?
+      Script.run("boxes", "loot-mine") unless self.others?
       
       if Bounty.type.eql?(:gem) and Task.sellables.size > 0
         self.turn_in_bounty(town)

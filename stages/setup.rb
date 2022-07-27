@@ -42,7 +42,7 @@ module Shiva
       return if @env.rooms.include?(Room.current.id.to_s)
       self.get_bounty!
       fail "you are encumbered" unless percentencumbrance.eql?(0)
-      fail "you are injured"    if Char.total_wound_severity > 0
+      fail "you are injured"    if Char.total_wound_severity > 0 and not Opts.force
       wait_while("wait/mana") { percentmana < 80 } unless %w(Rogue Warrior).include?(Char.prof)
       fail "entry not defined for #{self.env.name}" unless self.env.entry
       self.env.before_main if self.env.respond_to?(:before_main)

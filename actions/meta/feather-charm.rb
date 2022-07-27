@@ -1,7 +1,7 @@
 module Shiva
   class FeatherCharm < Action
     def priority
-      Priority.get(:high)
+      Priority.get(:high) - 10
     end
 
     def charm

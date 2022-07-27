@@ -63,7 +63,7 @@ module Task
       return :waiting if Time.now < @last_expedite_expiry
       self.advance(town)
     when :gem
-      return self.sell_by_tag(town, "gemshop", Bounty.task.gem) if Bounty.task.gem !~ /chalky yellow cube|urglaes|aster opal|doomstone|shadowglass orb|wyrdshard/
+      return self.sell_by_tag(town, "gemshop", Bounty.task.gem) if Bounty.task.gem !~ /faceted black diamond|chalky yellow cube|urglaes|aster opal|doomstone|shadowglass orb|wyrdshard/
       self.cycle(town)
       return self.advance(town)  
     when :get_skin_bounty
@@ -114,7 +114,7 @@ module Task
     when :gem
       return Containers.lootsack.select {|i| i.name.end_with?(Bounty.gem) }
     when :skin
-      return Containers.lootsack.where(name: Bounty.skin.slice(0..-2))
+      return Containers.lootsack.select {|i| i.name.start_with? Bounty.skin.slice(0..-2) }
     else
       fail "invalid Task.sellable/0 usage"
     end

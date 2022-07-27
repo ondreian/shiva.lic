@@ -1,7 +1,7 @@
 module Shiva
   class RequestHealing < Action
     def priority
-      Priority.get(:high)
+      Priority.get(:high) - 1
     end
 
     def available?
@@ -10,7 +10,10 @@ module Shiva
     end
 
     def apply()
+      ttl = Time.now + 3
       Team.request_healing
+      wait_while("waiting on blood...") {percenthealth < 100 && Time.now < ttl} unless Effects::Debuffs.active?("Condemn")
+      wait_while("waiting on cutthroat") {cutthroat? && Time.now < ttl} if cutthroat?
     end
   end
 end

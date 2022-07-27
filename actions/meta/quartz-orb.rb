@@ -1,4 +1,4 @@
-# Martial Prowess
+# Mystic Focus
 module Shiva
   class QuartzOrb < Action
     def priority
@@ -11,7 +11,7 @@ module Shiva
 
     def available?(foe)
       return false if self.orb.nil?
-      return false if Effects::Spells.active?("Martial Prowess")
+      return false if Effects::Spells.active?("Mystic Focus")
       return self.env.foes.size == 0
     end
 
@@ -25,7 +25,7 @@ module Shiva
       Containers.lootsack.add(item) if [Char.left.id, Char.right.id].include?(item.id)
       fill_left_hand
       ttl = Time.now + 2
-      wait_until {Effects::Spells.active?("Martial Prowess") or Time.now > ttl}
+      wait_until {Effects::Spells.active?("Mystic Focus") or Time.now > ttl}
     end
   end
 end

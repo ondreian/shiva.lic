@@ -11,7 +11,7 @@ module Shiva
     end
 
     def apply()
-      fput "incant 919"
+      Spell[919].cast
     end
   end
 end

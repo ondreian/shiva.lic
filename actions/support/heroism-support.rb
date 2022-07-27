@@ -1,5 +1,5 @@
 module Shiva
-  class BraverySupport < Action
+  class HeroismSupport < Action
     def priority
       7
     end
@@ -9,19 +9,18 @@ module Shiva
     end
 
     def available?(foe)
-      #Log.out(foe)
       foe.nil? and
       self.ttl < Time.now.to_i and
-      Spell[211].known? and
-      Spell[211].affordable?  and
+      Spell[215].known? and
+      Spell[215].affordable? and
       Group.size > 0 and
-      Vars["support/bravery"]
+      not checkpcs.include?("Pixelia")
     end
 
     def apply(foe)
       waitcastrt?
       waitrt?
-      Spell[211].cast
+      Spell[215].cast
       @ttl = Time.now + 60
     end
   end

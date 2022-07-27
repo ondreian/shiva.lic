@@ -32,7 +32,7 @@ module Shiva
     def reason
       return :graceful_exit if $shiva_graceful_exit.eql?(true)
       return :burrowed if Effects::Debuffs.active?("Burrowed")
-      return :over_exerted if Effects::Debuffs.active?("Overexerted")
+      return :over_exerted if Effects::Debuffs.active?("Overexerted") and not Char.prof.eql?("Empath")
       return :full_containers if Char.left.type =~ /box/ and not Script.running?("give")
       return :encumbrance if percentencumbrance > 10
       return :wounded if self.wounded?

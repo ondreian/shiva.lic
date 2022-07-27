@@ -1,6 +1,6 @@
 module Shiva
   class Garrote < Action
-    Nouns = %w(master crawler destroyer)
+    Nouns = %w(master)
 
     def priority
       60

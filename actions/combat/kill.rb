@@ -18,7 +18,11 @@ module Shiva
 
     def kill(foe)
       Stance.offensive
-      put "attack #%s clear" % foe.id
+      if Skills.ambush < 25 && !foe.tall?
+        put "attack #%s clear" % foe.id
+      else
+        put "attack #%s head" % foe.id
+      end
       Timer.await()
     end
 

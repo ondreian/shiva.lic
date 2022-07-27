@@ -29,6 +29,7 @@ module Shiva
     def available?(foe)
       return false unless Spell[335].known?
       return false if Effects::Cooldowns.active?("Divine Wrath")
+      return false if GameObj.loot.to_a.map(&:name).any? {|i| i.eql?("jet black scimitar hanging unsupported in midair")}
       
       if self.duskruin?
         self.duskruin_check?

@@ -25,7 +25,7 @@ module Shiva
 
     def cripple(foe)
       Stance.offensive
-      outcome = dothistimeout "weapon cripple #%s right leg" % foe.id, 1, Regexp.union(
+      outcome = dothistimeout "weapon cripple #%s leg" % foe.id, 1, Regexp.union(
         %r[You sidle in close and drag the blade across the back],
       )
       Seen << foe.id if outcome =~ %r[You sidle in close and drag the blade across the back]
