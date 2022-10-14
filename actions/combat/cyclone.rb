@@ -7,8 +7,7 @@ module Shiva
     def available?(foe)
       not Effects::Debuffs.active?("Jaws") and
       not Effects::Cooldowns.active?("Cyclone") and
-      Skills.polearmweapons > 150 and
-      Skills.thrownweapons > 150 and
+      Tactic.polearms? and
       checkstamina > 50 and
       not hidden? and
       self.env.foes.size > 2 and

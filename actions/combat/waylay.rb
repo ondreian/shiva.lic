@@ -1,6 +1,6 @@
 module Shiva
   class Waylay < Action
-    Nouns = %w(monstrosity destroyer crusader golem)
+    Nouns = %w(monstrosity destroyer crusader golem psionicist protector automaton)
     def priority(foe)
       if Nouns.include?(foe.noun) && self.dagger?
         89
@@ -14,13 +14,11 @@ module Shiva
     end
 
     def has_melee_skill?
-      Skills.polearmweapons > Char.level * 1.5 or
-      Skills.edgedweapons > Char.level * 1.5
+      Tactic.polearms? or Tactic.edged?
     end
 
     def available?(foe)
       not foe.nil? and
-      hidden? and
       self.has_melee_skill? and
       Skills.ambush > Char.level * 1.5 and
       hidden?

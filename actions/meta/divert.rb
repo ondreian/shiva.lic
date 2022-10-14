@@ -13,7 +13,7 @@ module Shiva
     end
 
     def environ?
-      return true if self.env.foes.size > 4
+      return true if self.env.foes.size > 6
       return true if self.fissure?
       return true if self.room_objs.include?("mass of undulating liquified rock")
       return true if self.room_objs.include?("frigid cyclone")
@@ -35,7 +35,7 @@ module Shiva
 
     def divert(foe)
       waitrt?
-      loot = self.controller.action(:lootarea)
+      loot = self.env.action(:lootarea)
       loot.apply if Claim.mine?
       Stance.offensive
       put "cman divert %s sneak" % foe.noun

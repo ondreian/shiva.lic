@@ -1,10 +1,9 @@
 module Shiva
   class Teardown
-    attr_reader :controller, :env
+    attr_reader :env
 
-    def initialize(controller)
-      @controller = controller
-      @env        = controller.env
+    def initialize(env)
+      @env = env
     end
 
     def turn_in_bounty(town)
@@ -17,6 +16,7 @@ module Shiva
     DefaultBases = [
       18698, # Oberwood
       29881, # Hinterwilds
+      29623, # Kraken's Fall
     ]
 
     def bases()
@@ -61,20 +61,15 @@ module Shiva
       return unless defined? LNet
       LNet.send_message(attr={'type'=>'private', 'to'=> receiver}, "There are now %s boxes on the ground at Oberwood" % box_count)
     end
+
+   
     
     def box_routine()
-      return unless Room.current.id.eql? 18698
-      Containers.lootsack.where(type: /box/).each { |box|
-        box.take
-        fput "drop #%s" % box.id
-        wait_until("waiting on box drop") {GameObj.loot.map(&:id).include?(box.id)}
-      }
-      wait_while("waiting on another pc") {GameObj.pcs.to_a.empty?}
-      return if Skills.pickinglocks < Char.level * 2 # no lockpicking skill
-      box_count = GameObj.loot.to_a.select {|i| i.type.include?("box")}.size
-      return if box_count.eql?(0)
-      return self.message("Greys", box_count) if Mind.saturated? or Boost.loot? or GameObj.pcs.to_a.map(&:noun).include?("Greys")
-      Script.run("spa", "--floor --loot") if Opts.spa
+      Char.unarm
+      Log.out("running box routine...")
+      #return unless Room.current.id.eql? 18698
+      return Boxes.drop if Boxes.picker?
+      Script.run("eloot", "sell")
     end
 
     def loop_bounty(town)
@@ -87,6 +82,10 @@ module Shiva
       }
     end
 
+    def report()
+      _respond "<b>resting because of %s</b>" % $shiva_rest_reason
+    end
+
     def cleanup(town)
       self.turn_in_bounty(town) if %i(report_to_guard skin heirloom_found).include? Bounty.type
       self.return_to_base
@@ -96,11 +95,10 @@ module Shiva
       }
       fail "could not return to base" unless Room.current.id.eql?(self.base)
       Team.request_healing if Char.total_wound_severity > 0 or percenthealth < 100
-      wait_while("waiting on healing") {Char.total_wound_severity > 2}
+      wait_while("waiting on healing") {Char.total_wound_severity > 0}
       Char.unarm
       wait_while("waiting on hands") {Char.left or Char.right} unless Char.left.type =~ /box/
       self.box_routine()
-      Script.run("boxes", "loot-mine") unless self.others?
       
       if Bounty.type.eql?(:gem) and Task.sellables.size > 0
         self.turn_in_bounty(town)
@@ -108,9 +106,10 @@ module Shiva
       end
 
       self.loop_bounty(town)
-      self.sell_loot()
+      #self.sell_loot()
       fput "boost exp" if Mind.saturated? and not Effects::Buffs.active?("Doubled Experience Boost") and Boost.loot?
       Script.run("waggle")
+      self.report
       exit if $shiva_graceful_exit.eql?(true) or not Group.empty? or not Opts["daemon"]
       wait_while("waiting on mind") {percentmind > 80} unless Boost.loot?
     end

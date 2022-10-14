@@ -40,12 +40,12 @@ module Shiva
     def available?(foe)
       return false if Opts["manual"]
       return false unless self.env.boundaries.is_a?(Array) and not self.env.boundaries.empty?
-      return false if Script.running?("mend")
+      return false if Script.running?("mend") && GameObj.targets.empty?
       return false unless Group.leader? or Group.empty?
       return false if Group.members.map(&:status).flatten.compact.size > 0
       return false if Injuries.wounds.any? {|w| w > 0} and Char.prof.eql?("Empath") and GameObj.targets.empty?
       return false if Injuries.scars.any? {|s| s > 0} and Char.prof.eql?("Empath") and GameObj.targets.empty?
-      return self.reason != false
+      return self.reason.is_a?(Symbol)
     end
 
     def room_objs
@@ -55,7 +55,11 @@ module Shiva
     def reason()
       return :claim       unless Claim.mine?
       return :monstrosity if GameObj.targets.any? {|f| f.noun.eql?("monstrosity")}
+      return :brawlers    if GameObj.targets.map(&:noun).select {|n| n.eql?("brawler")}.size > 1
+      return nil          if Script.running?("give")
+      return :dolls       if GameObj.targets.any? {|f| f.noun.eql?("doll")}
       return :fissure     if checkloot.include?('fissure')
+      return :flee        if Vars["shiva/flee"].is_a?(String) && GameObj.targets.any? {|f| Vars["shiva/flee"].include?(foe.noun)}
       return :swarm       if self.env.foes.size > self.max_foes
       return :magma       if self.room_objs.include?("mass of undulating liquified rock")
       return :cyclone     if self.room_objs.include?("frigid cyclone")
@@ -80,9 +84,9 @@ module Shiva
 
     def pre_move_hook()
       return unless Claim.mine?
-      search = @controller.action(:loot)
+      search = @env.action(:loot)
       search.apply
-      loot = @controller.action(:lootarea)
+      loot = @env.action(:lootarea)
       loot.apply
     end
 

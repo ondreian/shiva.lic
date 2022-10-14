@@ -13,7 +13,7 @@ module Shiva
       not Effects::Cooldowns.active?("Flurry") and
       not Effects::Buffs.active?("Slashing Strikes") and
       not Spell[117].active? and
-      Skills.edgedweapons > 150 and
+      Tactic.edged? and
       checkstamina > (self.cost * 3) and
       not hidden? and
       self.env.foes.size < 4

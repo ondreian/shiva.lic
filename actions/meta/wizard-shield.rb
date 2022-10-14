@@ -12,6 +12,8 @@ module Shiva
 
     def apply()
       Spell[919].cast
+      ttl = Time.now + 3
+      wait_until {Spell[919].active? or Time.now > ttl}
     end
   end
 end

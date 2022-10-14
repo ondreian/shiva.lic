@@ -95,20 +95,22 @@ module Shiva
     end
 
     def apply()
+      
       this_loot = self.nonce self.loot
       return if this_loot.empty?
       Log.out(self.loot.map(&:name), label: %i(loot))
-      empty_left_hand
+      waitrt?
       self.loot_silvers if GameObj.loot.any? {|i| i.name.eql?(%[some silver coins])}
-      this_loot.reject! {|i| i.name.eql?(%[some silver coins])}
-      if dangerous?
-        self.slow_loot(this_loot)
-      else
-        self.fast_loot
-        self.slow_loot(self.loot) if self.loot
-      end
-      empty_left_hand unless Char.left.nil?
-      fill_left_hand
+      Hand.use {
+        this_loot.reject! {|i| i.name.eql?(%[some silver coins])}
+        if dangerous?
+          self.slow_loot(this_loot)
+        else
+          self.fast_loot
+          self.slow_loot(self.loot) if self.loot && !self.env.state.eql?(:rest)
+        end
+        empty_left_hand unless Tactic.ranged?
+      }
     end
   end
 end

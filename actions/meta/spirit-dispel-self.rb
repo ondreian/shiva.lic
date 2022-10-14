@@ -10,7 +10,11 @@ module Shiva
       Effects::Debuffs.active?("Condemn") or
       Effects::Debuffs.active?("Slow") or 
       Effects::Debuffs.active?("Wild Entropy") or
-      Effects::Debuffs.active?("Powersink")
+      Effects::Debuffs.active?("Powersink") or
+      Effects::Debuffs.active?("Mindwipe") or
+      Effects::Debuffs.active?("Pious Trial") or
+      Effects::Debuffs.active?("Thought Lash") or
+      Effects::Debuffs.active?("Confusion")
     end
 
     def available?

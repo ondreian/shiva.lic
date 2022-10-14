@@ -16,21 +16,52 @@ module Shiva
     end
 
     attr_reader :name, :entry, :town,
-                :scripts, :foes, :boundaries,
-                :seen
+                :scripts, :boundaries,
+                :seen, :foes,
+                :controller, :actions, :action_history
     attr_accessor :state
 
     def initialize(name)
       @name = name
+      @action_history = []
       self.reset!
     end
 
+    def divergence?
+      @divergence.eql?(true)
+    end
+
+    def reset_start_time!
+      @start_time = Time.now
+    end
+
+    def uptime()
+      Time.now - @start_time
+    end
+
+    def foe_nouns
+      @foes
+    end
+
+    def setup
+      Setup.new(self).apply()
+    end
+
+    def main
+      Main.new(self).apply()
+    end
+
+    def teardown
+      Teardown.new(self).apply()
+    end
+
     def reset!
-      @seen = []
+      @seen     = []
+      @actions  = Actions.create(self)
     end
 
     def rooms()
-      return [] if @boundaries.nil? or @entry.nil?
+      return [] if @boundaries.nil? or self.entry.nil?
       @_subgraph ||= self._rooms()
     end
 
@@ -38,7 +69,7 @@ module Shiva
       _subgraph   = []
       _boundaries = @boundaries.map(&:to_s)
       _pending    = []
-      entry_room  = Room[@entry.to_i]
+      entry_room  = Room[self.entry.to_i]
       process_room = -> room {
         room.wayto.keys
           .reject {|id| _boundaries.include?(id) or _subgraph.include?(id) }
@@ -65,7 +96,6 @@ module Shiva
     def foes
       return [] unless Claim.mine?
       return GameObj.targets.map {|f| Creature.new(f)} if @foes.nil?
-
       Foes.select {|foe| @foes.include?(foe.noun) }.sort_by do |foe|
         if foe.name =~ /grizzled|ancient/
           0
@@ -79,6 +109,23 @@ module Shiva
 
     def foe
       self.foes.first
+    end
+
+    def action(query)
+      if query.is_a?(Symbol)
+        @env.actions.find {|a| a.class.name.downcase.split("::").last.to_sym.eql?(query)}
+      else
+        @env.actions.find {|a| a.class.name =~ /#{query}/i}
+      end
+    end
+
+    def best_action
+      current_foe = self.foe
+      proposed_action = Shiva::Actions.best_action(@actions, current_foe)
+      Log.out(proposed_action.is_a?(Symbol) ? proposed_action : proposed_action.to_sym, 
+        label: %i(proposed action)) unless proposed_action == @action_history.last
+      @action_history << proposed_action
+      [proposed_action, current_foe]
     end
   end
 end

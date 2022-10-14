@@ -1,10 +1,9 @@
 module Shiva
   class Setup
-    attr_reader :controller, :env
+    attr_reader :env
 
-    def initialize(controller)
-      @controller = controller
-      @env        = controller.env
+    def initialize(env)
+      @env = env
     end
 
     def get_bounty!

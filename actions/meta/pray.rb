@@ -25,7 +25,8 @@ module Shiva
     def available?
       self.env.name.eql?(:duskruin) and
       self.needs_resource? and
-      @count < self.max_prayers
+      @count < self.max_prayers and
+      self.env.round > 10
     end
 
     def needs_resource?

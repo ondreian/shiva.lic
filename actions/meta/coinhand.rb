@@ -41,6 +41,7 @@ module Shiva
     end
 
     def apply
+      waitrt?
       fput "close #%s" % self.hand.id
       @gained_silver = false
     end

@@ -1,7 +1,7 @@
 module Shiva
   class Hold < Action
     def priority
-      Priority.get(:medium)
+      Priority.get(:medium) - 1
     end
 
     def reason

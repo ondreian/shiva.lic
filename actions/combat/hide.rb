@@ -30,6 +30,7 @@ module Shiva
     def available?
       Skills.stalkingandhiding > (Char.level * 2) and
       not Effects::Debuffs.active?("Jaws") and
+      not invisible? and
       not self.env.foes.any? {|foe| Perceptive.count(foe.id) > 2} and
       not hidden? and
       not invisible? and

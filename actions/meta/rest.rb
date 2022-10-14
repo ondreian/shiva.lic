@@ -33,12 +33,13 @@ module Shiva
       return :graceful_exit if $shiva_graceful_exit.eql?(true)
       return :burrowed if Effects::Debuffs.active?("Burrowed")
       return :over_exerted if Effects::Debuffs.active?("Overexerted") and not Char.prof.eql?("Empath")
+      return :interrupt if self.env.state.eql?(:rest)
       return :full_containers if Char.left.type =~ /box/ and not Script.running?("give")
       return :encumbrance if percentencumbrance > 10
       return :wounded if self.wounded?
       return :health if self.bleeding?
       return :bounty if Task.can_complete? && percentmind.eql?(100) && Group.empty? && !Boost.loot?
-      return :uptime if @controller.uptime > (20 * Minute) && percentmind.eql?(100)
+      return :uptime if @env.uptime > (20 * Minute) && percentmind.eql?(100)
       return :mana if self.out_of_mana?
       return :unknown if @env.state.eql?(:rest)
       return :hypothermia if Hypothermia.status > 60
@@ -56,9 +57,9 @@ module Shiva
     def apply()
       Log.out(@reason, label: %i(rest reason))
       return unless Claim.mine?
-      search_dead_creatures = @controller.action(:loot)
+      search_dead_creatures = @env.action(:loot)
       search_dead_creatures.apply if search_dead_creatures.available?
-      loot_area = @controller.action(:lootarea)
+      loot_area = @env.action(:lootarea)
       loot_area.apply 
     end
   end

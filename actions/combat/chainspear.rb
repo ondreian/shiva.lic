@@ -16,11 +16,13 @@ module Shiva
       Char.right.noun.eql?("shaft")
     end
 
-    def available?
+    def available?(foe)
+      not foe.nil? and
       Skills.thrownweapons > Char.level and
       Skills.polearmweapons > Char.level and
       self.holding_chainspear? and
-      self.env.foes.size > 0
+      # protectors have deflect missile
+      not %w(protector).include?(foe.noun)
     end
 
     def retract_chainspear(n = 1)

@@ -14,16 +14,17 @@ module Shiva
       Actions.register(action)
     end
 
-    def initialize(controller)
-      @controller = controller
+    attr_reader :env
+    def initialize(env)
+      @env = env
     end
 
-    def controller
-      @controller
+    def to_s
+      self.to_sym.to_s
     end
 
-    def env
-      @controller.env
+    def inspect
+      self.to_s
     end
 
     def to_sym

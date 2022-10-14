@@ -14,6 +14,7 @@ module Shiva
       not Mugged.include?(foe.id) and
       not foe.status.empty? and
       CMan.mug > 0 and
+      Tactic.edged? and
       checkstamina > 40 and
       hidden? and
       rand > 0.1

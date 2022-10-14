@@ -1,24 +1,19 @@
 module Shiva
   class Ambush < Action
-    DEFAULT_AIMING = %i(head neck back)
-    SPEAR_AIMING   = %i(left_eye right_eye head neck)
-    CERERBRALITE   = %i(head left_eye right_eye)
-    DAGGER_AIMING  = SPEAR_AIMING
-    DENY           = []
-
     attr_accessor :area
+
+    DENY ||=[]
 
     def priority
       91
     end
 
     def has_melee_skill?
-      Skills.polearmweapons > Char.level * 1.5 or
-      Skills.edgedweapons > Char.level * 1.5
+      Tactic.edged? or Tactic.polearms?
     end
 
     def prefer_waylay?(foe)
-      %w(destroyer golem).include?(foe.noun) and dagger?
+      %w(destroyer golem automaton).include?(foe.noun) and Tactic.dagger?
     end
 
     def in_reach?(foe)
@@ -48,39 +43,34 @@ module Shiva
       %r[What were you referring to],
     )
 
-    def aiming(foe)
-      return DEFAULT_AIMING if %w(crawler siphon).include?(foe.noun)
-      return CERERBRALITE   if foe.name.include?("cerebralite") 
-      return SPEAR_AIMING if %w(spear harpoon).include?(Char.right.noun)
-      return DAGGER_AIMING if self.dagger?
-      return DEFAULT_AIMING
-    end
-
-    def dagger?
-      %w(knife dagger dirk).include?(Char.right.noun)
-    end
-
     # Predator's Eye
-    def stance(name)
-      return if name.nil?
+    def stance(name, cmd)
+      return if name.eql?(:noop)
       return if Effects::Spells.active?(name)
-      words = name.downcase.split
-
-      put "cman %s" % (words.include?("stance") ? words.last : words.first.split("'").first)
+      put "cman %s" % cmd
     end
 
-    def with_stances(before:, after:)
-      stance before
+    def with_stances()
+      stance(*self.offensive_martial_stance)
       yield
-      stance after
+      stance(*self.defensive_martial_stance)
+    end
+
+    def offensive_martial_stance()
+      return ["Whirling Dervish", "dervish"] if CMan.whirling_dervish && self.env.foes.size > 1 && GameObj.left_hand.type.include?("weapon")
+      return ["Predator's Eye", "predator"]   if CMan.predators_eye
+      return [:noop, nil]
+    end
+
+    def defensive_martial_stance()
+      return ["Duck and Weave", "duck"] if CMan.duck_and_weave
+      return [:noop, nil]
     end
 
     def rogue(foe)
-      with_stances(
-        before: "Predator's Eye",
-         after: "Duck and Weave") { 
-          (Effects::Buffs.active?("Shadow Dance") && hidden?) ? self._silent_strike(foe) : self._ambush(foe)
-          }
+      with_stances {
+        (Effects::Buffs.active?("Shadow Dance") && hidden?) ? self._silent_strike(foe) : self._ambush(foe)
+      }
     end
 
     def warrior(foe)
@@ -89,22 +79,23 @@ module Shiva
 
     def _silent_strike(foe)
       result = dothistimeout("feat silentstrike ##{foe.id}", 1, Outcomes)
-      return self.kill(foe) if result =~ /You cannot aim/
+      return self.kill(foe, silent: true) if result =~ /You cannot aim/
     end
 
     def _ambush(foe)
       result = dothistimeout("ambush ##{foe.id}", 1, Outcomes)
-      return self.kill(foe) if result =~ /You cannot aim/
+      return self.kill(foe, silent: false) if result =~ /You cannot aim/
     end
 
     def get_best_area(foe)
-      @area = foe.kill_shot self.aiming(foe)
+      @area = foe.kill_shot Aiming.lookup(foe)
+      Log.out("{foe=%s, aim=%s}" % [foe.name, @area])
       Char.aim(@area)
       @area
     end
 
     def ambush(foe)
-      self.get_best_area(foe) unless self.aiming(foe).include?(@area)
+      self.get_best_area(foe) unless Aiming.lookup(foe).include?(@area)
       waitrt?
       Stance.offensive
       Log.out("ambushing %s" % @area, label: %i(ambush area))
@@ -128,9 +119,11 @@ module Shiva
       Timer.await
     end
 
-    def kill(foe)
+    def kill(foe, silent:)
       Stance.offensive
-      dothistimeout("kill ##{foe.id}", 1, Outcomes)
+      cmd = "%s #%s clear" % [hidden? ? "waylay" : "attack", foe.id]
+      cmd = "feat silent %s" % cmd if silent
+      dothistimeout(cmd, 1, Outcomes)
       Timer.await
     end
 

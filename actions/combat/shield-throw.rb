@@ -4,9 +4,7 @@ module Shiva
       4
     end
 
-    def shield?
-      %w(buckler targe shield).include?(Char.left.noun)
-    end
+    
 
     def available?(foe)
       checkrt < 1 and
@@ -14,12 +12,11 @@ module Shiva
       not foe.nil? and
       not Effects::Cooldowns.active?("Shield Throw") and
       not Effects::Debuffs.active?("Sunder Shield") and
-      Skills.shielduse > 150 and
-      %w(Warrior Rogue).include?(Char.prof) and
       checkstamina > 80 and
       not hidden? and
       self.env.foes.size > 1 and
-      self.shield?
+      Tactic.shield? and
+      %w(Warrior Rogue).include?(Char.prof)
     end
 
     def shield_throw(foe)

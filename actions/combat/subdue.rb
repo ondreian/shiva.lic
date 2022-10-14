@@ -16,7 +16,7 @@ module Shiva
 
     def available?(foe)
       CMan.subdue > 2 and
-      not self.env.name.eql?(:duskruin) and
+      #not self.env.name.eql?(:duskruin) and
       checkstamina > self.cost and
       hidden? and
       self.can?(foe) and

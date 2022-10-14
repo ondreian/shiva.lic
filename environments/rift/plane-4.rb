@@ -7,13 +7,7 @@ module Shiva
     @boundaries = %w(12122 12207 12235)
 
     def self.before_teardown
-      return unless Society.status =~ /Voln/ && Society.rank.eql?(26)
-      waitcastrt?
-      waitrt?
-      from_id = Room.current.id
-      fput "symbol return"
-      ttl = Time.now + 2
-      wait_while {Room.current.id.eql?(from_id) and Time.now < ttl}
+      Voln.fog
     end
   end
 end

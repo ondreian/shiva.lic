@@ -9,7 +9,7 @@ module Shiva
       foe.status.empty? and
       Wounds.leftLeg < 2 and
       Wounds.rightLeg < 2 and
-      Skills.polearmweapons > 150 and
+      Tactic.polearms? and
       checkstamina > 30 and
       not hidden? and
       rand > 0.6

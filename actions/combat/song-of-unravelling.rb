@@ -5,7 +5,7 @@ module Shiva
     end
 
     def needs_dispel?(foe)
-      foe.noun.eql?("shaper") or foe.noun.eql?("fanatic")
+      foe.noun.eql?("shaper") or foe.noun.eql?("brawler")
     end
 
     def available?(foe)
@@ -18,7 +18,7 @@ module Shiva
       checkmana > 20 and
       self.env.foes.size < 2 and
       Wounds.nsys < 2 and
-      Group.size.eql?(2)
+      (Group.size.eql?(2) or Group.empty?)
     end
 
     Ok  = Regexp.union(
@@ -33,12 +33,17 @@ module Shiva
       %r{d100 == 1 FUMBLE!}
     )
 
+    def self.dispel(foe)
+      spell = foe.noun.eql?("brawler") ? "1214" : "712"
+      dothistimeout("cast #%s %s" % [foe.id, spell], 2, Regexp.union(Ok, Err))
+    end
+
     def apply(foe)
       Stance.guarded
       return if foe.dead?
       fput "prep 1013"
       return if foe.dead?
-      result = dothistimeout("cast #%s 712" % foe.id, 2, Regexp.union(Ok, Err))
+      result = self.dispel(foe)
       Log.out(result, label: %(unravel))
       case result
       when Ok

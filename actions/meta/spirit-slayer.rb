@@ -6,8 +6,9 @@ module Shiva
 
     def available?(foe)
       foe.nil? and
+      not Effects::Cooldowns.active?("Spirit Slayer") and
       Spell[240].known? and
-      percentmana > 30 and
+      percentmana > 50 and
       not Spell[240].active? and
       Group.size < 3 and
       GameObj.targets.to_a.empty?
@@ -16,7 +17,7 @@ module Shiva
     def apply(foe)
       waitcastrt?
       Spell[240].cast()
-      ttl = Time.now + 2
+      ttl = Time.now + 4
       wait_until {Spell[240].active? or Time.now > ttl}
     end
   end

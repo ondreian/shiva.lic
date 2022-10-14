@@ -100,10 +100,31 @@ module Task
       fail "error / happened while turning in #{Bounty.task.heirloom}" if Time.now > ttl
       fill_hands
       self.advance(town)
-    when :escort, :get_herb_bounty
+    when :get_herb_bounty
+      self.room(town, "npchealer").id.go2
+      Bounty.ask_for_bounty
+      self.advance(town)
+    when :escort
       guild.id.go2
       self.cycle(town)
       self.advance(town)
+    when :herb
+      herbs = Containers.lootsack.where(name: Bounty.herb).take(Bounty.number)
+      return :ok if herbs.empty?
+      self.room(town, "npchealer").id.go2
+      empty_hands
+      herbs.each {|h|
+        current_state = checkbounty
+        h.take
+        fput "give #%s" % Bounty.npc.id
+        ttl = Time.now + 3
+        wait_while {checkbounty.eql?(current_state) && Time.now < ttl}
+        fail "unhandled herb issue" if Time.now > ttl
+      }
+
+      fill_hands
+
+      self.advance(town) if Bounty.type.eql?(:succeeded)
     else
       fail "Bounty(#{Bounty.task.type}) / not implemented"
     end

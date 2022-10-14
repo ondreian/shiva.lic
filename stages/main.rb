@@ -1,14 +1,13 @@
 module Shiva
   class Main
-    attr_reader :controller, :env
+    attr_reader :env
 
-    def initialize(controller)
-      @controller = controller
-      @env        = controller.env
+    def initialize(env)
+      @env = env
     end
 
-    def call(controller, foe)
-      proposed_action = controller.best_action(foe)
+    def make_decision
+      (proposed_action, foe) = self.env.best_action
       # prevent followers from drive-by poaching
       return :noop if !Claim.mine? && !(Group.empty? || Group.leader?)
       Action.call(proposed_action, foe)
@@ -18,10 +17,10 @@ module Shiva
     end
 
     def apply()
-      controller.reset_start_time!
+      env.reset_start_time!
 
       loop {
-        action = self.call(self.controller, self.env.foe)
+        action = self.make_decision()
         Log.out(action, label: %i(previous action)) unless action.eql?(@previous_action)
         @previous_action = action
         break if @previous_action.eql?(:rest)

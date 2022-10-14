@@ -13,6 +13,7 @@ module Shiva
       self.ttl < Time.now.to_i and
       Spell[219].known? and
       Spell[219].affordable? and
+      not self.env.divergence? and
       Group.size > 0 and
       not checkpcs.include?("Pixelia")
     end

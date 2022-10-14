@@ -11,6 +11,7 @@ module Shiva
     def available?(foe)
       foe.nil? and
       self.ttl < Time.now.to_i and
+      not self.env.divergence? and
       Spell[215].known? and
       Spell[215].affordable? and
       Group.size > 0 and

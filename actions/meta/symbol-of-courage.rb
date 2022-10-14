@@ -1,7 +1,7 @@
 module Shiva
   class SymbolOfCourage < Action
     def priority
-      Priority.get(:medium)
+      Priority.get(:high)
     end
 
     def available?

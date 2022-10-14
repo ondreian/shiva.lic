@@ -1,6 +1,6 @@
 module Shiva
   class Eviscerate < Action
-    Immune = %w(cerebralite)
+    Immune = %w(cerebralite siphon)
 
     def priority(foe)
       50
@@ -14,6 +14,7 @@ module Shiva
       not foe.tall? and
       not Immune.include?(foe.noun) and
       CMan.eviscerate > 3 and
+      (Tactic.edged? or Tactic.polearms?) and
       checkstamina > 40 and
       hidden? and
       rand > 0.3

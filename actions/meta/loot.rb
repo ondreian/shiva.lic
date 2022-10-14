@@ -1,6 +1,6 @@
 module Shiva
   class Loot < Action
-    Skinnable = %w(cerebralite lich sidewinder crawler warg mastodon hinterboar)
+    Skinnable = %w(cerebralite lich sidewinder crawler warg mastodon hinterboar brawler warlock fanatic)
 
     def priority
       Priority.get(:high) - 1
@@ -32,11 +32,25 @@ module Shiva
       Group.empty?)
     end
 
+    def dagger_hand
+      return :right if %w(dirk dagger knife).include?(Char.right.noun)
+      return :left if %w(dirk dagger knife).include?(Char.left.noun)
+      return nil
+    end
+
     def maybe_skin(creature)
-      return unless Skinnable.include?(creature.noun)
-      return unless %w(dirk dagger knife).include?(Char.right.noun)
-      return unless (Skills.survival + Skills.firstaid) / (Char.level * 0.5) > 0.5
-      fput "skin #%s" % creature.id
+      return :unskinnable unless Skinnable.include?(creature.noun)
+      return :no_skill unless (Skills.survival + Skills.firstaid) / (Char.level * 0.5) > 0.5
+      return fput "skin #%s %s" % [creature.id, self.dagger_hand] if self.dagger_hand
+      dagger = Containers.harness.where(noun: /dagger|knife|dirk/).first
+      return :no_dagger if dagger.nil?
+      right = Char.right
+      Containers.harness.add(right) unless Char.left.nil? or Char.right.nil?
+      dagger.take
+      fput "skin #%s %s" % [creature.id, self.dagger_hand]
+      Containers.harness.add(dagger)
+      Containers.harness.where(id: right.id).first.take()
+      return :ok
     end
 
     def apply()

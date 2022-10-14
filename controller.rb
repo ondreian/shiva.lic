@@ -1,8 +1,8 @@
 module Shiva
   class Controller
-    attr_reader :actions, :name, :env, :stage,
+    attr_reader :name, :env, :stage,
                 :setup, :main, :teardown,
-                :last_action, :seen, :start_time
+                :last_action, :seen, :start_time, :hands
 
     def initialize()
       $shiva_graceful_exit = false
@@ -12,14 +12,6 @@ module Shiva
 
     def set_env(name)
       @env = Shiva::Environment.find(name) or fail "could not find environment : #{name}"
-    end
-
-    def reset_start_time!
-      @start_time = Time.now
-    end
-
-    def uptime()
-      Time.now - @start_time
     end
 
     def start_scripts(scripts)
@@ -34,43 +26,30 @@ module Shiva
     end
 
     def reset!
-      @actions  = Actions.create(self)
-      @main     = Main.new(self)
-      @teardown = Teardown.new(self)
-      @setup    = Setup.new(self)
+      @env.reset!
     end
 
     def load
       Log.out File.join __DIR__, "environments", @name.downcase
     end
 
-    def best_action(foe)
-      proposed_action = Shiva::Actions.best_action(@actions, foe)
-      Log.out(proposed_action.is_a?(Symbol) ? proposed_action : proposed_action.to_sym, 
-        label: %i(proposed action)) unless proposed_action == @last_action
-      @last_action = proposed_action
-    end
-
-    def action(query)
-      if query.is_a?(Symbol)
-        @actions.find {|a| a.class.name.downcase.split("::").last.to_sym.eql?(query)}
-      else
-        @actions.find {|a| a.class.name =~ /#{query}/}
-      end
-    end
-
     def setup!
       @stage = :setup
-      @setup.apply()
+      @env.setup()
       if @env.scripts.is_a?(Array)
         Log.out("starting scripts: %s" % @env.scripts.join(", "), label: %i(setup scripts))
         self.start_scripts @env.scripts
       end
+      self.set_hands!
+    end
+
+    def set_hands!
+      @hands = [Char.left, Char.right]
     end
 
     def main!
       @stage = :main
-      @main.apply()
+      @env.main()
     end
 
     def teardown!
@@ -79,7 +58,7 @@ module Shiva
         Log.out("stopping scripts: %s" % @env.scripts.join(", "), label: %i(setup scripts))
         self.stop_scripts @env.scripts
       end
-      @teardown.apply()
+      @env.teardown()
     end
 
     def run

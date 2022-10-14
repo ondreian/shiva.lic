@@ -13,7 +13,8 @@ module Shiva
       foe.nil? and
       self.ttl < Time.now.to_i and
       Spell[211].known? and
-      Spell[211].affordable?  and
+      Spell[211].affordable? and
+      not self.env.divergence? and
       Group.size > 0 and
       Vars["support/bravery"]
     end

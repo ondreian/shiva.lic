@@ -6,7 +6,7 @@ module Shiva
 
     def available?(foe)
       not Effects::Cooldowns.active?("Whirling Blade") and
-      Skills.edgedweapons > 150 and
+      Tactic.edged? and
       checkstamina > 50 and
       not hidden? and
       self.env.foes.size > 2 and

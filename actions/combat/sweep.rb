@@ -1,6 +1,6 @@
 module Shiva
   class Sweep < Action
-    Immune = %w(crawler cerebralite)
+    Immune = %w(crawler cerebralite worm)
 
     def priority
       6

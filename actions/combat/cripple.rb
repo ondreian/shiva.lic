@@ -14,6 +14,7 @@ module Shiva
     def available?(foe)
       not Immune.include?(foe.noun) and
       Weapon.cripple > 3 and
+      Tactic.edged? and
       not Effects::Buffs.active?("Shadow Dance") and
       foe.status.empty? and
       Seen.count(foe.id) < 2 and

@@ -21,7 +21,9 @@ module Shiva
       Char.prof.eql?("Rogue") and
       not self.env.name.eql?(:duskruin) and
       checkstamina > self.cost and
+      Tactic.edged? and
       hidden? and
+      not foe.nil? and
       not Cutthroat.include?(foe.id) and
       self.reachable?(foe) and
       not Immune.include?(foe.noun)

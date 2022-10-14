@@ -27,7 +27,7 @@ module Shiva
     end
   
     def self.needed?
-      @@weapon_id.is_a?(String)
+      @@weapon_id.is_a?(String) and (Char.right.id.eql?(@@weapon_id) or Char.left.id.eql?(@@weapon_id))
     end
 
     def self.reset!

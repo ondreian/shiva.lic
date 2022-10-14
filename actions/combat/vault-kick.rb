@@ -1,13 +1,8 @@
 module Shiva
   class VaultKick < Action
-    Nouns = %w(spear harpoon longhammer)
-    
+
     def priority
       (89...100).to_a.sample
-    end
-
-    def polearm?
-      Nouns.include?(Char.right)
     end
 
     def available?(foe)
@@ -16,7 +11,7 @@ module Shiva
       not foe.nil? and
       foe.status.empty? and
       CMan.vault_kick and
-      self.polearm? and
+      Tactic.polearms? and
       checkstamina > 30
     end
 
