@@ -7,7 +7,7 @@ module Shiva
     def available?(foe)
       not foe.nil? and
       not foe.name.include?("Vvrael") and
-      foe.name =~ /spectral|triton protector|ethereal/ and
+      foe.name =~ /spectral|triton protector|ethereal|triton psionicist/ and
       Spell[1115].known? and
       Spell[1115].affordable?
     end

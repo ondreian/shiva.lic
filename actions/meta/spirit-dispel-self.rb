@@ -24,6 +24,7 @@ module Shiva
 
     def apply()
       waitrt?
+      until GameObj.targets.empty? do walk end
       waitcastrt?
       fput "prep 119\rchannel"
       waitcastrt?

@@ -1,6 +1,6 @@
 module Shiva
   class Sympathy < Action
-    def which()
+    def spell()
       Spell[1120]
     end
 
@@ -9,21 +9,20 @@ module Shiva
     end
 
     def ttl
-      @ttl
+      @ttl || Time.now - 1
     end
 
     def available?()
-      self.which.known? and
-      self.which.affordable? and
-      not hidden? and
+      self.spell.known? and
+      self.spell.affordable? and
       percentmana > 10 and
-      self.env.foes.size > 2 and
-      self.env.foes.map(&:status).select(&:empty?).size > 2 and
+      self.env.foes.size > 1 and
+      self.env.foes.map(&:status).select(&:empty?).size > 1 and
       Time.now > self.ttl
     end
 
     def apply(foe)
-      fput "prep %s\rcast #%s" % [self.which.num, GameObj.inv.sample.id]
+      fput "prep %s\rcast #%s" % [self.spell.num, GameObj.inv.sample.id]
       @ttl = Time.now + 10
     end
   end

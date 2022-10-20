@@ -7,6 +7,7 @@ module Shiva
     def reason
       return :healing if Script.running?("mend")
       return :give if Script.running?("give")
+      return :go2 if Script.running?("go2")
       return :monstrosity if GameObj.targets.any? {|f| %w(monstrosity).include?(f.noun)} and not Group.leader?
       return false
     end

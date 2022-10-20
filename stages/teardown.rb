@@ -95,7 +95,7 @@ module Shiva
       }
       fail "could not return to base" unless Room.current.id.eql?(self.base)
       Team.request_healing if Char.total_wound_severity > 0 or percenthealth < 100
-      wait_while("waiting on healing") {Char.total_wound_severity > 0}
+      wait_while("waiting on healing") {Char.total_wound_severity > 1}
       Char.unarm
       wait_while("waiting on hands") {Char.left or Char.right} unless Char.left.type =~ /box/
       self.box_routine()

@@ -9,7 +9,7 @@ module Shiva
       self.env.foes.size < 2 and
       not Effects::Cooldowns.active?("Guardant Thrusts") and
       Tactic.polearms? and
-      foe.name =~ /spectral|ethereal/ and
+      foe.name =~ /spectral|ethereal|protector/ and
       checkstamina > 50 and
       not hidden?
     end
@@ -17,7 +17,7 @@ module Shiva
     def await_result(foe)
       while line=get
         break if line.start_with?("...wait")
-        break if line.include?("You complete your assault, your weight on your rear foot")
+        break if line.include?("You complete your assault")
         break if line.include?("Distracted, you hesitate, and in doing so lose the rhythm of your assault.")
         break unless GameObj[foe.id]
         break if foe.dead?

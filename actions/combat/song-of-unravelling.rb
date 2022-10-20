@@ -33,7 +33,7 @@ module Shiva
       %r{d100 == 1 FUMBLE!}
     )
 
-    def self.dispel(foe)
+    def dispel(foe)
       spell = foe.noun.eql?("brawler") ? "1214" : "712"
       dothistimeout("cast #%s %s" % [foe.id, spell], 2, Regexp.union(Ok, Err))
     end

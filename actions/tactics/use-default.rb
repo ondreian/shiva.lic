@@ -1,16 +1,13 @@
 module Shiva
-  class UseTwc < Action
+  class UseDefault < Action
     def priority
       Priority.get(:high)
     end
 
     def available?(foe)
-      !Tactic.twc? &&
-      Tactic.can?(:edgedweapons) &&
-      Tactic.can?(:twoweaponcombat) &&
       Vars["shiva/main"] &&
       Vars["shiva/offhand"] &&
-      !%w(brawler).include?(foe.noun) &&
+      !%w(brawler).include?(foe.noun) && # prefer ranged for brawlers
       self.main_hand &&
       self.offhand
     end
@@ -20,10 +17,11 @@ module Shiva
     end
 
     def offhand()
+      Containers.harness.where(name: Vars["shiva/shield"]).first or
       Containers.harness.where(name: Vars["shiva/offhand"]).first
     end
 
-    def dual_wield
+    def arm
       self.main_hand.take
       self.offhand.take
     end
@@ -33,7 +31,7 @@ module Shiva
       waitcastrt?
       fput "rub gorget" if GameObj.inv.map(&:noun).grep(/^gorget$/) and not invisible?
       Containers.harness.add(*[Char.left, Char.right].compact)
-      self.dual_wield
+      Charm.arm
     end
   end
 end

@@ -83,7 +83,7 @@ module Task
       self.cycle(town)
       self.advance(town)
     when :dangerous, :cull, :heirloom
-      return :ok unless Bounty.creature =~ /(lich|crusader|crawler|monstrosity)$/
+      return :ok unless Bounty.creature =~ /(lich|crusader|crawler|monstrosity|assassin)$/
       guild.id.go2
       self.cycle(town)
       self.advance(town)

@@ -2,6 +2,10 @@ module Shiva
   class BroochOfLumnis < Action
     @@used ||= false
 
+    def self.used?
+      @@used
+    end
+
     module Outcomes
       Ok  = %r[Within seconds, you feel Lumnis' Vigor course through your veins.]
       Err = %r[The quintuple orb brooch ebbs weakly, but nothing further happens.]
@@ -53,6 +57,7 @@ module Shiva
       when Outcomes::Err
         Log.out("used for the day!", label: %i(brooch))
         @@used = self.day
+        Script.start("lte")
       end
       self.set_asc self.exp
     end

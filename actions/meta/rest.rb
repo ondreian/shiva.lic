@@ -59,6 +59,7 @@ module Shiva
       return unless Claim.mine?
       search_dead_creatures = @env.action(:loot)
       search_dead_creatures.apply if search_dead_creatures.available?
+      sleep 1 unless @reason.eql?(:wounded)
       loot_area = @env.action(:lootarea)
       loot_area.apply 
     end

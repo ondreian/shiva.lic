@@ -55,7 +55,7 @@ module Shiva
     def reason()
       return :claim       unless Claim.mine?
       return :monstrosity if GameObj.targets.any? {|f| f.noun.eql?("monstrosity")}
-      return :brawlers    if GameObj.targets.map(&:noun).select {|n| n.eql?("brawler")}.size > 1
+      return :brawlers    if GameObj.targets.map(&:noun).select {|n| n.eql?("brawler") or n.eql?("psionicist")}.size > 1
       return nil          if Script.running?("give")
       return :dolls       if GameObj.targets.any? {|f| f.noun.eql?("doll")}
       return :fissure     if checkloot.include?('fissure')
