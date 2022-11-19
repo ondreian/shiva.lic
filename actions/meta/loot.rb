@@ -1,13 +1,19 @@
 module Shiva
   class Loot < Action
-    Skinnable = %w(cerebralite lich sidewinder crawler warg mastodon hinterboar brawler warlock fanatic)
+    Skinnable = %w(
+      cerebralite lich crawler
+      sidewinder
+      warg mastodon hinterboar
+      brawler warlock fanatic
+      dreadsteed
+    )
 
     def priority
       Priority.get(:high) - 1
     end
 
     def dead
-      GameObj.npcs.to_a.select {|foe| foe.status.include?("dead")}
+      GameObj.npcs.to_a.select {|foe| foe.status.include?("dead")}.reject {|foe| %w(glacei).include?(foe.noun)}
     end
 
     def should_unhide?

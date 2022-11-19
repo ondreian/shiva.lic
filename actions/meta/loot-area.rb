@@ -95,14 +95,14 @@ module Shiva
     end
 
     def apply()
-      
       this_loot = self.nonce self.loot
       return if this_loot.empty?
       Log.out(self.loot.map(&:name), label: %i(loot))
       waitrt?
       self.loot_silvers if GameObj.loot.any? {|i| i.name.eql?(%[some silver coins])}
+      this_loot.reject! {|i| i.name.eql?(%[some silver coins])}
+      return if this_loot.empty?
       Hand.use {
-        this_loot.reject! {|i| i.name.eql?(%[some silver coins])}
         if dangerous?
           self.slow_loot(this_loot)
         else

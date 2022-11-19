@@ -35,31 +35,18 @@ module Shiva
       percentmind >= 100
     end
 
-    def axp
-      Vars["shiva/axp"] || 100
-    end
-
-    def exp
-      Vars["shiva/exp"] || 0
-    end
-
-    def set_asc(amount)
-      times = amount.to_s == "0" ? 1 : 2
-      times.times {fput "asc set %s" % amount}
-    end
-
     def apply()
-      self.set_asc self.axp
-      waitrt?
-      case dothistimeout("rub #%s" % self.brooch.id, 5, Outcomes::All)
-      when Outcomes::Ok
-        :ok
-      when Outcomes::Err
-        Log.out("used for the day!", label: %i(brooch))
-        @@used = self.day
-        Script.start("lte")
-      end
-      self.set_asc self.exp
+      Axp.apply {
+        waitrt?
+        case dothistimeout("rub #%s" % self.brooch.id, 5, Outcomes::All)
+        when Outcomes::Ok
+          :ok
+        when Outcomes::Err
+          Log.out("used for the day!", label: %i(brooch))
+          @@used = self.day
+          Script.start("lte")
+        end
+      }
     end
   end
 end

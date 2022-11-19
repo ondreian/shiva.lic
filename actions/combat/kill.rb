@@ -11,11 +11,21 @@ module Shiva
       Claim.mine?
     end
 
+    def get_best_area(foe)
+      proposed_area = foe.kill_shot Aiming.lookup(foe)
+      Log.out("{foe=%s, aim=%s}" % [foe.name, @area])
+      return :ok if proposed_area.eql?(@area)
+      @area = proposed_area
+      Char.aim(@area) unless
+      @area
+    end
+
     def kill(foe)
       Stance.offensive
       if Skills.ambush < 25 || (foe.tall? && !foe.status.include?(:prone)) || foe.name =~ /spectral|ethereal|triton protector/
         put "attack #%s clear" % foe.id
       else
+        self.get_best_area(foe)
         put "attack #%s head" % foe.id
       end
       Timer.await()

@@ -23,7 +23,7 @@ module Shiva
 
     def apply()
       Spell[117].cast
-      Char.hide if Skills.stalkingandhiding > Char.level and not hidden? and not invisible?
+      #Char.hide if Skills.stalkingandhiding > Char.level and not hidden? and not invisible? and not Bounty.type.eql?(:bandits)
     end
   end
 end

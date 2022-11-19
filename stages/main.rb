@@ -21,7 +21,7 @@ module Shiva
 
       loop {
         action = self.make_decision()
-        Log.out(action, label: %i(previous action)) unless action.eql?(@previous_action)
+        #Log.out(action, label: %i(previous action)) unless action.eql?(@previous_action)
         @previous_action = action
         break if @previous_action.eql?(:rest)
         sleep 0.1

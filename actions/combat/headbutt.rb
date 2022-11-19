@@ -9,7 +9,7 @@ module Shiva
 
     def available?(foe)
       Nouns.include?(foe.noun) and
-      Char.prof.eql?("Rogue") and
+      CMan.headbutt > 0 and
       not Effects::Buffs.active?("Shrouded") and
       foe.status.empty? and
       Seen.count(foe.id) < 2 and

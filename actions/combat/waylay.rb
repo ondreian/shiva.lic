@@ -1,6 +1,7 @@
 module Shiva
   class Waylay < Action
-    Nouns = %w(monstrosity destroyer crusader golem psionicist protector automaton)
+    Nouns = %w(monstrosity destroyer crusader golem psionicist protector automaton grotesque)
+
     def priority(foe)
       if Nouns.include?(foe.noun) && self.dagger?
         89

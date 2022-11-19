@@ -32,6 +32,7 @@ module Shiva
 
     def max_foes
       return 3 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Hinterwilds")
+      return 2 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Moonsedge")
       return 5 if Skills.multiopponentcombat > 100
       return 3 if Skills.multiopponentcombat > 50
       return Group.size + 1
@@ -39,7 +40,7 @@ module Shiva
 
     def available?(foe)
       return false if Opts["manual"]
-      return false unless self.env.boundaries.is_a?(Array) and not self.env.boundaries.empty?
+      return false if self.env.rooms.empty? #self.env.boundaries.is_a?(Array) and not self.env.boundaries.empty?
       return false if Script.running?("mend") && GameObj.targets.empty?
       return false unless Group.leader? or Group.empty?
       return false if Group.members.map(&:status).flatten.compact.size > 0
@@ -106,7 +107,7 @@ module Shiva
       when :bandits
         Log.out("wander -> bandits", label: %i(action))
         Stance.forward
-        Bandits.crawl(self.env.area)
+        Bandits.crawl(Bounty.area)
       else
         self.wander(reason: self.reason)
       end

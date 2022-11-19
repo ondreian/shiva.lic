@@ -30,6 +30,7 @@ module Shiva
     end
 
     def reason
+      return false if %i(escort bandits invasion).include?(self.env.name)
       return :graceful_exit if $shiva_graceful_exit.eql?(true)
       return :burrowed if Effects::Debuffs.active?("Burrowed")
       return :over_exerted if Effects::Debuffs.active?("Overexerted") and not Char.prof.eql?("Empath")
@@ -38,11 +39,14 @@ module Shiva
       return :encumbrance if percentencumbrance > 10
       return :wounded if self.wounded?
       return :health if self.bleeding?
+      return :dread if Dread.status > 5
+      return :bounty if self.env.name.eql?(:bandits) and Task.can_complete?
       return :bounty if Task.can_complete? && percentmind.eql?(100) && Group.empty? && !Boost.loot?
       return :uptime if @env.uptime > (20 * Minute) && percentmind.eql?(100)
       return :mana if self.out_of_mana?
       return :unknown if @env.state.eql?(:rest)
       return :hypothermia if Hypothermia.status > 60
+      return :get_bounty if Bounty.type.eql?(:none) and not Task.cooldown? and not Boost.loot?
       return false
     end
 
@@ -57,11 +61,15 @@ module Shiva
     def apply()
       Log.out(@reason, label: %i(rest reason))
       return unless Claim.mine?
-      search_dead_creatures = @env.action(:loot)
-      search_dead_creatures.apply if search_dead_creatures.available?
       sleep 1 unless @reason.eql?(:wounded)
-      loot_area = @env.action(:lootarea)
-      loot_area.apply 
+      loot_area = self.env.action(:lootarea)
+      search_dead_creatures = self.env.action(:loot)
+      Log.out("{search_dead=%s, loot_area=%s}" % [search_dead_creatures.available?, loot_area.available?])
+      if search_dead_creatures.available?
+        search_dead_creatures.apply
+        sleep 1
+      end
+      loot_area.apply
     end
   end
 end

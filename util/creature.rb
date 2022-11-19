@@ -1,6 +1,6 @@
 class Creature
   module Nouns
-    Tall = /golem|mastodon|hinterboar|titan|gigas|massive\s|mammoth|yeti|grahnk|giant\b|cyclops|monstrosity|construct/
+    Tall = /golem|mastodon|troll|hinterboar|titan|gigas|massive\s|mammoth|yeti|grahnk|giant\b|cyclops|monstrosity|construct/
   end
 
   def tall?

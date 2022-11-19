@@ -64,13 +64,10 @@ module Shiva
     def run
       fail "no environment attached" if @env.nil?
       self.reset!
-      loop {
-        self.setup!
-        self.main!
-        self.teardown!
-        self.reset!
-        exit unless Opts["daemon"]
-      }
+      self.setup!
+      self.main!
+      self.teardown!
+      self.reset!
     end
   end
 end

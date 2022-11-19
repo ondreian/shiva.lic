@@ -61,13 +61,13 @@ module Shiva
     end
 
     def rooms()
-      return [] if @boundaries.nil? or self.entry.nil?
+      return [] if self.boundaries.nil? or self.entry.nil?
       @_subgraph ||= self._rooms()
     end
 
     def _rooms()
       _subgraph   = []
-      _boundaries = @boundaries.map(&:to_s)
+      _boundaries = self.boundaries.map(&:to_s)
       _pending    = []
       entry_room  = Room[self.entry.to_i]
       process_room = -> room {
@@ -113,9 +113,9 @@ module Shiva
 
     def action(query)
       if query.is_a?(Symbol)
-        @env.actions.find {|a| a.class.name.downcase.split("::").last.to_sym.eql?(query)}
+        self.actions.find {|a| a.to_sym.eql?(query)}
       else
-        @env.actions.find {|a| a.class.name =~ /#{query}/i}
+        self.actions.find {|a| a.class.name =~ /#{query}/i}
       end
     end
 
