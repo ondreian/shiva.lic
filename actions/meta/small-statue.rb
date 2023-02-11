@@ -1,7 +1,7 @@
 module Shiva
   class SmallStatue < Action
     def priority
-      Priority.get(:high)
+      1_000 #Priority.get(:high)
     end
 
     def statue
@@ -16,14 +16,19 @@ module Shiva
     end
 
     def apply()
-      stat = self.statue
-      Hand.use {
-        stat.take
-        fput "rub #%s" % stat.id
-        Containers.lootsack.add(stat) if [Char.left.id, Char.right.id].include?(stat.id)
-      }
-      ttl = Time.now + 2
-      wait_until {Effects::Spells.active?("Spirit Guard") or Time.now > ttl}
+      begin
+        stat = self.statue
+        Hand.use {
+          stat.take
+          fput "rub #%s" % stat.id
+          Containers.lootsack.add(stat) if [Char.left.id, Char.right.id].include?(stat.id)
+        }
+        ttl = Time.now + 2
+        wait_until {Effects::Spells.active?("Spirit Guard") or Time.now > ttl}
+      rescue
+        empty_hands
+        Char.arm
+      end
     end
   end
 end

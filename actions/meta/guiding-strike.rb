@@ -5,17 +5,23 @@ module Shiva
     end
 
     def should?(foe)
+      return false if %i(duskruin).include? self.env.name
+      return false if %i(escort bandits).include?(Bounty.type)
       return true if %w(shaper master).include?(foe.noun)
       return true if percentmana > 90
       return true if Room.current.location.eql?("the Hinterwilds") and foe.nil?
       return false
     end
 
+    def active?
+      Effects::Buffs.active?("Spirit Strike") or Spell[117].active?
+    end
+
     def available?(foe)
       Spell[117].known? and
+      not self.active? and
       percentmana > 20 and
       Char.prof.eql?("Rogue") and
-      not Spell[117].active? and
       self.should?(foe) and
       not hidden? and
       Group.empty?
@@ -23,7 +29,8 @@ module Shiva
 
     def apply()
       Spell[117].cast
-      #Char.hide if Skills.stalkingandhiding > Char.level and not hidden? and not invisible? and not Bounty.type.eql?(:bandits)
+      ttl = Time.now + 1
+      wait_until {self.active? or Time.now > ttl}
     end
   end
 end

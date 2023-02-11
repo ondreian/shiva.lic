@@ -27,12 +27,20 @@ module Shiva
       }
   end
 
-  def self.run_with_env(env_name)
-    #Shiva.load_all_modules
+  def self.run_once(env_name)
     controller = Shiva::Controller.new()
     controller.set_env(env_name)
     $shiva = controller
     controller.run()
+  end
+
+  def self.run(env_name)
+    loop {
+      self.run_once(env_name)
+      break if $shiva_graceful_exit
+      break unless Opts["daemon"]
+      sleep 0.1
+    }
   end
 
   def self.simulate
@@ -61,59 +69,120 @@ module Shiva
   end
 
   def self.best_env(town = self.town)
-    available_environments = self.environments(town)
+    available_environments = self.environments(town).select {|area| area.level.include?(Char.level)}
     creature = Bounty.task.creature
+     fail "did not find a matching environment for level=%s" % Char.level if available_environments.empty?
     return available_environments.sample if creature.nil?
     creature_noun = creature.split.last
-    matching_environments = available_environments.select {|env| env.foe_nouns.include?(creature_noun)}
+    matching_environments = available_environments
+      .select {|env| env.native_foes.include?(creature_noun)}
     fail "did not find a matching environment for #{creature}" if matching_environments.empty?
     matching_environments.sample
   end
 
-  def self.hunt
-    env_name = self.best_env.name
-    _respond "<b>hunting in %s</b>" % env_name
-    self.run_with_env(env_name)
+  def self.hunt(env: self.best_env, resume: false)
+    env_name = env.name
+    if resume
+      Log.out("resuming %s" % env_name, label: %i(env resume))
+    else
+      _respond "<b>hunting in %s</b>" % env_name
+    end
+    self.run_once(env_name)
+  end
+
+  def self.task
+    Task.advance self.town
+  end
+
+  def self.bounty!
+    case Bounty.type
+    when :succeeded, :report_to_guard, :failed, :get_heirloom, :creature_problem, :get_skin_bounty, :get_bandits
+      self.task
+    when :none
+      self.task unless Task.cooldown?
+      if Bounty.type.eql?(:none) and Task.cooldown? and ::EBoost.bounty.available? and Effects::Cooldowns.to_h.dig("Next Bounty") - Time.now > (60 * 7.5) and Script.exists?("use-boost-bounty") and Vars["shiva/boost"]
+        Script.run("use-boost-bounty")
+      else
+        self.hunt if Bounty.type.eql?(:none)
+      end
+    when :dangerous, :cull, :heirloom, :skin, :gem
+      self.hunt
+    when :herb
+      fail "eforage.lic not detected to run herb tasks" unless Script.exists?("eforage")
+      Script.run("eforage", "--bounty")
+      self.task
+    when :bandits
+      if %(rogue warrior).include? Char.prof.downcase
+        self.bandits
+      else
+        Bounty.remove
+      end
+    when :escort
+      self.escort(self.town)
+    else
+      fail "shiva/auto not implemented for %s" % Bounty.type
+    end
+  end
+
+  def self.available_environments
+    self.environments(self.town).select {|env| env.level.include?(Char.level)}
+  end
+
+  def self.handle_conditions!
+    Boost.experience
+    Conditions::Cutthroat.handle!
+    Conditions::Saturated.handle! unless Boost.loot?
+    Conditions::Overexerted.handle!
+    Conditions::Burrowed.handle!
+    Conditions::Hypothermia.handle!
+  end
+
+  def self.handle_room_desc!
+    fput "flag desc off"
+    before_dying {fput "flag desc on"}
+  end
+
+  def self.preflight!
+    fail "no environments found for #{self.town}" if self.available_environments.empty?
+    respond "{town=%s, environs=%s}" % [self.town, self.available_environments.map(&:name).join(",")]
+    return if available_environments.any?(&:current?)
+    Base.go2
+    Script.run("waggle")
+    self.handle_conditions!
+  end
+
+  def self.down!(msg = nil)
+    Base.go2
+    _respond "<b>%s</b>" % msg if msg.is_a?(String)
+    exit
+  end
+
+  def self.daemon?
+    Log.out("{graceful_exit=%s, daemon=%s}" % [$shiva_graceful_exit, Opts["daemon"]], label: %i(daemon?))
+    self.down!("shutting down because of graceful_exit...") if $shiva_graceful_exit
+    return if Opts["daemon"]
+    self.down! "--daemon flag not detected, exiting..."
+  end
+
+  def self.current_env
+    self.available_environments.find(&:current?)
   end
 
   def self.auto()
+    $shiva_graceful_exit = false
     fput "exp"
     fput "bounty"
-    #Shiva.load_all_modules
+    self.handle_room_desc!
     loop {
-      Script.run("waggle")
-      closest_town = self.town
-      available_environments = self.environments self.town
-      fail "no environments found for #{closest_town}" if available_environments.empty?
-      respond "{town=%s, environs=%s}" % [closest_town, available_environments.map(&:name).join(",")]
-      if Mind.saturated?
-        Base.go2
-        wait_while("waiting on saturation...") {Mind.saturated?}
-      end
-      case Bounty.type
-      when :succeeded, :report_to_guard, :failed, :get_heirloom
-        Task.advance(closest_town)
-      when :none
-        Task.advance(closest_town) unless Task.cooldown?
-        self.hunt if Bounty.type.eql?(:none)
-      when :dangerous, :cull, :heirloom, :skin, :gem
+      self.preflight!
+      if env_to_resume = self.available_environments.find(&:current?)
+        self.hunt(env: env_to_resume, resume: true)
+      elsif Mind.saturated? && Bounty.done? && Opts["farm"]
         self.hunt
-      when :herb
-        fail "eforage.lic not detected to run herb tasks" unless Script.exists?("eforage")
-        Script.run("eforage", "--bounty")
-        Task.advance(closest_town)
-      when :bandits
-        self.bandits
-      when :escort
-        self.escort(closest_town)
       else
-        fail "shiva/auto not implemented for %s" % Bounty.type
+        self.bounty!
       end
-      unless Opts["daemon"]
-        Base.go2
-        _respond "<b>--daemon flag not detected, exiting...</b>"
-        exit
-      end
+      self.daemon?
     }
   end
 
@@ -123,20 +192,20 @@ module Shiva
   end
 
   def self.bandits
-    self.run_with_env(:bandits)
+    self.run_once(:bandits)
   end
 
   def self.control_room()
-    self.run_with_env(:escort)
+    self.run_once(:escort)
   end
 
   def self.init
     Shiva.load_all_modules
-    Script.run("eboost") if Script.exists?("eboost") && !defined?(::Boost)
+    Script.run("eboost") if Script.exists?("eboost") && !defined?(::EBoost)
     if Opts["simulate"]
       Shiva.simulate
     elsif Opts["env"]
-      Shiva.run_with_env Opts["env"]
+      Shiva.run Opts["env"]
     elsif Opts["load"]
       exit
     elsif Opts["auto"]

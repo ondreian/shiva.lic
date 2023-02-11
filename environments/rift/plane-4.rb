@@ -5,6 +5,11 @@ module Shiva
     @scripts    = %w(reaction lte effect-watcher)
     @foes       = %w(crawler crusader cerebralite)
     @boundaries = %w(12122 12207 12235)
+    @level      = (98..105)
+
+    def self.before_main
+      Boost.loot if not Bounty.type.eql?(:none) and Time.now.day < 15
+    end
 
     def self.before_teardown
       Voln.fog

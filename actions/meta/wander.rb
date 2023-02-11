@@ -15,7 +15,9 @@ module Shiva
     end
 
     def priority
-      GameObj.targets.map(&:noun).include?("monstrosity") ? Priority.get(:high) : Priority.get(:medium)
+      return Priority.get(:high) if self.env.foes.size > self.max_foes
+      return Priority.get(:high) unless (Vars["shiva/flee"].split(",") & GameObj.targets.map(&:noun)).empty?
+      Priority.get(:medium)
     end
 
     def recover_from_rifting()
@@ -33,6 +35,8 @@ module Shiva
     def max_foes
       return 3 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Hinterwilds")
       return 2 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Moonsedge")
+      return 1 if Room.current.location.include?("Atoll")
+      return 10 if self.env.name.eql?(:bandits)
       return 5 if Skills.multiopponentcombat > 100
       return 3 if Skills.multiopponentcombat > 50
       return Group.size + 1
@@ -63,7 +67,7 @@ module Shiva
       return :flee        if Vars["shiva/flee"].is_a?(String) && GameObj.targets.any? {|f| Vars["shiva/flee"].include?(foe.noun)}
       return :swarm       if self.env.foes.size > self.max_foes
       return :magma       if self.room_objs.include?("mass of undulating liquified rock")
-      return :cyclone     if self.room_objs.include?("frigid cyclone")
+      return :cyclone     if self.room_objs.include?("frigid cyclone") and GameObj.targets.any? {|f| f.noun.eql?("wendigo")}
       return :antimagic   if self.antimagic?
       return :empty       if self.env.foes.empty?
       return false
@@ -106,7 +110,7 @@ module Shiva
       case self.env.name.downcase.to_sym
       when :bandits
         Log.out("wander -> bandits", label: %i(action))
-        Stance.forward
+        #Stance.forward
         Bandits.crawl(Bounty.area)
       else
         self.wander(reason: self.reason)

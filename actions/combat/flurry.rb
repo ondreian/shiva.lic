@@ -9,6 +9,7 @@ module Shiva
     end
 
     def available?(foe)
+      not %i(duskruin).include?(self.env.name) and
       not foe.nil? and
       not Effects::Cooldowns.active?("Flurry") and
       not Effects::Buffs.active?("Slashing Strikes") and

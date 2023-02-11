@@ -13,6 +13,8 @@ module Shiva
     end
 
     def travel_to_hunting_area
+      waitcastrt?
+      waitrt?
       if Group.empty?
         Script.run("go2", "%s --disable-confirm" % self.env.entry.to_s)
       else
@@ -34,17 +36,19 @@ module Shiva
     
     def apply()
       fput "flag obvious on" if Skills.stalkingandhiding > Char.level
-      fput "exp"
-      fput "bounty"
+      #fput "exp"
+      #fput "bounty"
       Group.check
       Char.arm
       return if @env.rooms.include?(Room.current.id.to_s)
       self.get_bounty!
       fail "you are encumbered" unless percentencumbrance.eql?(0)
-      fail "you are injured"    if Char.total_wound_severity > 0 and not Opts.force
-      wait_while("wait/mana") { percentmana < 80 } unless %w(Rogue Warrior).include?(Char.prof)
+      Conditions::Injured.handle!
+      if !%w(Rogue Warrior).include?(Char.prof) and percentmana < 80
+        Base.go2
+        wait_while("wait/mana") { percentmana < 80 }
+      end
       fail "entry not defined for #{self.env.name}" unless self.env.entry
-      self.env.before_main if self.env.respond_to?(:before_main)
       self.travel_to_hunting_area
       self.activate_group
       fail "did not travel to #{Room[self.env.entry].title.first}" unless Room.current.id.eql?(self.env.entry)

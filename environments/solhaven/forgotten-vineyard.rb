@@ -1,6 +1,7 @@
 module Shiva
-  Environment.define :vineyard do
+  Environment.define :forgotten_vineyard do
     #@entry   = 5251
+    @level   = (60..70)
     @town    = %[Solhaven]
     @scripts = %w(reaction lte effect-watcher)
     @foes    = %w(bard bardess empath rogue shaman sorcerer sorceress)

@@ -2,8 +2,10 @@
 
 module Shiva
   class SymbolOfBless < Action
-    HookName    = ":symbol-of-bless"
-    NeedsBless  = %r[The <a exist="(\d+)" noun="\w+">\w+<\/a> strikes true]
+    HookName    = "shiva/symbol-of-bless"
+    NeedsBless  = Regexp.union(
+      %r[The <a exist="(\d+)" noun="\w+">\w+<\/a> strikes true],
+      %r[The <a exist="(\d+)" noun="\w+">\w+<\/a> strike true])
     @@weapon_id = nil
     
     def self.register()
@@ -23,11 +25,17 @@ module Shiva
     end
 
     def self.id
-      @@weapon_id
+      @@weapon_id.to_s
+    end
+
+    def self.owned?
+      Char.right.id.to_s.eql?(self.id) or 
+      Char.left.id.to_s.eql?(self.id) or
+      GameObj.inv.map(&:id).map(&:to_s).include?(self.id)
     end
   
     def self.needed?
-      @@weapon_id.is_a?(String) and (Char.right.id.eql?(@@weapon_id) or Char.left.id.eql?(@@weapon_id))
+      self.id and self.owned?
     end
 
     def self.reset!

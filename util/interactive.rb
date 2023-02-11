@@ -12,7 +12,7 @@ module Shiva
 
     def self.capture(msg, pattern)
       _respond "<b>%s</b>" % msg
-      system_notification(msg)
+      self.system_notification(msg)
       while line = get 
         return line if line.strip =~ pattern
       end

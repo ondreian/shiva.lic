@@ -5,5 +5,6 @@ module Shiva
     @town       = %[Solhaven]
     @scripts    = %w(reaction lte effect-watcher)
     @foes       = %w(shaper sidewinder sentinel fanatic lurk)
+    @level      = (95..105)
   end
 end

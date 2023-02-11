@@ -1,12 +1,11 @@
 module Shiva
-  Environment.define :borealforest do
+  Environment.define :boreal_forest do
     @entry      = 29882
+    @level      = (100..100)
     @boundaries = %w(29878 29949 30115 29901 29938 29902)
     @town       = %[Hinterwilds]
     @scripts    = %w(reaction lte effect-watcher)
-    @foes       = %w(
-        wendigo warg hinterboar bloodspeaker cannibal
-        golem mastodon berserker skald shield-maiden
-      )
+    @foes       = %w(golem bloodspeaker wendigo cannibal)
+    @wandering_foes = %w(warg skald hinterboar mastodon berserker shield-maiden)
   end
 end

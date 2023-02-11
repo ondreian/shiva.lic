@@ -13,9 +13,13 @@ module Shiva
         @previous_action = proposed_action
         sleep 0.1
       end
-      respond self.action(:loot)
-      self.action(:loot).apply
-      self.action(:loot_area).apply
+      
+      return unless Claim.mine?
+      search = self.action(:loot)
+      search.apply
+      sleep 0.1
+      loot = self.action(:lootarea)
+      loot.apply
     end
 
     def self.teardown

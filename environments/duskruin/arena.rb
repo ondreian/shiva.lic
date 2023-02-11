@@ -51,7 +51,7 @@ module Shiva
 
     def self.setup
       fail "you are encumbered" if percentencumbrance > 0
-      wait_while("waiting on mind..."){Mind.saturated?} if Opts["trickle"]
+      Conditions::Saturated.handle!
       self.activate_group
       $shiva_graceful_exit = false
       return if Rooms.combat.include?(Room.current.id)
@@ -85,7 +85,7 @@ module Shiva
       until self.done? do 
         (proposed_action, foe) = self.best_action
         Action.call(proposed_action, foe)
-        Log.out("proposed.action=%s foe=%s" % [proposed_action.to_sym, foe.name], label: %i(duskruin logic)) unless proposed_action.eql?(@previous_action)
+        Log.out("proposed.action=%s foe=%s" % [proposed_action.to_sym, foe.name || :nil], label: %i(duskruin logic)) unless proposed_action.eql?(@previous_action)
         @previous_action = proposed_action
         sleep 0.1
       end

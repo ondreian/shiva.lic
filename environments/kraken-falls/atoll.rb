@@ -6,6 +6,7 @@ module Shiva
     @foes       = %w(brawler warlock protector assassin)
     @boundaries = %w(30815)
     @divergence = true
+    @level      = (95..100)
 
     def self.before_main
       Stance.defensive

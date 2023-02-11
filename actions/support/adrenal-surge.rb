@@ -7,7 +7,8 @@ module Shiva
     def available?
       Spell[1107].affordable? and
       Spell[1107].known? and
-      stamina < 50 and
+      Skills.slblessings > 64 and
+      checkstamina < 50 and
       not Effects::Cooldowns.active?("Adrenal Surge") and
       self.env.foes.empty?
     end

@@ -12,6 +12,7 @@ module Shiva
     def available?
       checkstamina > 20 and
       self.effected? and
+      not hidden? and
       Skills.stalkingandhiding > 250
     end
 

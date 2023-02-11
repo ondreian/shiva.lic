@@ -184,12 +184,13 @@ module Shiva
     end
 
     def self.crawl(area)
+      Log.out("crawling %s" % area)
       Char.stand.unhide
       # self.search
       waitcastrt?
       waitrt?
       self.poll_bandits!
-      return if bandit_count > 0 && Claim.current?
+      #return if bandit_count > 0 && Claim.current?
       candidates_for_crawling = Bandits.candidates(Room.current.wayto, self.rooms(area)).map(&:last)
       Move.rand(candidates_for_crawling, peer: true) {self.bandit_count > 0}
       @cooldown << [Room.current.id, Time.now + 10]

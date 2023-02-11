@@ -1,6 +1,7 @@
 module Shiva
   Environment.define :woodsmen do
     @entry   = 9033
+    @level   = (20..30)
     @town    = %[Solhaven]
     @scripts = %w(reaction lte effect-watcher)
     @foes    = %w(woodsman wight)

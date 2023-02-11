@@ -1,6 +1,6 @@
 module Shiva
   module Team
-    HEALERS    = %w(Pixelia Dithio Scarface)
+    HEALERS    = Vars["shiva/healers"] || %w(Pixelia Dithio Scarface)
     SKINNNERS  = %w(Pixelia)
 
     @expiry = Time.now
@@ -39,7 +39,6 @@ module Shiva
         @expiry = Time.now + 5
         Cluster.request(healer, channel: :heal)
       end
-      ttl = Time.now + 5
     end
 
     def self.request_mana(mana = nil)

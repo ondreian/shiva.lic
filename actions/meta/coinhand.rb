@@ -11,15 +11,15 @@ module Shiva
 
     def attach
       coinhand = self
-      DownstreamHook.add("coinhand/watcher", -> line {
-      begin
-        coinhand.gained_silver = true if line.start_with?("You gather the remaining")
-      rescue => exception
-        Log.out(exception)
-      ensure
-        return line
-      end
-    })
+      DownstreamHook.add("shiva/coinhand", -> line {
+        begin
+          coinhand.gained_silver = true if line.start_with?("You gather the remaining")
+        rescue => exception
+          Log.out(exception)
+        ensure
+          return line
+        end
+      })
     end
 
     def gained_silver?

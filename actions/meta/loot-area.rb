@@ -35,13 +35,11 @@ module Shiva
         Trash.include?(item) or 
         item.id.start_with?("-") or 
         item.type.include?("junk") or
-        item.noun.eql?("disk") or
-        item.noun.eql?("bandana") or
         item.type.include?("food") or
         item.type.include?("herb") or
-        item.noun.eql?("kitten") or
-        item.name.eql?("a razern spear head") or
-        item.noun.eql?("puppy") or
+        item.name.end_with?("spear head") or
+        item.name.end_with?("sticky web") or
+        %w(wagon sign mandrake bandana kitten puppy disk signpost).include?(item.noun) or
         self.cursed?(item)
       }
     end

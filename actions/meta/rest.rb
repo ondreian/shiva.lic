@@ -33,19 +33,19 @@ module Shiva
       return false if %i(escort bandits invasion).include?(self.env.name)
       return :graceful_exit if $shiva_graceful_exit.eql?(true)
       return :burrowed if Effects::Debuffs.active?("Burrowed")
-      return :over_exerted if Effects::Debuffs.active?("Overexerted") and not Char.prof.eql?("Empath")
+      return :overexerted if Effects::Debuffs.active?("Overexerted") and not Char.prof.eql?("Empath")
       return :interrupt if self.env.state.eql?(:rest)
       return :full_containers if Char.left.type =~ /box/ and not Script.running?("give")
       return :encumbrance if percentencumbrance > 10
       return :wounded if self.wounded?
       return :health if self.bleeding?
-      return :dread if Dread.status > 5
-      return :bounty if self.env.name.eql?(:bandits) and Task.can_complete?
-      return :bounty if Task.can_complete? && percentmind.eql?(100) && Group.empty? && !Boost.loot?
+      return :dread if Conditions::Dread.crushing > 1
+      return :bounty if self.env.name.eql?(:bandits) and Bounty.type.eql?(:report_to_guard)
+      return :bounty if Task.can_complete? && (percentmind.eql?(100) && !Mind.saturated?) && Group.empty? && !Boost.loot?
       return :uptime if @env.uptime > (20 * Minute) && percentmind.eql?(100)
       return :mana if self.out_of_mana?
       return :unknown if @env.state.eql?(:rest)
-      return :hypothermia if Hypothermia.status > 60
+      return :hypothermia if Conditions::Hypothermia.status > 40
       return :get_bounty if Bounty.type.eql?(:none) and not Task.cooldown? and not Boost.loot?
       return false
     end

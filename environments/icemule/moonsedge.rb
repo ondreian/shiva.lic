@@ -5,6 +5,7 @@ module Shiva
     @town       = %[404] # %[Icemule]
     @scripts    = %w(reaction lte effect-watcher)
     @foes       = %w(vampire grotesque ghast banshee knight dreadsteed)
+    @level      = (100..100)
 
     def self.before_main
       gorget = GameObj.inv.find {|i| i.name.eql?("gorget")}

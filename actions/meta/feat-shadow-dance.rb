@@ -8,6 +8,7 @@ module Shiva
       checkstamina > 40 and
       not Effects::Buffs.active?("Shadow Dance") and
       not Effects::Cooldowns.active?("Shadow Dance") and
+      not %i(bandits escort).include?(self.env.name) and
       %w(Rogue).include?(Char.prof)
     end
 

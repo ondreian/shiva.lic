@@ -4,6 +4,7 @@ module Shiva
       18698, # Oberwood
       29881, # Hinterwilds
       29623, # Kraken's Fall
+      23780, # Duskruin Sands
     ]
     
     def self.bases

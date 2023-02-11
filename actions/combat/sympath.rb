@@ -17,7 +17,7 @@ module Shiva
       self.spell.affordable? and
       percentmana > 10 and
       self.env.foes.size > 1 and
-      self.env.foes.map(&:status).select(&:empty?).size > 1 and
+      self.env.foes.reject(&:undead?).map(&:status).select(&:empty?).size > 1 and
       Time.now > self.ttl
     end
 

@@ -1,4 +1,8 @@
 module Task
+  module Rare
+    Gems = /platinum fang|metallic black pearl|faceted black diamond|chalky yellow cube|urglaes|aster opal|doomstone|shadowglass orb|wyrdshard|thunderstone$/
+  end
+
   @last_expedite_expiry = Time.now
 
   def self.log()
@@ -48,6 +52,16 @@ module Task
     Effects::Cooldowns.active?("Next Bounty")
   end
 
+  def self.find_guard_with_retry(tries: 0)
+    fail "could not find guard" if tries > 10
+    begin
+      Bounty.find_guard
+    rescue Exception => _exception
+      sleep 5
+      self.find_guard_with_retry(tries: tries + 1)
+    end
+  end
+
   def self.advance(town)
     guild = self.room(town, "advguild")
     guild.id.go2
@@ -62,7 +76,7 @@ module Task
       self.advance(town)
     when :get_rescue, :creature_problem, :get_heirloom, :report_to_guard, :get_bandits
       self.room(town, "advguard").id.go2
-      Bounty.find_guard
+      Task.find_guard_with_retry
       Bounty.ask_for_bounty
       self.advance(town)
     when :succeeded
@@ -72,7 +86,7 @@ module Task
       return :waiting if Time.now < @last_expedite_expiry
       self.advance(town)
     when :gem
-      return self.sell_by_tag(town, "gemshop", Bounty.task.gem) if Bounty.task.gem !~ /faceted black diamond|chalky yellow cube|urglaes|aster opal|doomstone|shadowglass orb|wyrdshard/
+      return self.sell_by_tag(town, "gemshop", Bounty.task.gem) if Bounty.task.gem !~ Rare::Gems
       self.drop(town)
     when :get_skin_bounty
       self.room(town, "furrier").id.go2
@@ -83,22 +97,22 @@ module Task
       Bounty.ask_for_bounty
       self.advance(town)
     when :skin
-      return self.sell_by_tag(town, "furrier", Bounty.task.skin.slice(0..-2)) if Bounty.task.skin !~ /lich finger bones|rift crawler/
+      return self.sell_by_tag(town, "furrier", Bounty.task.skin.slice(0..-2)) if Bounty.task.skin !~ /lich finger bones/
       self.drop(town)
     when :rescue
       guild.id.go2
       self.drop(town)
     when :heirloom
-      return :ok unless Bounty.creature =~ /(lich|crusader|crawler|monstrosity|assassin)$/
+      return :ok unless Bounty.creature =~ /(lich|monstrosity|assassin|warden)$/
       guild.id.go2
       self.drop(town)
     when :dangerous, :cull
-      return :ok unless Bounty.creature =~ /(lich|crawler|monstrosity|assassin)$/
+      return :ok unless Bounty.creature =~ /(lich|monstrosity|assassin|warden)$/
       guild.id.go2
       self.drop(town)
     when :heirloom_found
       self.room(town, "advguard").id.go2
-      Bounty.find_guard
+      Task.find_guard_with_retry
       heirloom = Containers.lootsack.where(name: /#{Bounty.task.heirloom}/).first
       fail "could not find #{Bounty.task.heirloom}" if heirloom.nil?
       empty_hands
@@ -110,7 +124,8 @@ module Task
       fill_hands
       self.advance(town)
     when :get_herb_bounty
-      self.room(town, "npchealer").id.go2
+      tag = town =~ /hinterwilds/i ? "healer" : "npchealer"
+      self.room(town, tag).id.go2
       Bounty.ask_for_bounty
       self.advance(town)
     when :escort, :bandits
@@ -119,7 +134,8 @@ module Task
       return self.drop(town) if Bounty.herb =~ /fleshbulb|fleshbinder|fleshsore/
       herbs = Containers.lootsack.where(name: Bounty.herb).take(Bounty.number)
       return :ok if herbs.empty?
-      self.room(town, "npchealer").id.go2
+      tag = town =~ /hinterwilds/i ? "healer" : "npchealer"
+      self.room(town, tag).id.go2
       empty_hands
       herbs.each {|h|
         current_state = checkbounty
@@ -160,5 +176,11 @@ module Task
     else
       false
     end
+  end
+
+  def use_waiver
+    return unless defined?(Boost)
+    return unless Boost.waiver.available > 0
+    Effects::Buffs
   end
 end

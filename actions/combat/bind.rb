@@ -1,13 +1,13 @@
 module Shiva
   class Bind < Action
     def priority
-      7
+      1_000
     end
 
     def available?(foe)
       not foe.nil? and
       not foe.name.include?("Vvrael") and
-      foe.name =~ /psionicist|brawler/ and
+      foe.name =~ /brawler/ and
       foe.status.empty? and
       Spell[214].known? and
       Spell[214].affordable?

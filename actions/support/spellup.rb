@@ -10,7 +10,7 @@ module Shiva
     )
 
     def priority
-      4
+      1
     end
 
     def missing
@@ -22,11 +22,11 @@ module Shiva
     end
 
     def available?(foe)
-      foe.nil? and
       self.missing.size > 0
     end
 
     def apply(foe)
+      until GameObj.targets.empty? do walk end
       Stance.guarded
       Spell[self.missing.first].cast
     end

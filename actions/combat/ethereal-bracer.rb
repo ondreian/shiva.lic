@@ -2,9 +2,14 @@
 # https://gswiki.play.net/Ethereal_Bracer
 module Shiva
   class EtherealBracer < Action
-    def initialize(*args)
-      super(*args)
-      @cooldown = Time.now - 1
+    @cooldown ||= Time.now - 1
+
+    def self.cooldown
+      @cooldown
+    end
+
+    def self.add_cooldown(min)
+      @cooldown = Time.now + (min * 60)
     end
 
     def swarm?
@@ -22,7 +27,7 @@ module Shiva
     def available?(foe)
       not foe.nil? and
       not foe.name =~ /ethereal|spectral/ and
-      @cooldown < Time.now and
+      EtherealBracer.cooldown < Time.now and
       not hidden? and
       not self.bracer.nil?
     end
@@ -30,12 +35,12 @@ module Shiva
     def shoot(foe)
       return if foe.dead? or foe.gone?
       fput "point #%s at #%s" % [self.bracer.id, foe.id]
-      @cooldown = Time.now + (5 * 60)
+      EtherealBracer.add_cooldown(2)
     end
 
     def aoe
-       fput "raise #%s" % self.bracer.id
-      @cooldown = Time.now + (30 * 60)
+      fput "raise #%s" % self.bracer.id
+      EtherealBracer.add_cooldown(5)
     end
 
     def apply(foe)

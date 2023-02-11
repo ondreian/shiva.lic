@@ -2,6 +2,7 @@ module Shiva
   class Cutthroat < Action
     Cutthroat = []
     Immune    = %w(crawler cerebralite golem hinterboar)
+    DeathMetal = %w(mastodon cannibal shield-maiden crusader destroyer)
 
     def priority
       61
@@ -9,12 +10,18 @@ module Shiva
 
     def cost
       return 0 if Effects::Buffs.active?("Shadow Dance")
-      return 0 if Effects::Buffs.active?("Stamina Second Wind")
+      #return 0 if Effects::Buffs.active?("Stamina Second Wind")
       return 20
     end
 
     def reachable?(foe)
       not foe.tall? or foe.prone? or foe.status.include?(:frozen)
+    end
+
+    def reasonable?(foe)
+      return false if Immune.include?(foe.noun)
+      return Tactic.death_metal? if DeathMetal.include?(foe.noun)
+      return true
     end
 
     def available?(foe)
@@ -26,11 +33,12 @@ module Shiva
       not foe.nil? and
       not Cutthroat.include?(foe.id) and
       self.reachable?(foe) and
-      not Immune.include?(foe.noun)
+      self.reasonable?(foe)
     end
 
     def cutthroat(foe)
-      #Log.out(foe, label: %i(cutthroat))
+      Log.out("{foe=%s, cost=%s}" % [foe.name, self.cost], label: %i(cutthroat))
+      return if checkstamina < self.cost
       Stance.offensive
       result = dothistimeout "cman cutthroat #%s" % foe.id, 1, Regexp.union(
         %r[You slice deep into],

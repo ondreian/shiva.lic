@@ -36,11 +36,18 @@ module Shiva
       LNet.send_message(attr={'type'=>'private', 'to'=> receiver}, "There are now %s boxes on the ground at Oberwood" % box_count)
     end
 
-    def box_routine()
+    def box_routine(town)
       Char.unarm
       Log.out("running box routine...")
       #return unless Room.current.id.eql? 18698
       return Boxes.drop if Boxes.picker?
+      Task.room(town, "advguild").id.go2
+      # try to deposit boxes only, unless till encumbered, and then go take advantage of loot boost
+      if Boost.loot?
+        Script.run("eloot", "pool deposit")
+        return Script.run("eloot", "sell") if percentencumbrance > 0
+      end
+      
       Script.run("eloot", "sell")
     end
 
@@ -49,31 +56,22 @@ module Shiva
     end
 
     def cleanup(town)
-      cleanup_start = Time.now
       self.turn_in_bounty(town) if %i(report_to_guard skin heirloom_found).include? Bounty.type
-      Base.go2
-      fail "could not return to base" unless Room.current.id.eql?(Base.closest)
-      Team.request_healing if Char.total_wound_severity > 0 or percenthealth < 100
+      Conditions::Injured.handle!
       wait_while("waiting on healing") {Char.total_wound_severity > 1}
       Char.unarm
       wait_while("waiting on hands") {Char.left or Char.right} unless Char.left.type =~ /box/
-      self.box_routine()
+      self.box_routine(town)
       
       if Bounty.type.eql?(:gem) and Task.sellables.size > 0
         self.turn_in_bounty(town)
         Base.go2
       end
-
-      fput "boost exp" if Mind.saturated? and not Effects::Buffs.active?("Doubled Experience Boost") and not Boost.loot?
       
       self.report
-      exit if $shiva_graceful_exit.eql?(true) or not Group.empty? or not Opts["daemon"]
-      wait_until("waiting for burrow to reset") {Time.now > cleanup_start + 60} if $shiva_rest_reason.eql?(:burrowed)
-      wait_while("waiting on mind") {Mind.saturated?} unless Boost.loot?
     end
 
     def apply()
-      self.env.before_teardown if self.env.respond_to?(:before_teardown)
       self.cleanup(self.env.town) if self.env.town
     end
   end

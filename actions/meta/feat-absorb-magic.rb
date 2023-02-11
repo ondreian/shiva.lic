@@ -10,6 +10,7 @@ module Shiva
       not Effects::Buffs.active?("Absorb Magic") and
       not Effects::Cooldowns.active?("Absorb Magic") and
       Feat.absorb_magic > 0 and
+      not stunned? and
       muckled?
     end
 

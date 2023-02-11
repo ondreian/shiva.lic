@@ -1,6 +1,7 @@
 module Shiva
   Environment.define :fenghai do
     @entry   = 5251
+    @level   = (20..30)
     @town    = %[Solhaven]
     @scripts = %w(reaction lte effect-watcher)
     @foes    = %w(fenghai)

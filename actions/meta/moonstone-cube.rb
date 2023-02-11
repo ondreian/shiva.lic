@@ -17,16 +17,22 @@ module Shiva
     end
 
     def apply()
-      item = self.cube
-      waitcastrt?
-      waitrt?
-      Hand.use {
-        item.take
-        fput "rub #%s" % item.id
-        Containers.lootsack.add(item) if [Char.left.id, Char.right.id].include?(item.id)
-      }
-      ttl = Time.now + 2
-      wait_until {Effects::Spells.active?("Martial Prowess") or Time.now > ttl}
+      begin
+        item = self.cube
+        waitcastrt?
+        waitrt?
+        Hand.use {
+          item.take
+          fput "rub #%s" % item.id
+          Containers.lootsack.add(item) if [Char.left.id, Char.right.id].include?(item.id)
+        }
+        ttl = Time.now + 2
+        wait_until {Effects::Spells.active?("Martial Prowess") or Time.now > ttl}
+      rescue Exception => e
+        Log.out(e)
+        empty_hands
+        Char.arm
+      end
     end
   end
 end

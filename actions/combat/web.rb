@@ -1,7 +1,7 @@
 module Shiva
   class Web < Action
     def priority
-      8
+      1_000
     end
 
     def available?(foe)

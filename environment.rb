@@ -39,20 +39,38 @@ module Shiva
       Time.now - @start_time
     end
 
+    def native_foes
+      @foes || []
+    end
+
+    def wandering_foes
+      @wandering_foes || []
+    end
+
     def foe_nouns
-      @foes
+      self.wandering_foes + self.native_foes
+    end
+
+    def level
+      @level
     end
 
     def setup
+      self.before_setup if self.respond_to?(:before_setup)
       Setup.new(self).apply()
+      self.after_setup if self.respond_to?(:after_setup)
     end
 
     def main
+      self.before_main if self.respond_to?(:before_main)
       Main.new(self).apply()
+      self.after_main if self.respond_to?(:after_main)
     end
 
     def teardown
+      self.before_teardown if self.respond_to?(:before_teardown)
       Teardown.new(self).apply()
+      self.after_teardown if self.respond_to?(:after_teardown)
     end
 
     def reset!
@@ -93,16 +111,21 @@ module Shiva
       self.instance_eval(&block)
     end
 
+    def current?
+      return true if self.rooms.empty?
+      return self.rooms.map(&:to_i).include?(Room.current.id)
+    end
+
     def foes
       return [] unless Claim.mine?
-      return GameObj.targets.map {|f| Creature.new(f)} if @foes.nil?
-      Foes.select {|foe| @foes.include?(foe.noun) }.sort_by do |foe|
+      return GameObj.targets.map {|f| Creature.new(f)} if self.foe_nouns.empty?
+      Foes.select {|foe| self.foe_nouns.include?(foe.noun) }.sort_by do |foe|
         if foe.name =~ /grizzled|ancient/
           0
         elsif checkbounty.include?(foe.noun) and not Group.empty?
           1
         else
-          2 + @foes.index(foe.noun) - foe.status.size
+          2 + self.foe_nouns.index(foe.noun) - foe.status.size
         end
       end
     end
@@ -125,6 +148,7 @@ module Shiva
       Log.out(proposed_action.is_a?(Symbol) ? proposed_action : proposed_action.to_sym, 
         label: %i(proposed action)) unless proposed_action == @action_history.last
       @action_history << proposed_action
+      @action_history.shift while @action_history.size > 10
       [proposed_action, current_foe]
     end
   end

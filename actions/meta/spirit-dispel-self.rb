@@ -14,7 +14,8 @@ module Shiva
       Effects::Debuffs.active?("Mindwipe") or
       Effects::Debuffs.active?("Pious Trial") or
       Effects::Debuffs.active?("Thought Lash") or
-      Effects::Debuffs.active?("Confusion")
+      Effects::Debuffs.active?("Confusion") or
+      Effects::Debuffs.active?("Vertigo")
     end
 
     def available?

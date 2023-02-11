@@ -2,9 +2,19 @@ module Hand
   def self.apply(side)
     waitrt?
     hand = Char.send(side)
-    Containers.harness.add(hand) unless hand.nil?
+    unless hand.nil?
+      5.times { 
+        Containers.harness.add(hand)
+        break if Char.send(side).nil?
+      }
+    end
     yield(side)
-    Containers.harness.where(id: hand.id).first.take unless hand.nil?
+    unless hand.nil?
+      5.times {
+        Containers.harness.where(id: hand.id).first.take
+        break if Char.send(side).id.eql?(hand.id)
+      }
+    end
   end
 
   def self.right(&block)

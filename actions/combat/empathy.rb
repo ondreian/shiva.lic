@@ -1,5 +1,5 @@
 module Shiva
-  class Wither < Action
+  class Empathy < Action
     def priority
       10
     end
@@ -7,14 +7,15 @@ module Shiva
     def available?(foe)
       not foe.nil? and
       not foe.name.include?("Vvrael") and
-      foe.name =~ /spectral|triton protector|ethereal|psionicist/ and
-      Spell[1115].known? and
-      Spell[1115].affordable?
+      foe.name =~ /brawler/ and
+      foe.status.empty? and
+      Spell[1108].known? and
+      Spell[1108].affordable?
     end
 
     def apply(foe)
+      fput "prep 1108\rcast #%s" % foe.id
       waitcastrt?
-      fput "target #%s\rincant 1115" % foe.id
     end
   end
 end

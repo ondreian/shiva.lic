@@ -13,7 +13,9 @@ module Shiva
     end
 
     def dead
-      GameObj.npcs.to_a.select {|foe| foe.status.include?("dead")}.reject {|foe| %w(glacei).include?(foe.noun)}
+      GameObj.npcs.to_a
+      .select {|foe| foe.status.include?("dead")}
+      .reject {|foe| %w(glacei).include?(foe.noun)}
     end
 
     def should_unhide?
@@ -39,8 +41,8 @@ module Shiva
     end
 
     def dagger_hand
-      return :right if %w(dirk dagger knife).include?(Char.right.noun)
-      return :left if %w(dirk dagger knife).include?(Char.left.noun)
+      return :right if Tactic::Nouns::Dagger.include?(Char.right.noun)
+      return :left if Tactic::Nouns::Dagger.include?(Char.left.noun)
       return nil
     end
 
@@ -48,7 +50,7 @@ module Shiva
       return :unskinnable unless Skinnable.include?(creature.noun)
       return :no_skill unless (Skills.survival + Skills.firstaid) / (Char.level * 0.5) > 0.5
       return fput "skin #%s %s" % [creature.id, self.dagger_hand] if self.dagger_hand
-      dagger = Containers.harness.where(noun: /dagger|knife|dirk/).first
+      dagger = Containers.harness.where(noun: Tactic::Nouns::Dagger).first
       return :no_dagger if dagger.nil?
       right = Char.right
       Containers.harness.add(right) unless Char.left.nil? or Char.right.nil?

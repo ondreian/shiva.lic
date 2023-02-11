@@ -6,12 +6,19 @@ module Shiva
       62
     end
 
+    def situationals(foe)
+      return true if %w(crusader).include?(foe.noun)
+      return true if Boost.loot? and checkstamina > 70
+      return !Effects::Buffs.active?("Shadow Dance")
+    end
+
     def available?(foe)
       not self.env.name.eql?(:duskruin) and
       not foe.nil? and
       not checkloot.to_a.include?("thorny vine") and
-      not Effects::Buffs.active?("Shadow Dance") and
+      self.situationals(foe) and
       not Mugged.include?(foe.id) and
+      not %w(mastodon hinterboar).include?(foe.noun) and
       not foe.status.empty? and
       CMan.mug > 0 and
       Tactic.edged? and

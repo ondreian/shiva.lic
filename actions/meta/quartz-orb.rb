@@ -10,6 +10,7 @@ module Shiva
     end
 
     def available?(foe)
+      return false if %w(Rogue Warrior).include?(Char.prof)
       return false if self.orb.nil?
       return false if Effects::Spells.active?("Mystic Focus")
       return false if Feat.kroderine_soul > 0

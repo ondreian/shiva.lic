@@ -1,17 +1,13 @@
 module Shiva
   class Waylay < Action
-    Nouns = %w(monstrosity destroyer crusader golem psionicist protector automaton grotesque)
+    Nouns = %w(monstrosity crusader golem psionicist protector automaton grotesque)
 
     def priority(foe)
-      if Nouns.include?(foe.noun) && self.dagger?
+      if Nouns.include?(foe.noun) && Tactic.edged?
         89
       else
         100
       end
-    end
-
-    def dagger?
-      %w(knife dagger dirk coustille).include?(Char.right.noun)
     end
 
     def has_melee_skill?

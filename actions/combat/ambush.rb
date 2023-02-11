@@ -112,7 +112,7 @@ module Shiva
         self.get_best_area(foe)
         Log.out("%s -> %s" % [foe.name, @area], label: %i(killshot))
 
-        if foe.noun.eql?("destroyer") and not %w(head neck).include?(@area)
+        if %w(destroyer crawler).include?(foe.noun) and not %i(head neck).include?(@area)
           return DENY << foe.id
         end
       end
