@@ -1,15 +1,16 @@
 module Shiva
   module Base
+    NorthMarket  = 1438
+
     DefaultBases = [
       18698, # Oberwood
-      29881, # Hinterwilds
-      29623, # Kraken's Fall
+      29881, # Hinterwilds   / Den
+      29623, # Kraken's Fall / HoA headquarters
       23780, # Duskruin Sands
     ]
     
     def self.bases
-      return DefaultBases unless Vars["shiva/bases"]
-      Vars["shiva/bases"].split(",").map(&:to_i)
+      Config.bases or DefaultBases
     end
 
     def self.closest

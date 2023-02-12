@@ -11,7 +11,7 @@ module Shiva
     end
 
     def self.picker?
-      Vars["spa/picker"] && GameObj.pcs.find {|pc| pc.noun.eql?(Vars["spa/picker"])}
+      Config.picker && GameObj.pcs.find {|pc| pc.noun.eql?(Config.picker)}
     end
 
     def self.drop()

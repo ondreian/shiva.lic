@@ -58,7 +58,7 @@ module Shiva
 
   def self.town()
     return Opts["town"] if Opts["town"]
-    return Vars["shiva/town"] if Vars["shiva/town"]
+    return Config.town if Config.town
     town_id = Room.current.find_nearest_by_tag("town")
     fail "could not find the nearest town" if town_id.nil?
     Room[town_id].location
@@ -100,7 +100,7 @@ module Shiva
       self.task
     when :none
       self.task unless Task.cooldown?
-      if Bounty.type.eql?(:none) and Task.cooldown? and ::EBoost.bounty.available? and Effects::Cooldowns.to_h.dig("Next Bounty") - Time.now > (60 * 7.5) and Script.exists?("use-boost-bounty") and Vars["shiva/boost"]
+      if Bounty.type.eql?(:none) and Task.cooldown? and ::EBoost.bounty.available? and Effects::Cooldowns.to_h.dig("Next Bounty") - Time.now > (60 * 7.5) and Script.exists?("use-boost-bounty") and Config.use_boost?
         Script.run("use-boost-bounty")
       else
         self.hunt if Bounty.type.eql?(:none)
@@ -187,7 +187,7 @@ module Shiva
   end
 
   def self.escort(town)
-    return Task.drop(town) unless (Vars["shiva/escort"] || "").split(",").any? {|dest| Bounty.task.destination.downcase.include?(dest) }
+    return Task.drop(town) unless Config.escort.split(",").any? {|dest| Bounty.task.destination.downcase.include?(dest) }
     Script.run("escort")
   end
 

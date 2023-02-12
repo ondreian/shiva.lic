@@ -7,7 +7,7 @@ module Shiva
     def skilled?
       !Tactic.ranged? &&
       Tactic.can?(:rangedweapons) &&
-      Vars["shiva/ranged"] &&
+      Config.ranged_weapon &&
       !self.bow.nil?
     end
 
@@ -17,7 +17,7 @@ module Shiva
     end
 
     def bow
-      Containers.harness.where(name: Vars["shiva/ranged"]).first
+      Containers.harness.where(name: Config.ranged_weapon).first
     end
 
     def apply(foe)

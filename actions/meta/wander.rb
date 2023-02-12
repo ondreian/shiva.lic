@@ -16,7 +16,7 @@ module Shiva
 
     def priority
       return Priority.get(:high) if self.env.foes.size > self.max_foes
-      return Priority.get(:high) unless (Vars["shiva/flee"].split(",") & GameObj.targets.map(&:noun)).empty?
+      return Priority.get(:high) unless (Config.flee & GameObj.targets.map(&:noun)).empty?
       Priority.get(:medium)
     end
 
@@ -64,7 +64,7 @@ module Shiva
       return nil          if Script.running?("give")
       return :dolls       if GameObj.targets.any? {|f| f.noun.eql?("doll")}
       return :fissure     if checkloot.include?('fissure')
-      return :flee        if Vars["shiva/flee"].is_a?(String) && GameObj.targets.any? {|f| Vars["shiva/flee"].include?(foe.noun)}
+      return :flee        if Config.flee.is_a?(String) && GameObj.targets.any? {|f| Config.flee.include?(foe.noun)}
       return :swarm       if self.env.foes.size > self.max_foes
       return :magma       if self.room_objs.include?("mass of undulating liquified rock")
       return :cyclone     if self.room_objs.include?("frigid cyclone") and GameObj.targets.any? {|f| f.noun.eql?("wendigo")}

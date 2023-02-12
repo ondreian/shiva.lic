@@ -1,6 +1,5 @@
 module Shiva
   module Team
-    HEALERS    = Vars["shiva/healers"] || %w(Pixelia Dithio Scarface)
     SKINNNERS  = %w(Pixelia)
 
     @expiry = Time.now
@@ -12,7 +11,7 @@ module Shiva
     end
 
     def self.available_healers()
-      (GameObj.pcs.to_a.map(&:noun) & HEALERS).select do |healer|
+      (GameObj.pcs.to_a.map(&:noun) & Config.healers).select do |healer|
         Cluster.alive?(healer)
       end
     end

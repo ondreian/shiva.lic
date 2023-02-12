@@ -5,20 +5,20 @@ module Shiva
     end
 
     def available?(foe)
-      Vars["shiva/main"] &&
-      Vars["shiva/offhand"] &&
+      Config.main_weapon &&
+      Config.offhand_weapon &&
       !%w(brawler).include?(foe.noun) && # prefer ranged for brawlers
       self.main_hand &&
       self.offhand
     end
 
     def main_hand()
-      Containers.harness.where(name: Vars["shiva/main"]).first
+      Containers.harness.where(name: Config.main_weapon).first
     end
 
     def offhand()
-      Containers.harness.where(name: Vars["shiva/shield"]).first or
-      Containers.harness.where(name: Vars["shiva/offhand"]).first
+      Containers.harness.where(name: Config.shield).first or
+      Containers.harness.where(name: Config.offhand_weapon).first
     end
 
     def arm

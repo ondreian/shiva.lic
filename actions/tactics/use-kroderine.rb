@@ -5,7 +5,7 @@ module Shiva
     end
 
     def available?(foe)
-      Vars["shiva/swap"] and
+      Config.swap_tactics? and
       self.needs_swap?(foe) and
       self.env.name.eql?(:sanctum)
     end
