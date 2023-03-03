@@ -92,8 +92,10 @@ module Shiva
         room.wayto.keys
           .reject {|id| _boundaries.include?(id) or _subgraph.include?(id) }
           .each {|id|
-            _pending  << id
-            _subgraph << id
+            unless room.timeto[id].is_a?(StringProc) or room.wayto[id].is_a?(StringProc)
+              _pending  << id
+              _subgraph << id
+            end
           }
       }
       process_room.(entry_room)
@@ -101,7 +103,8 @@ module Shiva
       until _pending.empty?
         next_room_id = _pending.shift
         process_room.(Room[next_room_id.to_i])
-        fail "infinite expansion detected in #{self.name} / did you forget a boundary?" if _pending.size > 500
+        fail "shiva.env: infinite expansion detected in #{self.name} / did you forget a boundary?" if _pending.size > 500
+        fail "shiva.env: subgraph for #{self.name} is to too large %s" % [_subgraph.size] if _subgraph.size > 500
       end
 
       return _subgraph

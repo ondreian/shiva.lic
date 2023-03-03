@@ -14,7 +14,8 @@ module Shiva
     end
 
     def missing
-      DefensiveSpells.select {|num| 
+      DefensiveSpells.select {|num|
+        next unless num
         Spell[num].known? and 
         not Spell[num].active? and
         Spell[num].affordable?
@@ -22,13 +23,15 @@ module Shiva
     end
 
     def available?(foe)
-      self.missing.size > 0
+      self.missing.size > 0 && !%i(escort).include?(Bounty.type)
     end
 
     def apply(foe)
       until GameObj.targets.empty? do walk end
       Stance.guarded
-      Spell[self.missing.first].cast
+      num = self.missing.first
+      return if num.nil?
+      Spell[num].cast
     end
   end
 end

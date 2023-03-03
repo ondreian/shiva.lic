@@ -1,4 +1,4 @@
-
+require_relative "./config"
 
 module Shiva
   def self.root()
@@ -147,7 +147,7 @@ module Shiva
     respond "{town=%s, environs=%s}" % [self.town, self.available_environments.map(&:name).join(",")]
     return if available_environments.any?(&:current?)
     Base.go2
-    Script.run("waggle")
+    Script.run("waggle", "--stop-at=1")
     self.handle_conditions!
   end
 
@@ -155,6 +155,10 @@ module Shiva
     Base.go2
     _respond "<b>%s</b>" % msg if msg.is_a?(String)
     exit
+  end
+
+  def self.state
+    Shiva::State.get
   end
 
   def self.daemon?
@@ -170,10 +174,10 @@ module Shiva
 
   def self.auto()
     $shiva_graceful_exit = false
-    fput "exp"
-    fput "bounty"
+    multifput("exp", "bounty")
     self.handle_room_desc!
     loop {
+      Shiva::State.set(:hunting)
       self.preflight!
       if env_to_resume = self.available_environments.find(&:current?)
         self.hunt(env: env_to_resume, resume: true)

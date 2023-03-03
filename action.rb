@@ -1,12 +1,16 @@
 module Shiva
   class Action
     def self.call(action, *args)
-      exit if dead?
-      return if action == :noop
-      if action.method(:apply).arity > 0
-        action.apply(*args)
-      else
-        action.apply
+      begin
+        exit if dead?
+        return if action == :noop
+        if action.method(:apply).arity > 0
+          action.apply(*args)
+        else
+          action.apply
+        end
+      rescue => exception
+        Log.out(exception)
       end
     end
 

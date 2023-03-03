@@ -9,7 +9,7 @@ module Shiva
     @level      = (100..110)
 
     def self.before_main
-      Boost.loot if not Bounty.type.eql?(:none) and Time.now.day < 18
+      Boost.loot
     end
 
     def self.before_teardown

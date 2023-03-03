@@ -3,22 +3,31 @@ module Shiva
     Nouns = %w(monstrosity crusader golem psionicist protector automaton grotesque)
 
     def priority(foe)
-      if Nouns.include?(foe.noun) && Tactic.edged?
+      return 100 unless Tactic.edged?
+      if Nouns.include?(foe.noun) or self.skinning?(foe)
         89
       else
         100
       end
     end
 
+    def skinning?(foe)
+      false
+    end
+
     def has_melee_skill?
       Tactic.polearms? or Tactic.edged?
     end
 
-    def available?(foe)
-      not foe.nil? and
+    def conditions?
       self.has_melee_skill? and
       Skills.ambush > Char.level * 1.5 and
       hidden?
+    end
+
+    def available?(foe)
+      not foe.nil? and
+      self.conditions?
     end
 
     def waylay(foe)

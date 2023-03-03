@@ -36,12 +36,12 @@ module Shiva
       LNet.send_message(attr={'type'=>'private', 'to'=> receiver}, "There are now %s boxes on the ground at Oberwood" % box_count)
     end
 
-    def box_routine(town)
+    def box_routine(town = nil)
       Char.unarm
       Log.out("running box routine...")
       #return unless Room.current.id.eql? 18698
       return Boxes.drop if Boxes.picker?
-      Task.room(town, "advguild").id.go2
+      Task.room(town, "advguild").id.go2 unless town.nil?
       # try to deposit boxes only, unless till encumbered, and then go take advantage of loot boost
       if Boost.loot?
         Script.run("eloot", "pool deposit")

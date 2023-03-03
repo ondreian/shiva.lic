@@ -42,6 +42,10 @@ module Shiva
       Char.arm
       return if @env.rooms.include?(Room.current.id.to_s)
       self.get_bounty!
+      if percentencumbrance > 0
+        Teardown.new(@env).box_routine 
+        Char.arm
+      end
       fail "you are encumbered" unless percentencumbrance.eql?(0)
       Conditions::Injured.handle!
       if !%w(Rogue Warrior).include?(Char.prof) and percentmana < 80

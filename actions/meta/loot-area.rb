@@ -24,24 +24,8 @@ module Shiva
       return items
     end
 
-    def cursed?(item)
-      return true if item.name =~ /oblivion quartz/ && Char.level < 100
-      return false if item.name =~ /oblivion quartz/
-      return item.type.include?("cursed")
-    end
-
     def loot
-      GameObj.loot.to_a.reject {|item| 
-        Trash.include?(item) or 
-        item.id.start_with?("-") or 
-        item.type.include?("junk") or
-        item.type.include?("food") or
-        item.type.include?("herb") or
-        item.name.end_with?("spear head") or
-        item.name.end_with?("sticky web") or
-        %w(wagon sign mandrake bandana kitten puppy disk signpost).include?(item.noun) or
-        self.cursed?(item)
-      }
+      GameObj.loot.to_a.reject {|item| Trash.include?(item) }
     end
 
     def heirloom?

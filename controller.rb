@@ -1,8 +1,10 @@
 module Shiva
   class Controller
+
     attr_reader :name, :env, :stage,
                 :setup, :main, :teardown,
-                :last_action, :seen, :start_time, :hands
+                :last_action, :seen, :start_time,
+                :hands
 
     def initialize()
       $shiva_graceful_exit = false
@@ -48,11 +50,13 @@ module Shiva
     end
 
     def main!
+      Shiva::State.set(:hunting)
       @stage = :main
       @env.main()
     end
 
     def teardown!
+      Shiva::State.set(:resting)
       @stage = :teardown
       if @env.scripts.is_a?(Array)
         Log.out("stopping scripts: %s" % @env.scripts.join(", "), label: %i(setup scripts))
