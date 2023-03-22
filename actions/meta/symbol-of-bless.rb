@@ -47,6 +47,7 @@ module Shiva
     end
 
     def available?
+      Society.status.include?("Voln") and
       SymbolOfBless.needed?
     end
 

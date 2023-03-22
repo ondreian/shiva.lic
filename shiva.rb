@@ -96,7 +96,7 @@ module Shiva
 
   def self.bounty!
     case Bounty.type
-    when :succeeded, :report_to_guard, :failed, :get_heirloom, :creature_problem, :get_skin_bounty, :get_bandits
+    when :succeeded, :report_to_guard, :failed, :get_heirloom, :creature_problem, :get_skin_bounty, :get_bandits, :heirloom_found
       self.task
     when :none
       self.task unless Task.cooldown?
@@ -125,7 +125,9 @@ module Shiva
   end
 
   def self.available_environments
-    self.environments(self.town).select {|env| env.level.include?(Char.level)}
+    self.environments(self.town).select {|env| 
+      env.level.include?(Char.level)
+    }
   end
 
   def self.handle_conditions!
@@ -147,6 +149,7 @@ module Shiva
     respond "{town=%s, environs=%s}" % [self.town, self.available_environments.map(&:name).join(",")]
     return if available_environments.any?(&:current?)
     Base.go2
+    Log.out(":preflight! returned to base")
     Script.run("waggle", "--stop-at=1")
     self.handle_conditions!
   end

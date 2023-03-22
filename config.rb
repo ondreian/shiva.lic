@@ -34,6 +34,10 @@ module Shiva
       self.get(:picker)
     end
 
+    def self.scripts
+      self.to_array_of_names(self.get(:scripts))
+    end
+
     def self.exp
       self.get(:exp)
     end

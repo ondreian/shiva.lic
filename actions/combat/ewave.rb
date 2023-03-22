@@ -1,11 +1,15 @@
 module Shiva
   class Ewave < Action
-    def which()
-      return Spell[435] if Spell[435].known? and Spell[435].affordable? and percentmana > 50
-      return Spell[410]
+    Major = Spell[435]
+    Minor = Spell[410]
+
+    def self.which()
+      return Major if Major.known? and Major.affordable? and percentmana > 50
+      return Minor
     end
 
     def priority
+      1 if Effects::Debuffs.active?("Jaws")
       Char.prof.eql?("Rogue") ? 5 : 90
     end
 
@@ -17,10 +21,10 @@ module Shiva
       self.env.foes.reject {|f| f.name =~ /vvrael|crawler|cerebralite/i}
     end
 
-    def available?()
-      self.which.known? and
-      self.which.affordable? and
-      #not hidden? and
+    def available?
+      Ewave.which.known? and
+      Ewave.which.affordable? and
+      not hidden? and
       percentmana > 40 and
       self.env.foes.size > 2 and
       self.valid_foes.map(&:status).select(&:empty?).size > 1 and
@@ -28,7 +32,7 @@ module Shiva
       Time.now > self.ttl
     end
 
-    def apply(foe)
+    def apply
       fput "prep %s\rcast #%s" % [self.which.num, GameObj.inv.sample.id]
       @ttl = Time.now + 10
     end

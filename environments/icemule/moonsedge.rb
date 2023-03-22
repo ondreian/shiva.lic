@@ -3,7 +3,7 @@ module Shiva
     @entry      = 32373
     @boundaries = %w(32322 32423)
     @town       = %[404] # %[Icemule]
-    @scripts    = %w(reaction lte effect-watcher)
+    @scripts    = %w(reaction effect-watcher)
     @foes       = %w(vampire grotesque ghast banshee knight dreadsteed)
     @level      = (100..100)
 

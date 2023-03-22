@@ -3,7 +3,7 @@ module Shiva
     @entry   = 9033
     @level   = (20..30)
     @town    = %[Solhaven]
-    @scripts = %w(reaction lte effect-watcher)
+    @scripts = %w(reaction effect-watcher)
     @foes    = %w(woodsman wight)
     @boundaries = %w(5063)
   end
