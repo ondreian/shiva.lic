@@ -3,7 +3,7 @@ module Shiva
     #@entry   = 5251
     @level   = (60..70)
     @town    = %[Solhaven]
-    @scripts = %w(reaction lte effect-watcher)
+    @scripts = %w(reaction)
     @foes    = %w(bard bardess empath rogue shaman sorcerer sorceress)
     #@boundaries = %w(5250 5637)
   end

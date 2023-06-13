@@ -8,7 +8,7 @@ Obvious exits: none
 module Shiva
   class BellyOfTheBeast < Action
     def priority
-      -1
+      -2
     end
 
     def available?

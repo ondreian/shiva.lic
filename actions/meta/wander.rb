@@ -35,7 +35,7 @@ module Shiva
     def max_foes
       return 3 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Hinterwilds")
       return 2 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Moonsedge")
-      return 1 if Room.current.location.include?("Atoll")
+      return 1 if %w(Cleric Empath Wizard).include?(Char.prof)
       return 10 if self.env.name.eql?(:bandits)
       return 5 if Skills.multiopponentcombat > 100
       return 3 if Skills.multiopponentcombat > 50
@@ -111,7 +111,7 @@ module Shiva
       when :bandits
         Log.out("wander -> bandits", label: %i(action))
         #Stance.forward
-        Bandits.crawl(Bounty.area)
+        self.env.crawl
       else
         self.wander(reason: self.reason)
       end

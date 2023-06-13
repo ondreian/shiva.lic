@@ -20,6 +20,7 @@ module Shiva
       env.reset_start_time!
 
       loop {
+        _ttl = Time.now + 0.1
         action = self.make_decision()
         #Log.out(action, label: %i(previous action)) unless action.eql?(@previous_action)
         @previous_action = action

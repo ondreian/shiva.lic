@@ -62,6 +62,7 @@ module Shiva
       case dothistimeout "loot area", 3, Regexp.union(Ok, Err)
       when Err
         self.env.state = :rest
+        :full
       when Ok
         :ok
       end
@@ -85,13 +86,16 @@ module Shiva
       this_loot.reject! {|i| i.name.eql?(%[some silver coins])}
       return if this_loot.empty?
       Hand.use {
-        if dangerous?
+        if self.dangerous?
           self.slow_loot(this_loot)
+          empty_left_hand unless Tactic.ranged?
         else
-          self.fast_loot
+          result = self.fast_loot
+          return if result.eql?(:full)
           self.slow_loot(self.loot) if self.loot && !self.env.state.eql?(:rest)
+          empty_left_hand unless Tactic.ranged?
         end
-        empty_left_hand unless Tactic.ranged?
+        
       }
     end
   end

@@ -6,6 +6,7 @@ module Shiva
 
     def available?(foe)
       not Effects::Cooldowns.active?("Whirling Blade") and
+      not self.env.foes.any? {|f| %w(brawler).include?(f.noun)} and
       Tactic.edged? and
       checkstamina > 50 and
       not hidden? and

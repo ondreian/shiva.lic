@@ -14,7 +14,8 @@ module Shiva
     end
 
     def self.loot?
-      Effects::Buffs.time_left("Major Loot Boost") > 1 or Effects::Buffs.time_left("Minor Loot Boost") > 1
+      Effects::Buffs.active?("Major Loot Boost") or 
+      Effects::Buffs.active?("Minor Loot Boost")
     end
 
     def self.loot

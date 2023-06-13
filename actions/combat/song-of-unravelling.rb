@@ -18,7 +18,7 @@ module Shiva
       checkmana > 20 and
       self.env.foes.size < 2 and
       Wounds.nsys < 2 and
-      (Group.size.eql?(2) or Group.empty?)
+      Group.size > 2
     end
 
     Ok  = Regexp.union(

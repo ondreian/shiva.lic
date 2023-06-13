@@ -10,15 +10,28 @@ module Shiva
       Log.out(Bounty::Util.short_bounty, label: %i(bounty current))
     end
 
+    def self.waiver!
+      return if Effects::Buffs.active?("Bounty Waiver")
+      return unless defined? EBoost
+      return unless EBoost.waiver.available?
+      #EBoost.waiver.use
+    end
+
     def self.expedites?
+      return false
       defined? BountyHUD and BountyHUD.session.dig(:expedites) > 0
     end
 
     def self.cycle(town)
       Bounty.remove
-      return if not self.expedites? or Mind.saturated?
+      return if not self.expedites? or Mind.saturated? or @expiry_cooldown
       self.log()
-      dothistimeout("ask #%s for exp" % Bounty.npc.id, 4, %r[I'll expedite your task reassignment.])
+      Task.waiver!
+      outcome = dothistimeout("ask #%s for exp" % Bounty.npc.id, 4, Regexp.union(
+        %r[I'll expedite your task reassignment.],
+        %r[I can't expedite this task reassignment]))
+      @expiry_cooldown = true if outcome =~ /can't/
+        
       @last_expedite_expiry = Time.now + (15 * 60)
     end
 
@@ -63,6 +76,15 @@ module Shiva
       end
     end
 
+    def self.ask_guildmaster_for_bounty
+      Task.waiver!
+      Bounty.ask_for_bounty
+    end
+
+    def self.auto()
+      self.advance Shiva::Config.town
+    end
+
     def self.advance(town)
       guild = self.room(town, "advguild")
       guild.id.go2
@@ -73,7 +95,7 @@ module Shiva
         return :cooldown if self.cooldown? and not self.expedites?
         return :saturated if Mind.saturated? and self.cooldown?
         self.cycle(town) if self.cooldown? and self.expedites?
-        Bounty.ask_for_bounty
+        self.ask_guildmaster_for_bounty
         self.advance(town)
       when :get_rescue, :creature_problem, :get_heirloom, :report_to_guard, :get_bandits
         self.room(town, "advguard").id.go2
@@ -104,7 +126,7 @@ module Shiva
         guild.id.go2
         self.drop(town)
       when :heirloom
-        return :ok unless Bounty.creature =~ /(lich|monstrosity|assassin|warden)$/
+        return :ok unless (Bounty.creature =~ /(lich|monstrosity|assassin|warden)$/ || checkbounty =~ /SEARCH the area until you find it/)
         guild.id.go2
         self.drop(town)
       when :dangerous, :cull
@@ -125,6 +147,7 @@ module Shiva
         fill_hands
         self.advance(town)
       when :get_herb_bounty
+        return self.drop(town) if town =~ /kraken/i
         tag = town =~ /hinterwilds/i ? "healer" : "npchealer"
         self.room(town, tag).id.go2
         Bounty.ask_for_bounty
@@ -132,6 +155,7 @@ module Shiva
       when :escort, :bandits
         return :ok
       when :herb
+        return self.drop(town) if town =~ /kraken/i
         return self.drop(town) if Bounty.herb =~ /fleshbulb|fleshbinder|fleshsore/
         herbs = Containers.lootsack.where(name: Bounty.herb).take(Bounty.number)
         return :ok if herbs.empty?
@@ -158,7 +182,7 @@ module Shiva
     def self.sellables
       case Bounty.type
       when :gem
-        return Containers.lootsack.select {|i| i.name.end_with?(Bounty.gem) }
+        return Containers.lootsack.select {|i| i.name.end_with?(Bounty.gem) }.take(Bounty.task.number)
       when :skin
         return Containers.lootsack.select {|i| i.name.start_with? Bounty.skin.slice(0..-2) }
       else

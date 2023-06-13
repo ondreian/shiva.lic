@@ -27,6 +27,10 @@ module Shiva
       self.reset!
     end
 
+    def count(action_name)
+      self.action_history.take_while {|action| action.to_sym.eql?(action_name.to_sym)}.size
+    end
+
     def divergence?
       @divergence.eql?(true)
     end

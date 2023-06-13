@@ -11,12 +11,23 @@ module Shiva
       All  = Regexp.union(Deny, Ok, Err)
     end
 
+    def outside?
+      XMLData.room_exits_string.start_with?("Obvious paths")
+    end
+
+    def camo?
+      !XMLData.room_count.eql?(@lock) &&
+      Spell[608].known? && 
+      Spell[608].affordable? && 
+      self.outside? && 
+      checkmana > 50 && 
+      self.env.foes.size > 0
+    end
+
     def priority
-      if self.env.foes.any? {|foe| PERCEPTIVE_NOUNS.include?(foe.noun) }
-        1_000
-      else
-        7
-      end
+      return 7 if self.camo?
+      return 1_000 if self.env.foes.any? {|foe| PERCEPTIVE_NOUNS.include?(foe.noun) }
+      return 7
     end
 
     def env?
@@ -34,7 +45,6 @@ module Shiva
       not %i(bandits escort).include?(@env.name) and
       not self.env.foes.any? {|foe| Perceptive.count(foe.id) > 2} and
       not hidden? and
-      not invisible? and
       not Opts["open"] and
       self.env? and
       not Wounds.head > 1 and
@@ -51,8 +61,7 @@ module Shiva
       Perceptive << id
     end
 
-    def apply()
-      Timer.await()
+    def hide!
       case result = dothistimeout("hide", 2, Outcomes::All)
       when Outcomes::Deny
         Deny << XMLData.room_id.to_s
@@ -60,6 +69,21 @@ module Shiva
         sleep 0.8
       when Outcomes::Err
         self.track_perceptive(result)
+      end
+    end
+
+    def camo!
+      Spell[608].cast
+      #Log.out(result, label: %i(camo))
+      @lock = XMLData.room_count unless hidden?
+    end
+
+    def apply()
+      Timer.await()
+      if self.camo?
+        self.camo!
+      else
+        self.hide!
       end
     end
   end

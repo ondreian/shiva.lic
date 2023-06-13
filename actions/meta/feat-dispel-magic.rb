@@ -18,15 +18,14 @@ module Shiva
 
     def apply()
       waitrt?
-      loop {
-        until GameObj.targets.empty? do walk end
+      
+      Walk.apply do
         wait_while { Effects::Cooldowns.active?("Dispel Magic") and GameObj.targets.empty? and self.debuffed? }
         break if not Effects::Cooldowns.active?("Dispel Magic")
         break if not self.debuffed?
+        fput "feat dispel" if self.debuffed?
         sleep 0.1
-      }
-
-      fput "feat dispel" if self.debuffed?
+      end
     end
   end
 end

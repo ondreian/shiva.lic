@@ -2,7 +2,7 @@ module Shiva
   Environment.define :plane4 do
     @entry      = 12145
     @town       = %[Icemule Trace]
-    @scripts    = %w(reaction effect-watcher)
+    @scripts    = %w(reaction)
     @foes       = %w(crawler crusader cerebralite)
     @boundaries = %w(12122 12207 12235)
     @level      = (98..105)

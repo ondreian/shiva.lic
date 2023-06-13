@@ -27,8 +27,8 @@ module Shiva
       not DENY.include?(foe.id) and
       self.has_melee_skill? and
       Skills.ambush > Char.level and
-      not foe.nil? and
-      self.in_reach?(foe)
+      not foe.nil? #and
+      #self.in_reach?(foe)
     end
 
     def available?(foe)
@@ -41,6 +41,7 @@ module Shiva
       /You cannot aim/,
       %r[is already dead],
       %r[What were you referring to],
+      %r[does not have a (.*)!]
     )
 
     # Predator's Eye
@@ -58,7 +59,7 @@ module Shiva
 
     def offensive_martial_stance()
       return ["Whirling Dervish", "dervish"] if CMan.whirling_dervish && self.env.foes.size > 1 && GameObj.left_hand.type.include?("weapon")
-      return ["Predator's Eye", "predator"]   if CMan.predators_eye
+      return ["Predator's Eye", "predator"]  if CMan.predators_eye
       return [:noop, nil]
     end
 
@@ -69,7 +70,7 @@ module Shiva
 
     def rogue(foe)
       with_stances {
-        (Effects::Buffs.active?("Shadow Dance") && hidden?) ? self._silent_strike(foe) : self._ambush(foe)
+        (Effects::Buffs.active?("Shadow Dance") && hidden? && checkstamina > 0) ? self._silent_strike(foe) : self._ambush(foe)
       }
     end
 
@@ -78,13 +79,15 @@ module Shiva
     end
 
     def _silent_strike(foe)
-      result = dothistimeout("feat silentstrike ##{foe.id}", 1, Outcomes)
-      return self.kill(foe, silent: true) if result =~ /You cannot aim/
+      cmd = self.in_reach?(foe) ? "feat silentstrike #%s" : "feat silentstrike #%s clear"
+      result = dothistimeout(cmd % foe.id, 1, Outcomes)
+      return self.kill(foe, silent: true) if result =~ /You cannot aim|does not have/
     end
 
     def _ambush(foe)
-      result = dothistimeout("ambush ##{foe.id}", 1, Outcomes)
-      return self.kill(foe, silent: false) if result =~ /You cannot aim/
+      cmd = self.in_reach?(foe) ? "ambush #%s" : "ambush #%s clear"
+      result = dothistimeout(cmd % foe.id, 1, Outcomes)
+      return self.kill(foe, silent: false) if result =~ /You cannot aim|does not have/
     end
 
     def get_best_area(foe)
@@ -95,7 +98,9 @@ module Shiva
     end
 
     def ambush(foe)
-      self.get_best_area(foe) unless Aiming.lookup(foe).include?(@area)
+      if self.in_reach?(foe)
+        self.get_best_area(foe) unless Aiming.lookup(foe).include?(@area)
+      end
       waitrt?
       Stance.offensive
       Log.out("ambushing %s" % @area, label: %i(ambush area))

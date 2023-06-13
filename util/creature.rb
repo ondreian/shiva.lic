@@ -8,4 +8,13 @@ class Creature
     return false if self.status.include?(:frozen)
     self.name =~ Nouns::Tall
   end
+
+  def effects
+    return self.status unless defined? CreatureEffects
+    self.status + CreatureEffects.lookup(self.id)
+  end
+
+  def cutthroat?
+    self.effects.include?(:cutthroat)
+  end
 end

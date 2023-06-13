@@ -50,6 +50,7 @@ module Shiva
       Conditions::Injured.handle!
       if !%w(Rogue Warrior).include?(Char.prof) and percentmana < 80
         Base.go2
+        Team.request_mana(maxmana - checkmana)
         wait_while("wait/mana") { percentmana < 80 }
       end
       fail "entry not defined for #{self.env.name}" unless self.env.entry

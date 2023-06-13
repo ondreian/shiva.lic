@@ -5,7 +5,7 @@ module Shiva
       sidewinder
       warg mastodon hinterboar
       brawler warlock fanatic
-      dreadsteed
+      dreadsteed titan giant
     )
 
     def priority
@@ -36,8 +36,32 @@ module Shiva
       Wounds.nsys < 2 and
       Wounds.leftEye < 2 and
       Wounds.rightEye < 2 and
-      (Group.leader? or
-      Group.empty?)
+      (Group.leader? or Group.empty?)
+    end
+
+    def use_config_dagger
+      Config.skinning_weapon && Containers.harness.where(name: Config.skinning_weapon).first
+    end
+
+    def use_skinning_dagger
+      waitrt?
+      if dagger = self.use_config_dagger
+        prev_left_hand = Char.left
+        begin
+          3.times { waitrt?; Containers.harness.add(prev_left_hand); break if Char.left.nil? } unless prev_left_hand.nil?
+          dagger.take
+          yield(:left)
+          Containers.harness.add(dagger)
+          #prev_left_hand.take
+          return :ok
+        rescue => exception
+          Log.out(exception)
+          Containers.add(Char.left) unless Char.left.nil?
+          3.times { waitrt?; prev_left_hand.take; break if Char.left.id.eql?(prev_left_hand.id)}
+        end
+      elsif self.dagger_hand
+        yield Char.send(self.dagger_hand)
+      end
     end
 
     def dagger_hand
@@ -49,25 +73,22 @@ module Shiva
     def maybe_skin(creature)
       return :unskinnable unless Skinnable.include?(creature.noun)
       return :no_skill unless (Skills.survival + Skills.firstaid) / (Char.level * 0.5) > 0.5
-      return fput "skin #%s %s" % [creature.id, self.dagger_hand] if self.dagger_hand
-      dagger = Containers.harness.where(noun: Tactic::Nouns::Dagger).first
-      return :no_dagger if dagger.nil?
-      right = Char.right
-      Containers.harness.add(right) unless Char.left.nil? or Char.right.nil?
-      dagger.take
-      fput "skin #%s %s" % [creature.id, self.dagger_hand]
-      Containers.harness.add(dagger)
-      Containers.harness.where(id: right.id).first.take()
+      self.use_skinning_dagger do |hand|
+        fput "skin #%s %s" % [creature.id, hand]
+      end
       return :ok
     end
 
     def apply()
       waitrt?
-      self.dead.each {|foe|
-        creature = Creature.new(foe)
-        self.maybe_skin(creature)
-        creature.search()
-      }
+      return if self.dead.empty?
+      left_hand = Char.left
+      lootable = self.dead.first
+      creature = Creature.new(lootable)
+      self.maybe_skin(creature)
+      creature.search()
+      wait_while { GameObj[creature.id] }
+      left_hand.take unless Char.left.id.eql?(left_hand) or left_hand.nil?
     end
   end
 end

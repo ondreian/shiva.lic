@@ -3,7 +3,7 @@ module Shiva
     @entry   = 5251
     @level   = (20..30)
     @town    = %[Solhaven]
-    @scripts = %w(reaction lte effect-watcher)
+    @scripts = %w(reaction)
     @foes    = %w(fenghai)
     @boundaries = %w(5250 5637)
   end

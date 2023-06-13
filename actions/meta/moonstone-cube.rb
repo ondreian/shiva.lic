@@ -23,7 +23,7 @@ module Shiva
         waitrt?
         Hand.use {
           item.take
-          fput "rub #%s" % item.id
+          dothistimeout "rub #%s" % item.id, 3, /you rub/i
           Containers.lootsack.add(item) if [Char.left.id, Char.right.id].include?(item.id)
         }
         ttl = Time.now + 2

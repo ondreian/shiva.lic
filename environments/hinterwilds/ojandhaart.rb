@@ -4,7 +4,7 @@ module Shiva
     @level      = (100..100)
     @boundaries = %w(30115 29900)
     @town       = %[Hinterwilds]
-    @scripts    = %w(reaction effect-watcher)
+    @scripts    = %w(reaction)
     @foes       = %w(warg skald hinterboar mastodon berserker shield-maiden)
     @wandering_foes = %w(golem cannibal bloodspeaker wendigo)
 

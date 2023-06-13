@@ -77,14 +77,6 @@ module Shiva
       @cooldown
     end
 
-    def self.candidates(way_hash, ids)
-      all_candidates = way_hash.to_a.select do |id, movement| movement.is_a?(String) end
-      return all_candidates if all_candidates.size.eql?(1)
-      with_cooldown = all_candidates.select do |id, movement| (ids - @cooldown.map(&:first)).include?(id.to_i) end
-      return with_cooldown unless with_cooldown.empty?
-      return all_candidates
-    end
-
     def self.poll_bandits!
       10.times {break if bandit_count>0; sleep 0.1} if Claim.current?
     end
@@ -144,27 +136,6 @@ module Shiva
       return MinorElemental.ewave() if Spell[410].affordable? and Spell[410].known? and not cutthroat?
     end
 
-    DEFAULT_RESTING_IDS = %w(18698) #  + Map.list.select do |r| r.tags.include?("town") end
-    def self.rtb()
-      return Script.run("widowmaker", "off") if Room.current.title.first.downcase.include?("widowmaker")
-      Script.run("ring", Opts.ring.to_s) if Opts.ring
-      exit if Opts.bail
-      rally(
-        Room.current.find_nearest(DEFAULT_RESTING_IDS))
-    end
-
-    
-    def self.find_entry_point(area)
-      combat_zone = self.rooms(area)
-      nearest_dangerous_room = Room.current.find_nearest(combat_zone)
-      #
-      # one step away from the danger-zone for setting up the group
-      #
-      Room.current.find_nearest(Room[nearest_dangerous_room].wayto.reject do |id, way|
-        combat_zone.include?(id)
-      end.map(&:first))
-    end
-
     def self.rooms(area)
       fail "area cannot be nil" if area.nil?
       Cache.memoize(area) do
@@ -183,18 +154,20 @@ module Shiva
       end
     end
 
-    def self.crawl(area)
-      Log.out("crawling %s" % area)
+    def self.crawl(env)
+      Log.out("crawling %s" % Bounty.area)
       Char.stand.unhide
       # self.search
       waitcastrt?
       waitrt?
       self.poll_bandits!
       #return if bandit_count > 0 && Claim.current?
-      candidates_for_crawling = Bandits.candidates(Room.current.wayto, self.rooms(area)).map(&:last)
-      Move.rand(candidates_for_crawling, peer: true) {self.bandit_count > 0}
-      @cooldown << [Room.current.id, Time.now + 10]
-      @cooldown.select! {|id, ttl| ttl < Time.now}
+      candidates_for_crawling = env.candidates
+      #Log.out(candidates_for_crawling)
+      return env.rooms.sample.id.go2 if candidates_for_crawling.empty?
+      ways = candidates_for_crawling.map {|id| Room.current.wayto[id]}
+      Log.out("ways=%s" % ways)
+      Move.rand(ways, peer: true) {self.bandit_count > 0}
     end
 
     Cache.memoize("Widowmaker's Road") { (29021..29030).to_a }

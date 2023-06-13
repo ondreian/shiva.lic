@@ -1,7 +1,7 @@
 module Tactic
   module Nouns
     Dagger   = %w(dagger dirk knife tanto)
-    Edged    = Dagger + %w(sword shortsword axe wakizashi kris coustille)
+    Edged    = Dagger + %w(sword shortsword axe hatchet wakizashi kris coustille)
     Ranged   = %w(bow longbow crossbow)
     Polearms = %w(spear harpoon longhammer)
     Shields  = %w(buckler targe shield)
@@ -29,6 +29,10 @@ module Tactic
 
   def self.shield?
     Nouns::Shields.include?(Char.left.noun) && self.can?(:shielduse)
+  end
+
+  def self.thrown?
+    Shiva::Config.thrown_weapon && self.can?(:thrownweapons) && Char.right.name.eql?(Shiva::Config.thrown_weapon)
   end
 
   def self.twc?

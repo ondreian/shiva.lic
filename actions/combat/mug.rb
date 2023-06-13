@@ -18,7 +18,7 @@ module Shiva
       not checkloot.to_a.include?("thorny vine") and
       self.situationals(foe) and
       not Mugged.include?(foe.id) and
-      not %w(mastodon hinterboar).include?(foe.noun) and
+      not %w(warg mastodon hinterboar).include?(foe.noun) and
       not foe.status.empty? and
       CMan.mug > 0 and
       Tactic.edged? and

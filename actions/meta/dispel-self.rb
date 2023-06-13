@@ -1,8 +1,8 @@
 module Shiva
-  class ChannelSpiritDispel < Action
+  class DispelSelf < Action
 
     def priority
-      Priority.get(:high)
+      -100
     end
 
     def effected?
@@ -19,17 +19,21 @@ module Shiva
     end
 
     def available?
-      Spell[119].known? and
+      Spell[119].known? or
+      Spell[417].known?
       self.effected?
     end
 
     def apply()
-      waitrt?
-      until GameObj.targets.empty? do walk end
-      waitcastrt?
-      fput "prep 119\rchannel"
-      waitcastrt?
-      waitrt?
+      Walk.apply do
+        if Spell[417].known?
+          fput "prep 417\rchannel"
+        elsif Spell[119].known?
+          fput "prep 119\rchannel"
+        end
+        waitcastrt?
+        waitrt?
+      end
     end
   end
 end

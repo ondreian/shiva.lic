@@ -42,7 +42,7 @@ module Shiva
 
     def self.request_mana(mana = nil)
       return :too_soon unless Time.now > @expiry
-      random_healer do |healer|
+      self.random_healer do |healer|
         @expiry = Time.now + 30
         return Cluster.request(healer, 
           channel: :mana, 

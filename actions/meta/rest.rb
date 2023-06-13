@@ -6,8 +6,15 @@ module Shiva
       super(*args)
     end
 
+    def casting_impaired?
+      Wounds.head > 1 or
+      Wounds.nsys > 1 or
+      Wounds.rightHand > 1
+    end
+
     def priority
-      -1
+      return -100 if self.casting_impaired? 
+      return -1
     end
 
     def out_of_mana?
@@ -18,35 +25,43 @@ module Shiva
     end
 
     def wounded?
-      return Injuries.wounds.any? {|w| w > 1} if Group.empty?
+      return true if Wounds.head > 1
+      return false if Team.has_healer?
       return false if Char.prof.eql?("Empath")
-      Team.has_healer?
+      return false unless Group.empty?
+      Injuries.wounds.any? {|w| w > 1}
     end
 
     def bleeding?
-      return percenthealth < 70 if Group.empty?
+      return false if Team.has_healer?
       return false if Char.prof.eql?("Empath")
-      Team.has_healer?
+      return false unless Group.empty?
+      percenthealth < 70
     end
 
     def reason
+      return false if XMLData.room_id.eql? 113001
       return false if %i(escort bandits invasion).include?(self.env.name)
       return :graceful_exit if $shiva_graceful_exit.eql?(true)
       return :burrowed if Effects::Debuffs.active?("Burrowed")
       return :overexerted if Effects::Debuffs.active?("Overexerted") and not Char.prof.eql?("Empath")
-      return :interrupt if self.env.state.eql?(:rest)
+      #return :interrupt if self.env.state.eql?(:rest)
       return :full_containers if Char.left.type =~ /box/ and not Script.running?("give")
       return :encumbrance if percentencumbrance > 10
       return :wounded if self.wounded?
       return :health if self.bleeding?
-      return :dread if Conditions::Dread.crushing > 1
-      return :bounty if self.env.name.eql?(:bandits) and Bounty.type.eql?(:report_to_guard)
-      return :bounty if Task.can_complete? && (percentmind.eql?(100) && !Mind.saturated?) && Group.empty? && !Boost.loot?
-      return :uptime if @env.uptime > (20 * Minute) && percentmind.eql?(100)
       return :mana if self.out_of_mana?
-      return :unknown if @env.state.eql?(:rest)
+      # environ effects
       return :hypothermia if Conditions::Hypothermia.status > 40
+      return :dread if Conditions::Dread.crushing > 1
+      return :bandits_done if self.env.name.eql?(:bandits) and Bounty.type.eql?(:report_to_guard)
+
+      return false if Boost.loot?
+
+      return :bounty_turn_in if Task.can_complete? && (percentmind.eql?(100) && !Mind.saturated?) && Group.empty? && !Boost.loot?
+      return :uptime if @env.uptime > (20 * Minute) && percentmind.eql?(100)
       return :get_bounty if Bounty.type.eql?(:none) and not Task.cooldown? and not Boost.loot?
+      return :unknown if @env.state.eql?(:rest)
       return false
     end
 

@@ -3,7 +3,7 @@ module Shiva
     @entry      = 32373
     @boundaries = %w(32322 32423)
     @town       = %[404] # %[Icemule]
-    @scripts    = %w(reaction effect-watcher)
+    @scripts    = %w(reaction)
     @foes       = %w(vampire grotesque ghast banshee knight dreadsteed)
     @level      = (100..100)
 
@@ -13,7 +13,7 @@ module Shiva
     end
 
     def self.before_teardown
-      Script.run("ring", "1") if defined? Ring and Ring.exists?
+      Teleport.teleport(1) if defined?(Teleport) && Teleport.teleporter
     end
   end
 end

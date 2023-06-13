@@ -1,18 +1,29 @@
 module Shiva
   Environment.define :bandits do
-
-    @scripts = %w(reaction lte effect-watcher)
     
     def foes
       GameObj.targets.map {|f| Creature.new(f)}.select {|f| f.tags.include?(:bandit)}
     end
 
     def entry
-      Room.current.find_nearest self.rooms.map(&:id)
+      self.rooms.map(&:id).sample
     end
 
     def rooms
       @_subgraph ||= Room.list.select {|r| r.location.is_a?(String) && r.location.include?(Bounty.area)}
+    end
+
+    def crawl
+      Bandits.crawl(self)
+    end
+
+    def candidates
+      return Room.current.wayto.to_a
+        .select do |id, movement| 
+          movement.is_a?(String) && 
+          self.rooms.any? {|r| r.id.to_s.eql?(id)} && 
+          Room[id].wayto.any? {|id, movement| movement.is_a?(String)}  end
+        .map(&:first)
     end
 
     def self.setup
@@ -39,6 +50,7 @@ module Shiva
       sleep 0.1
       loot = self.action(:lootarea)
       loot.apply
+      Teleport.teleport(1) if defined?(Teleport) && Teleport.teleporter
     end
 
     def self.teardown

@@ -1,16 +1,16 @@
 module Shiva
   class Lullabye < Action
     Slept = []
+    Nouns = %w(lurk shaper protector)
 
     def priority
       29
     end
 
-
     def available?(foe)
       not foe.nil? and
       not foe.dead? and
-      not foe.name.include?("Vvrael") and
+      Nouns.include?(foe.noun) and
       Group.empty? and
       foe.status.empty? and
       not Slept.include?(foe.id) and
@@ -24,7 +24,7 @@ module Shiva
     def apply(foe)
       Stance.guarded
       return if foe.dead?
-      result = fput("target #%s\rincant 1005" % foe.id)
+      _result = fput("target #%s\rincant 1005" % foe.id)
       Slept << foe.id
       waitcastrt?
     end

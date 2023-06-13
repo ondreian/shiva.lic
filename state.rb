@@ -7,7 +7,8 @@ module Shiva
       Pending = :pending
     end
 
-    @@state = States::Pending
+    @@state  = States::Pending
+    @@bounty = {}
 
     def self.set(state)
       @@state = state
@@ -16,6 +17,18 @@ module Shiva
     def self.get
       return States::Done unless Script.running?("shiva")
       @@state
+    end
+
+    def self.bounty_attempts_increment
+      @@bounty[checkbounty] += 1
+    end
+
+    def self.bounty_attempts
+      @@bounty[checkbounty]
+    end
+
+    def self.bounty_attempts_reset!
+      @@bounty.clear
     end
 
     def self.hunting?

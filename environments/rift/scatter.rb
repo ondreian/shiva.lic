@@ -2,7 +2,7 @@ module Shiva
   Environment.define :scatter do
     @entry      = 12240
     @town       = %[Icemule Trace]
-    @scripts    = %w(reaction effect-watcher)
+    @scripts    = %w(reaction)
     @foes       = %w(siphon master destroyer cerebralite doll)
     @wandering_foes = %w(crawler)
     @boundaries = %w(12151 12254 12256 12249 12247 12241)

@@ -1,7 +1,7 @@
 module Shiva
   class Flurry < Action
     def priority
-      rand > 0.5 ? 6 : 40
+      40
     end
 
     def cost
@@ -9,6 +9,7 @@ module Shiva
     end
 
     def available?(foe)
+      not Tactic.thrown? and
       not %i(duskruin).include?(self.env.name) and
       not foe.nil? and
       not Effects::Cooldowns.active?("Flurry") and
@@ -26,6 +27,7 @@ module Shiva
       fput "weapon flurry #%s" % foe.id
       ttl = Time.now + 5
       while line=get
+        break if line.include?("...wait")
         break if line.include?("The mesmerizing sway of body and blade glides to its inevitable end")
         break unless GameObj[foe.id]
         break if foe.dead? or foe.gone?

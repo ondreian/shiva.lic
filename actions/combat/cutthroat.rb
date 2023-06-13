@@ -20,6 +20,7 @@ module Shiva
 
     def reasonable?(foe)
       return false if Immune.include?(foe.noun)
+      return false if foe.name.include?("gigas")
       return Tactic.death_metal? if DeathMetal.include?(foe.noun)
       return true
     end

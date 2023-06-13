@@ -27,6 +27,12 @@ module Shiva
       }
   end
 
+  def self.cleanup!
+    before_dying {
+      %w(eloot go2).each {|s| Script.kill(s) if Script.running?(s)}
+    }
+  end
+
   def self.run_once(env_name)
     controller = Shiva::Controller.new()
     controller.set_env(env_name)
@@ -65,11 +71,15 @@ module Shiva
   end
 
   def self.environments(town)
-    Environment::All.select {|env| env.town && env.town.to_s.downcase.include?(town.downcase) }
+    Environment::All.select {|env| 
+      env.town && town.downcase.to_s.downcase.include?(env.town.downcase)
+    }
   end
 
   def self.best_env(town = self.town)
-    available_environments = self.environments(town).select {|area| area.level.include?(Char.level)}
+    available_environments = self.environments(town).select {|area| 
+      area.level.include?(Char.level)
+    }
     creature = Bounty.task.creature
      fail "did not find a matching environment for level=%s" % Char.level if available_environments.empty?
     return available_environments.sample if creature.nil?
@@ -81,11 +91,13 @@ module Shiva
   end
 
   def self.hunt(env: self.best_env, resume: false)
+    Shiva::State.bounty_attempts_increment
     env_name = env.name
     if resume
       Log.out("resuming %s" % env_name, label: %i(env resume))
     else
       _respond "<b>hunting in %s</b>" % env_name
+      Log.out(Shiva::State.bounty_attempts, label: %i(bounty attempts))
     end
     self.run_once(env_name)
   end
@@ -94,7 +106,15 @@ module Shiva
     Task.advance self.town
   end
 
+  def self.handle_drop_bad_bounty!
+    return unless %i(skin gem).include?(Bounty.type)
+    return if Task.cooldown?
+    Bounty.remove
+  end
+
   def self.bounty!
+    self.handle_drop_bad_bounty!
+
     case Bounty.type
     when :succeeded, :report_to_guard, :failed, :get_heirloom, :creature_problem, :get_skin_bounty, :get_bandits, :heirloom_found
       self.task
@@ -109,8 +129,13 @@ module Shiva
       self.hunt
     when :herb
       fail "eforage.lic not detected to run herb tasks" unless Script.exists?("eforage")
+      previous_task = checkbounty
       Script.run("eforage", "--bounty")
-      self.task
+      if checkbounty.eql?(previous_task)
+        Bounty.remove
+      else
+        self.task
+      end
     when :bandits
       if %(rogue warrior).include? Char.prof.downcase
         self.bandits
@@ -144,12 +169,25 @@ module Shiva
     before_dying {fput "flag desc on"}
   end
 
+  def self.stockpile_gems!
+    return :noop if Config.gems.empty?
+    return :noop if Config.stockpile_bots.empty?
+    return unless Script.exists?("give")
+    bot = GameObj.pcs.select {|pc| Config.stockpile_bots.include?(pc.name) }.sample
+    return :no_bots if bot.nil?
+    Config.gems.each {|gem|
+      Log.out("giving all %s -> %s" % [gem, bot.name], label: %i(gem storage))
+      Script.run("give", "all %s %s" % [gem, bot.name])
+    }
+  end
+
   def self.preflight!
     fail "no environments found for #{self.town}" if self.available_environments.empty?
     respond "{town=%s, environs=%s}" % [self.town, self.available_environments.map(&:name).join(",")]
     return if available_environments.any?(&:current?)
     Base.go2
     Log.out(":preflight! returned to base")
+    self.stockpile_gems!
     Script.run("waggle", "--stop-at=1")
     self.handle_conditions!
   end
@@ -168,7 +206,7 @@ module Shiva
     Log.out("{graceful_exit=%s, daemon=%s}" % [$shiva_graceful_exit, Opts["daemon"]], label: %i(daemon?))
     self.down!("shutting down because of graceful_exit...") if $shiva_graceful_exit
     return if Opts["daemon"]
-    self.down! "--daemon flag not detected, exiting..."
+    self.down! "--daemon flag not detected, exiting...reason=%s" % ($shiva_rest_reason || ":none")
   end
 
   def self.current_env
@@ -177,7 +215,9 @@ module Shiva
 
   def self.auto()
     $shiva_graceful_exit = false
-    multifput("exp", "bounty")
+    $shiva_rest_reason = nil
+    multifput("exp", "bounty", "inven enh on")
+    self.cleanup!
     self.handle_room_desc!
     loop {
       Shiva::State.set(:hunting)
@@ -185,6 +225,8 @@ module Shiva
       if env_to_resume = self.available_environments.find(&:current?)
         self.hunt(env: env_to_resume, resume: true)
       elsif Mind.saturated? && Bounty.done? && Opts["farm"]
+        self.hunt
+      elsif Boost.loot?
         self.hunt
       else
         self.bounty!
@@ -194,7 +236,7 @@ module Shiva
   end
 
   def self.escort(town)
-    return Task.drop(town) unless Config.escort.split(",").any? {|dest| Bounty.task.destination.downcase.include?(dest) }
+    return Task.drop(town) unless Config.escort.any? {|dest| Bounty.task.destination.downcase.include?(dest) }
     Script.run("escort")
   end
 
@@ -209,18 +251,31 @@ module Shiva
   def self.init
     Shiva.load_all_modules
     Script.run("eboost") if Script.exists?("eboost") && !defined?(::EBoost)
+    Script.start("effect-watcher") unless Script.running?("effect-watcher")
     if Opts["simulate"]
       Shiva.simulate
     elsif Opts["env"]
       Shiva.run Opts["env"]
     elsif Opts["load"]
       exit
+    elsif Opts["environs"]
+      Log.out "environs: %s" % self.available_environments.map(&:name).join(", ")
+    elsif Opts["detect"]
+      previous_town = Config.town
+      detected_town = Room[Room.current.find_nearest_by_tag("town")].location
+      Config.set "general.town", detected_town
+      Log.out "shiva/town was %s -> changed to %s" % [previous_town, detected_town], label: %i(town)
+      exit
     elsif Opts["auto"]
       Shiva.auto
-    elsif Opts["sell"]
-      Shiva.load_all_modules
-      Task.advance($shiva.env.town) if $shiva and %i(gem skin).include?(Bounty.type) and not Task.sellables.empty?
-      Shiva::Teardown.new(OpenStruct.new({env: nil})).sell_loot
+    elsif Opts["set"]
+      value, key = Script.current.vars.reverse
+      Config.set(key, value)
+      return Config.show
+    elsif Opts["edit"]
+      return Script.run("edit", Config.dir.to_s)
+    elsif Opts["config"]
+      return Config.show
     else
       _respond <<~HELP
         <b>;shiva:</b>

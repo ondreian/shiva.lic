@@ -5,9 +5,11 @@ module Shiva
     end
 
     def available?(foe)
-      Config.swap_tactics? and
-      self.needs_swap?(foe) and
-      self.env.name.eql?(:sanctum)
+      return false
+
+      #Config.swap_tactics? and
+      #self.needs_swap?(foe) and
+      #self.env.name.eql?(:sanctum)
     end
 
     def needs_swap?(foe)

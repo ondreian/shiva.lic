@@ -10,7 +10,7 @@ module Shiva
     ]
     
     def self.bases
-      Config.bases or DefaultBases
+      (Config.bases or DefaultBases).map(&:to_i)
     end
 
     def self.closest

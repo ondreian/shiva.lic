@@ -14,10 +14,11 @@ module Shiva
     def available?(foe)
       not Immune.include?(foe.noun) and
       Weapon.cripple > 3 and
+      not CMan.hamstring > 3 and
       Tactic.edged? and
       not Effects::Buffs.active?("Shadow Dance") and
       foe.status.empty? and
-      Seen.count(foe.id) < 2 and
+      Seen.count(foe.id) < 1 and
       checkstamina > (self.cost * 3) and
       not hidden? and
       foe.status.empty? and

@@ -30,7 +30,7 @@ module Shiva
 
     def available?(foe)
       return false unless Spell[1030].known?
-      return true if foe.noun.eql?("shaper") and Group.empty?
+      return true if foe.noun.eql?("shaper") and Group.empty? and self.env.seen.include?(foe.id)
 
       if self.duskruin?
         self.duskruin_check?

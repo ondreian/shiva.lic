@@ -13,6 +13,7 @@ module Shiva
     def available?(foe)
       CMan.sweep > 2 and
       not Effects::Debuffs.active?("Jaws") and
+      not hidden? and
       checkstamina > (self.cost * 3) and
       ((foe.tall? and foe.status.empty?) or (not hidden? and foe.status.empty?)) and
       not Immune.include?(foe.noun)

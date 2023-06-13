@@ -21,21 +21,6 @@ module Shiva
       GameObj.loot.any? {|i| i.type =~ /box/}
     end
 
-    def sell_loot()
-      Script.run("give", "all uncut (diamond|emerald) Szan") if checkpcs.include?("Szan")
-      if Char.name.eql?("Szan")
-        Script.run("prune-gems")
-        Script.run("sell", "--deposit --skins")
-      else
-        Script.run("sell", "--deposit --gems --skins")
-      end
-    end
-
-    def message(receiver, box_count)
-      return unless defined? LNet
-      LNet.send_message(attr={'type'=>'private', 'to'=> receiver}, "There are now %s boxes on the ground at Oberwood" % box_count)
-    end
-
     def box_routine(town = nil)
       Char.unarm
       Log.out("running box routine...")
@@ -60,8 +45,10 @@ module Shiva
       Conditions::Injured.handle!
       wait_while("waiting on healing") {Char.total_wound_severity > 1}
       Char.unarm
+      
       wait_while("waiting on hands") {Char.left or Char.right} unless Char.left.type =~ /box/
-      self.box_routine(town)
+      
+      self.box_routine(town) if percentencumbrance > 0
       
       if Bounty.type.eql?(:gem) and Task.sellables.size > 0
         self.turn_in_bounty(town)

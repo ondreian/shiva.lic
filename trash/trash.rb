@@ -23,7 +23,7 @@ module Shiva
       item.type.include?("herb") or
       item.name.end_with?("spear head") or
       item.name.end_with?("sticky web") or
-      %w(wagon sign mandrake bandana kitten puppy disk signpost bramble).include?(item.noun) or
+      %w(wagon sign mandrake bandana kitten puppy disk signpost bramble vine).include?(item.noun) or
       self.cursed?(item)
     end
   end

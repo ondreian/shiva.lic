@@ -5,7 +5,7 @@ module Shiva
     end
 
     def statue
-      Containers.lootsack.where(name: "small statue").first
+      Containers.lootsack.where(name: "small statue").first or Containers.harness.where(name: "small statue").first
     end
 
     def available?(foe)
@@ -21,7 +21,7 @@ module Shiva
         Hand.use {
           stat.take
           fput "rub #%s" % stat.id
-          Containers.lootsack.add(stat) if [Char.left.id, Char.right.id].include?(stat.id)
+          Containers.harness.add(stat) if [Char.left.id, Char.right.id].include?(stat.id)
         }
         ttl = Time.now + 2
         wait_until {Effects::Spells.active?("Spirit Guard") or Time.now > ttl}

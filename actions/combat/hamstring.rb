@@ -13,6 +13,7 @@ module Shiva
     def available?(foe)
       CMan.hamstring > 2 and
       Tactic.edged? and
+      not hidden? and
       not Effects::Debuffs.active?("Jaws") and
       checkstamina > (self.cost * 6) and
       ((foe.tall? and foe.status.empty?) or (not hidden? and foe.status.empty? and percentstamina > 80)) and

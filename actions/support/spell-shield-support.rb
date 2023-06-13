@@ -9,6 +9,7 @@ module Shiva
     end
 
     def available?(foe)
+      return false
       foe.nil? and
       self.ttl < Time.now.to_i and
       Spell[219].known? and

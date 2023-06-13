@@ -29,9 +29,12 @@ module Shiva
     end
 
     def self.owned?
-      Char.right.id.to_s.eql?(self.id) or 
-      Char.left.id.to_s.eql?(self.id) or
-      GameObj.inv.map(&:id).map(&:to_s).include?(self.id)
+      return false if Char.name.eql?("Szan")
+      return false unless self.id.is_a?(String)
+      return false if self.id.empty?
+      return true if Char.right.id.to_s.eql?(self.id)
+      return true if Char.left.id.to_s.eql?(self.id)
+      return true if GameObj.inv.map(&:id).map(&:to_s).include?(self.id)
     end
   
     def self.needed?
