@@ -5,7 +5,7 @@ module Shiva
     end
 
     def available?(foe)
-      Claim.mine? and
+      Lich::Claim.mine? and
       self.env.foes.size > 1 and
       not foe.nil? and
       not foe.name.include?("Vvrael") and

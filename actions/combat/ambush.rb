@@ -9,11 +9,11 @@ module Shiva
     end
 
     def has_melee_skill?
-      Tactic.edged? or Tactic.polearms?
+      Tactic.edged? or Tactic.polearms? or Tactic.brawling?
     end
 
     def prefer_waylay?(foe)
-      %w(destroyer golem automaton).include?(foe.noun) and Tactic.dagger?
+      %w(golem automaton).include?(foe.noun) and Tactic.dagger?
     end
 
     def in_reach?(foe)
@@ -23,16 +23,18 @@ module Shiva
     end
 
     def able?(foe)
-      hidden? and
-      not DENY.include?(foe.id) and
-      self.has_melee_skill? and
-      Skills.ambush > Char.level and
-      not foe.nil? #and
+      return :open unless hidden?
+      return :deny if DENY.include?(foe.id)
+      return :no_melee unless self.has_melee_skill? 
+      return :no_ambush unless Skills.ambush > Char.level
+      return :no_foe if foe.nil?
+      return true
       #self.in_reach?(foe)
     end
 
     def available?(foe)
-      self.prefer_waylay?(foe) or self.able?(foe)
+      #Log.out(self.able?(foe), label: %i(ambush able))
+      self.able?(foe).eql?(true)
     end
 
     Outcomes = Regexp.union(
@@ -44,33 +46,13 @@ module Shiva
       %r[does not have a (.*)!]
     )
 
-    # Predator's Eye
-    def stance(name, cmd)
-      return if name.eql?(:noop)
-      return if Effects::Spells.active?(name)
-      put "cman %s" % cmd
-    end
-
-    def with_stances()
-      stance(*self.offensive_martial_stance)
-      yield
-      stance(*self.defensive_martial_stance)
-    end
-
-    def offensive_martial_stance()
-      return ["Whirling Dervish", "dervish"] if CMan.whirling_dervish && self.env.foes.size > 1 && GameObj.left_hand.type.include?("weapon")
-      return ["Predator's Eye", "predator"]  if CMan.predators_eye
-      return [:noop, nil]
-    end
-
-    def defensive_martial_stance()
-      return ["Duck and Weave", "duck"] if CMan.duck_and_weave
-      return [:noop, nil]
-    end
-
     def rogue(foe)
-      with_stances {
-        (Effects::Buffs.active?("Shadow Dance") && hidden? && checkstamina > 0) ? self._silent_strike(foe) : self._ambush(foe)
+      Martial::Stance.swap {
+        if Effects::Buffs.active?("Shadow Dance") && hidden? && checkstamina > 0
+          self._silent_strike(foe)
+        else
+          self._ambush(foe)
+        end
       }
     end
 
@@ -78,21 +60,29 @@ module Shiva
       return self._ambush(foe)
     end
 
+    def verb(foe)
+      return "punch" if Tactic.uac? && %w(crawler).include?(foe.noun)
+      return "kick" if Tactic.uac? && Spell[506].active?
+      return "punch" if Tactic.uac?
+      return "ambush"
+    end
+
     def _silent_strike(foe)
-      cmd = self.in_reach?(foe) ? "feat silentstrike #%s" : "feat silentstrike #%s clear"
-      result = dothistimeout(cmd % foe.id, 1, Outcomes)
+      cmd = self.in_reach?(foe) ? "feat silentstrike %s #%s" : "feat silentstrike #%s clear"
+      result = dothistimeout(cmd % [self.verb(foe), foe.id], 1, Outcomes)
       return self.kill(foe, silent: true) if result =~ /You cannot aim|does not have/
     end
 
     def _ambush(foe)
-      cmd = self.in_reach?(foe) ? "ambush #%s" : "ambush #%s clear"
-      result = dothistimeout(cmd % foe.id, 1, Outcomes)
+      cmd = self.in_reach?(foe) ? "%s #%s" : "%s #%s clear"
+      result = dothistimeout(cmd % [self.verb(foe), foe.id], 1, Outcomes)
       return self.kill(foe, silent: false) if result =~ /You cannot aim|does not have/
     end
 
     def get_best_area(foe)
       @area = foe.kill_shot Aiming.lookup(foe)
       Log.out("{foe=%s, aim=%s}" % [foe.name, @area])
+      @area=:clear if @area.eql?(:neck) and foe.noun.eql?("cerebralite")
       Char.aim(@area)
       @area
     end
@@ -113,11 +103,11 @@ module Shiva
         self._ambush(foe)
       end
       # look and parse the next best killshot while in roundtime
-      unless foe.dead?
+      unless foe.dead? or foe.gone?
         self.get_best_area(foe)
         Log.out("%s -> %s" % [foe.name, @area], label: %i(killshot))
 
-        if %w(destroyer crawler).include?(foe.noun) and not %i(head neck).include?(@area)
+        if %w(destroyer crawler).include?(foe.noun) and not %i(head neck).include?(@area) and not Tactic.uac?
           return DENY << foe.id
         end
       end

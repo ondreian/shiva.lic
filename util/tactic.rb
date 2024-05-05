@@ -11,6 +11,10 @@ module Tactic
     Skills.send(method) > 1.5 * Char.level
   end
 
+  def self.uac?
+    self.can?(:brawling) and checkleft.nil? and checkright.nil? and Shiva::Config.uac.include?($shiva.env.name)
+  end
+
   def self.ranged?
     Nouns::Ranged.include?(Char.left.noun) && self.can?(:rangedweapons)
   end

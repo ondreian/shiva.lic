@@ -55,7 +55,7 @@ module Shiva
       self.activate_group
       $shiva_graceful_exit = false
       return if Rooms.combat.include?(Room.current.id)
-      Script.run("waggle")
+      Script.run("waggle", "--stop-at=1")
       empty_hands
       self.entry.go2 if Group.leader? or Group.empty?
       booklet = Containers.harness.where(name: /(booklet|stamped voucher)$/).first or fail "no booklet in #{Containers.harness.name}"
@@ -66,7 +66,7 @@ module Shiva
         wait_until("waiting for arena") {Rooms.combat.include?(Room.current.id)}
       end
       Containers.harness.add(booklet) if Char.right
-      Char.arm
+      Arms.ready
       if Group.leader? or Group.empty?
         while line=get
           break if line =~ /An announcer shouts/
@@ -79,6 +79,7 @@ module Shiva
     end
 
     def self.main
+      Log.out(:main)
       self.add_round_hook
       self.alert_endless if Opts["endless"]
       #wait_while("waiting on foe...") {self.foes.empty?}
@@ -95,6 +96,7 @@ module Shiva
       waitrt?
       Char.unarm unless Char.right.noun.eql?("package")
       #fput "pray" if Rooms.combat.include?(Room.current.id)
+      waitcastrt?
       fput "renew all" if Char.prof.eql?("Bard")
       num = %w(430 120 425 103 107 101).select {|num| Spell[num].known? && Spell[num].timeleft < 60}.sort_by {|num| Spell[num].timeleft}.sample
       Spell[num].cast if Rooms.combat.include?(Room.current.id) && !num.nil?

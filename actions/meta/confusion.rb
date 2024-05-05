@@ -6,7 +6,7 @@ module Shiva
     end
 
     def confused?
-      Effects::Debuffs.active?("Confused")
+      Effects::Debuffs.active?("Confused") and not Effects::Debuffs.active?("Confusion")
     end
 
     def available?

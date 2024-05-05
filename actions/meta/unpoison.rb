@@ -6,7 +6,7 @@ module Shiva
     end
 
     def effected?
-      Effects::Debuffs.to_h.any? {|k, v| k =~ /Wall of Thorns/i}
+      Effects::Debuffs.to_h.any? {|k, v| k.to_s =~ /Wall of Thorns/i}
     end
 
     def available?

@@ -78,7 +78,7 @@ module Shiva
     end
 
     def self.poll_bandits!
-      10.times {break if bandit_count>0; sleep 0.1} if Claim.current?
+      10.times {break if bandit_count>0; sleep 0.1} if Lich::Claim.current?
     end
 
     def self.ensure_none_hiding()
@@ -147,7 +147,7 @@ module Shiva
     end
 
     def self.search()
-      if Claim.current? and Kernel::rand > 0.66 and Skills.perception > (Char.level * 1.5)
+      if Lich::Claim.current? and Kernel::rand > 0.66 and Skills.perception > (Char.level * 1.5)
         fput "search"
         fput "look"
         waitrt?
@@ -161,7 +161,7 @@ module Shiva
       waitcastrt?
       waitrt?
       self.poll_bandits!
-      #return if bandit_count > 0 && Claim.current?
+      #return if bandit_count > 0 && Lich::Claim.current?
       candidates_for_crawling = env.candidates
       #Log.out(candidates_for_crawling)
       return env.rooms.sample.id.go2 if candidates_for_crawling.empty?

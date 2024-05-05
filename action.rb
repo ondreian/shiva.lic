@@ -1,5 +1,9 @@
 module Shiva
   class Action
+    def self.inherited(action)
+      Actions.register(action)
+    end
+    
     def self.call(action, *args)
       begin
         exit if dead?
@@ -12,10 +16,6 @@ module Shiva
       rescue => exception
         Log.out(exception)
       end
-    end
-
-    def self.inherited(action)
-      Actions.register(action)
     end
 
     attr_reader :env

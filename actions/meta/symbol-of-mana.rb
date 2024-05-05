@@ -6,7 +6,7 @@ module Shiva
 
     def available?
       Society.status.eql?("Order of Voln") and
-      (Char.max_mana - checkmana) >= 100 and
+      (max_mana - checkmana) >= 100 and
       Society.rank > 20 and
       not Effects::Cooldowns.active?("Symbol of Mana")
     end

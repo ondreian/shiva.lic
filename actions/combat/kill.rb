@@ -8,7 +8,7 @@ module Shiva
       not foe.nil? and
       self.env.foes.size > 0 and
       (Tactic.edged? or Tactic.polearms?) and 
-      Claim.mine?
+      Lich::Claim.mine?
     end
 
     def get_best_area(foe)
@@ -20,7 +20,7 @@ module Shiva
 
     def kill(foe)
       Stance.offensive
-      if Skills.ambush < 25 || (foe.tall? && !foe.status.include?(:prone)) || foe.name =~ /spectral|ethereal|triton protector/
+      if Skills.ambush < 25 || (foe.tall? && !foe.status.include?(:prone)) || foe.name =~ /spectral|ethereal|triton protector|fallen crusader/
         put "attack #%s clear" % foe.id
       else
         area = self.get_best_area(foe)

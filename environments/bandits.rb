@@ -9,8 +9,12 @@ module Shiva
       self.rooms.map(&:id).sample
     end
 
+    def rooms!
+      @_subgraph = Room.list.select {|r| r.location.is_a?(String) && r.location.include?(Bounty.area)}
+    end
+
     def rooms
-      @_subgraph ||= Room.list.select {|r| r.location.is_a?(String) && r.location.include?(Bounty.area)}
+      @_subgraph ||= self.rooms!
     end
 
     def crawl
@@ -27,7 +31,11 @@ module Shiva
     end
 
     def self.setup
-      Char.arm
+      Script.run("waggle", "--stop-at=1")
+      self.rooms!
+      Arms.use
+
+      return if self.rooms.any? {|r| r.id.eql?(Room.current.id)}
       if Group.empty?
         Script.run("go2", "%s --disable-confirm" % self.entry)
       else
@@ -44,7 +52,7 @@ module Shiva
         sleep 0.1
       end
 
-      return unless Claim.mine?
+      return unless Lich::Claim.mine?
       search = self.action(:loot)
       search.apply
       sleep 0.1

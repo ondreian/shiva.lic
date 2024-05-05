@@ -2,6 +2,7 @@ module Shiva
   # You note some treasure of interest and manage to pick up an engraved thanot chest but quickly realize you have no space in which to stow it.
   class LootArea < Action
     Dangerous = /doomstone|urglaes/
+    Charm = "crystallized silvery fossil charm"
 
     attr_reader :seen
     def initialize(*args)
@@ -38,13 +39,14 @@ module Shiva
     end
 
     def available?
-      Claim.mine? and
+      Lich::Claim.mine? and
       self.unseen.size > 0 and
       (Group.leader? or Group.empty?) and
       self.safe?
     end
 
     def dangerous?
+      return false if GameObj.inv.map(&:name).include?("enormous eonake gauntlet")
       GameObj.loot.any? {|i| i.name =~ Dangerous }
     end
 
@@ -57,6 +59,10 @@ module Shiva
       %r{With a discerning eye, you gather up what treasure you find worthwhile and casually stow it away.},
       %r{There is no loot.}
     )
+
+    def charm
+      GameObj.inv.find {|o| o.name.eql?(Charm)}
+    end
 
     def fast_loot
       case dothistimeout "loot area", 3, Regexp.union(Ok, Err)
@@ -73,8 +79,15 @@ module Shiva
     end
 
     def loot_silvers
-      fput "get coins"
-      waitrt?
+      ttl = Time.now + 10
+      while GameObj.loot.any? {|i| i.name.eql?(%[some silver coins])} and Time.now < ttl
+        if self.charm.nil?
+          fput "get coins"
+          waitrt?
+        else
+          dothistimeout "rub #%s" % self.charm.id, 3, %r{You summon a swarm}
+        end
+      end
     end
 
     def apply()
@@ -85,17 +98,17 @@ module Shiva
       self.loot_silvers if GameObj.loot.any? {|i| i.name.eql?(%[some silver coins])}
       this_loot.reject! {|i| i.name.eql?(%[some silver coins])}
       return if this_loot.empty?
+      previous_left = Char.left
       Hand.use {
         if self.dangerous?
           self.slow_loot(this_loot)
-          empty_left_hand unless Tactic.ranged?
+          empty_left_hand unless previous_left
         else
           result = self.fast_loot
           return if result.eql?(:full)
           self.slow_loot(self.loot) if self.loot && !self.env.state.eql?(:rest)
-          empty_left_hand unless Tactic.ranged?
+          empty_left_hand unless previous_left
         end
-        
       }
     end
   end

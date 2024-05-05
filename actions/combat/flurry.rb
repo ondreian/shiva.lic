@@ -9,12 +9,14 @@ module Shiva
     end
 
     def available?(foe)
+      not Spell[506].active? and
       not Tactic.thrown? and
       not %i(duskruin).include?(self.env.name) and
       not foe.nil? and
       not Effects::Cooldowns.active?("Flurry") and
       not Effects::Buffs.active?("Slashing Strikes") and
       not Spell[117].active? and
+      not Effects::Debuffs.active?("Jaws") and
       Tactic.edged? and
       checkstamina > (self.cost * 3) and
       not hidden? and

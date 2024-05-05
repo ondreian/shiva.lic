@@ -15,14 +15,15 @@ module Shiva
     end
 
     def priority
-      return Priority.get(:high) if self.env.foes.size > self.max_foes
+      return -100 if self.overwhelmed?
+      return Priority.get(:high) unless Lich::Claim.mine?
       return Priority.get(:high) unless (Config.flee & GameObj.targets.map(&:noun)).empty?
       Priority.get(:medium)
     end
 
     def recover_from_rifting()
       return :ok if self.env.rooms.include?(Room.current.id.to_s)
-      Char.unhide if Char.hidden?
+      Char.unhide if hidden?
       Log.out("recovering from being teleported...", label: %i(recover teleported))
       return Script.run("go2", self.env.entry.to_s)
     end
@@ -32,11 +33,19 @@ module Shiva
       self.env.foes.map(&:name).any? {|name| name =~ /vvrael/i}
     end
 
+    def overwhelmed?
+      return true if GameObj.loot.find {|i| i.noun.eql?(%[phylactery])} and self.env.foes.map(&:noun).count {|n| n.eql?("lich")} > 0
+      return true if self.env.foes.map(&:noun).count {|n| n.eql?("lich")} > 1
+      return self.env.foes.size > self.max_foes
+    end
+
     def max_foes
       return 3 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Hinterwilds")
       return 2 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Moonsedge")
+      return 1 if Char.exp < 15_000_000 and Room.current.location.include?("Rift")
       return 1 if %w(Cleric Empath Wizard).include?(Char.prof)
       return 10 if self.env.name.eql?(:bandits)
+      return 5 if self.env.name.eql?(:scatter_south)
       return 5 if Skills.multiopponentcombat > 100
       return 3 if Skills.multiopponentcombat > 50
       return Group.size + 1
@@ -58,14 +67,14 @@ module Shiva
     end
 
     def reason()
-      return :claim       unless Claim.mine?
+      return :claim  unless Lich::Claim.mine?
       return :monstrosity if GameObj.targets.any? {|f| f.noun.eql?("monstrosity")}
       return :brawlers    if GameObj.targets.map(&:noun).select {|n| n.eql?("brawler") or n.eql?("psionicist")}.size > 1
       return nil          if Script.running?("give")
       return :dolls       if GameObj.targets.any? {|f| f.noun.eql?("doll")}
       return :fissure     if checkloot.include?('fissure')
       return :flee        if Config.flee.is_a?(String) && GameObj.targets.any? {|f| Config.flee.include?(foe.noun)}
-      return :swarm       if self.env.foes.size > self.max_foes
+      return :swarm       if self.overwhelmed?
       return :magma       if self.room_objs.include?("mass of undulating liquified rock")
       return :cyclone     if self.room_objs.include?("frigid cyclone") and GameObj.targets.any? {|f| f.noun.eql?("wendigo")}
       return :antimagic   if self.antimagic?
@@ -79,18 +88,18 @@ module Shiva
       #sleep 0.1
       Log.out("reason=%s uuid=%s" % [reason, XMLData.room_id], label: %i(wander reason)) unless reason.nil?
       Char.stand unless standing?
-      # Log.out(self.paths.join(", "), label: %i(wander paths))
-      self.call_wayto self.paths.sample
-      waitrt?
-      #r = self.reason
-      #return :mine if r == false
-      #return self.wander(reason: r, tries: tries + 1)
+      if reason.eql?(:swarm) && @env.action(:divert).available?
+        @env.action(:divert).apply
+      else
+        self.call_wayto self.paths.sample
+        waitrt?
+      end
     end
 
     def pre_move_hook()
-      return unless Claim.mine?
+      return unless Lich::Claim.mine?
       search = @env.action(:loot)
-      search.apply
+      search.apply unless self.overwhelmed?
       loot = @env.action(:lootarea)
       loot.apply
     end

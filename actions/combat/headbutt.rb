@@ -1,23 +1,22 @@
 module Shiva
   class Headbutt < Action
-    Nouns = %w(siphon crawler)
+    Nouns = %w(siphon crawler lich)
     Seen  = []
 
     def priority
-      6
+      3
     end
 
     def available?(foe)
       Nouns.include?(foe.noun) and
       CMan.headbutt > 0 and
-      not Effects::Buffs.active?("Shrouded") and
       foe.status.empty? and
       Seen.count(foe.id) < 2 and
       checkstamina > 20 and
       not hidden? and
       foe.status.empty? and
       not foe.tall? and
-      rand > 0.2
+      rand > 0.1
     end
 
     def headbutt(foe)

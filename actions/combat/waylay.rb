@@ -1,10 +1,10 @@
 module Shiva
   class Waylay < Action
-    Nouns = %w(monstrosity crusader golem psionicist protector automaton grotesque)
+    Nouns = %w(monstrosity crawler crusader golem psionicist protector automaton grotesque banshee conjurer)
 
     def priority(foe)
       return 100 unless Tactic.edged?
-      if Nouns.include?(foe.noun) or self.skinning?(foe)
+      if Nouns.include?(foe.noun) && !Smite.smited?(foe)
         89
       else
         100
@@ -27,7 +27,8 @@ module Shiva
 
     def available?(foe)
       not foe.nil? and
-      self.conditions?
+      self.conditions? and
+      not Tactic.brawling?
     end
 
     def waylay(foe)

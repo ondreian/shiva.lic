@@ -4,7 +4,7 @@ module Shiva
     module WallOfThorns
       def self.status
         Effects::Debuffs.to_h.keys.map(&:to_s)
-          .find {|k| k.start_with? "Wall of Thorns Poison"}.match(/\((\d+)\)/)[1].to_i
+          .find {|k| k.start_with? "Wall of Thorns Poison"}.split(" ").pop.to_i
       end
 
       def self.handle!

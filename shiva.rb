@@ -9,12 +9,20 @@ module Shiva
     load File.join(self.root, file)
   end
 
+  def self.highest_priority_files
+    Dir[File.join(self.root, "util", "**", "*.rb")]
+  end
+
   def self.files
-    Dir[File.join(self.root, "**", "*.rb")].sort {|f| -f.size}
+    Dir[File.join(self.root, "**", "*.rb")]
+      .sort {|f| f.include?("environments") ? -1 : 1} + self.highest_priority_files
   end
 
   def self.load_all_modules
-    self.files.reverse.each {|asset| load(asset) }
+    self.files.reverse.each { |asset|
+      #Log.out("load >> %s" % asset)
+      load(asset) 
+    }
     Log.out "loaded %s files" % files.size
   end
 
@@ -77,21 +85,19 @@ module Shiva
   end
 
   def self.best_env(town = self.town)
-    available_environments = self.environments(town).select {|area| 
-      area.level.include?(Char.level)
-    }
+    candidate_environments = self.available_environments()
     creature = Bounty.task.creature
-     fail "did not find a matching environment for level=%s" % Char.level if available_environments.empty?
-    return available_environments.sample if creature.nil?
+    fail "did not find a matching environment for level=%s" % Char.level if available_environments.empty?
+    return candidate_environments.sample if creature.nil?
     creature_noun = creature.split.last
-    matching_environments = available_environments
-      .select {|env| env.native_foes.include?(creature_noun)}
+    matching_environments = candidate_environments.select {|env| env.native_foes.include?(creature_noun)}
     fail "did not find a matching environment for #{creature}" if matching_environments.empty?
     matching_environments.sample
   end
 
   def self.hunt(env: self.best_env, resume: false)
     Shiva::State.bounty_attempts_increment
+    self.preflight!
     env_name = env.name
     if resume
       Log.out("resuming %s" % env_name, label: %i(env resume))
@@ -109,7 +115,7 @@ module Shiva
   def self.handle_drop_bad_bounty!
     return unless %i(skin gem).include?(Bounty.type)
     return if Task.cooldown?
-    Bounty.remove
+    Bounty.remove if Opts["drop"]
   end
 
   def self.bounty!
@@ -120,7 +126,8 @@ module Shiva
       self.task
     when :none
       self.task unless Task.cooldown?
-      if Bounty.type.eql?(:none) and Task.cooldown? and ::EBoost.bounty.available? and Effects::Cooldowns.to_h.dig("Next Bounty") - Time.now > (60 * 7.5) and Script.exists?("use-boost-bounty") and Config.use_boost?
+
+      if Config.bounty_boost && Bounty.type.eql?(:none) and Task.cooldown? and ::EBoost.bounty.available? and Effects::Cooldowns.to_h.dig("Next Bounty") - Time.now > (60 * 7.5) and Script.exists?("use-boost-bounty") and Config.use_boost? and !Mind.saturated?
         Script.run("use-boost-bounty")
       else
         self.hunt if Bounty.type.eql?(:none)
@@ -128,12 +135,12 @@ module Shiva
     when :dangerous, :cull, :heirloom, :skin, :gem
       self.hunt
     when :herb
-      fail "eforage.lic not detected to run herb tasks" unless Script.exists?("eforage")
-      previous_task = checkbounty
-      Script.run("eforage", "--bounty")
-      if checkbounty.eql?(previous_task)
+      if %w(Moonsedge).include?(Bounty.area)
         Bounty.remove
       else
+        fail "eforage.lic not detected to run herb tasks" unless Script.exists?("eforage")
+        # previous_task = checkbounty
+        Script.run("eforage", "--bounty")
         self.task
       end
     when :bandits
@@ -144,6 +151,8 @@ module Shiva
       end
     when :escort
       self.escort(self.town)
+    when :rescue
+      Bounty.remove
     else
       fail "shiva/auto not implemented for %s" % Bounty.type
     end
@@ -152,6 +161,8 @@ module Shiva
   def self.available_environments
     self.environments(self.town).select {|env| 
       env.level.include?(Char.level)
+    }.reject {|env|
+      Config.environs_drop.include?(env.name.to_s)
     }
   end
 
@@ -221,7 +232,6 @@ module Shiva
     self.handle_room_desc!
     loop {
       Shiva::State.set(:hunting)
-      self.preflight!
       if env_to_resume = self.available_environments.find(&:current?)
         self.hunt(env: env_to_resume, resume: true)
       elsif Mind.saturated? && Bounty.done? && Opts["farm"]
@@ -237,6 +247,7 @@ module Shiva
 
   def self.escort(town)
     return Task.drop(town) unless Config.escort.any? {|dest| Bounty.task.destination.downcase.include?(dest) }
+    fail "escort script is already running\nso something weird has happened!" if Script.running?("escort")
     Script.run("escort")
   end
 
@@ -276,6 +287,8 @@ module Shiva
       return Script.run("edit", Config.dir.to_s)
     elsif Opts["config"]
       return Config.show
+    elsif Opts["environs"]
+      return Log.out(self.available_environments.join(", "), label: %i(environs available))
     else
       _respond <<~HELP
         <b>;shiva:</b>

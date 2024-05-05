@@ -6,7 +6,7 @@ module Shiva
         Shiva::Boost.absorb
         return Log.out("farming...", label: %i(condition saturated)) if Opts.farm
         Log.out("handling saturated", label: %i(condition saturated))
-        Base.go2
+        Base.go2 unless Room.current.location =~ %r{Duskruin}
         wait_while("waiting on saturated...") {Mind.saturated?}
       end
     end

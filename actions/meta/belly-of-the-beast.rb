@@ -8,7 +8,7 @@ Obvious exits: none
 module Shiva
   class BellyOfTheBeast < Action
     def priority
-      -2
+      -1000
     end
 
     def available?
@@ -16,6 +16,7 @@ module Shiva
     end
 
     def apply
+      fput "swap" if Tactic::Nouns::Dagger.include?(Char.left)
       fput "attack wall" if Tactic.dagger?
     end
   end

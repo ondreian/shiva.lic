@@ -9,8 +9,7 @@ module Shiva
     end
 
     def available?
-      %i(plane4 scatter).include?(self.env.name) and
-      false and
+      %i(moonsedge).include?(self.env.name) and
       Society.status.eql?("Order of Voln") and
       Society.rank > 20 and
       not self.active?

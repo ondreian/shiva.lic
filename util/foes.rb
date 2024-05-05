@@ -14,7 +14,7 @@ module Shiva
     include Enumerable
 
     def each()
-      return [] unless Claim.mine?
+      return [] unless Lich::Claim.mine?
       GameObj.targets.to_a
         .reject do |candidate| candidate.name =~ /animated|arm$/ end
         .map  do |obj| Creature.new(obj) end

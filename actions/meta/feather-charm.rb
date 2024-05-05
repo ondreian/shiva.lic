@@ -5,7 +5,8 @@ module Shiva
     end
 
     def charm
-      GameObj.inv.find {|i| i.name =~ /blue feather-shaped charm/}
+      GameObj.inv.find {|i| i.name =~ /blue feather-shaped charm/} or
+      GameObj.inv.find {|i| i.name =~ /golden feather charm/}
     end
 
     def active?

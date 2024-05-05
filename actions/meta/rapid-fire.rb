@@ -12,7 +12,9 @@ module Shiva
     end
 
     def apply()
-      fput "incant 515"
+      Spell[515].cast
+      ttl = Time.now + 1
+      wait_until {Spell[515].active? or Time.now > ttl}
       waitcastrt?
     end
   end

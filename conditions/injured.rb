@@ -12,9 +12,10 @@ module Shiva
         begin
           tries = tries + 1
           wait_until("waiting on a healer...") {Team.has_healer?}
+          sleep 5.0
           Team.request_healing
           ttl = Time.now + 10
-          wait_while("waiting on injuries") {self.injured? or Time.now > ttl}
+          wait_while("waiting on injuries") {self.injured? and Time.now < ttl}
           fail "healing error" if Time.now > ttl
         rescue => exception
           fail exception if tries > 5

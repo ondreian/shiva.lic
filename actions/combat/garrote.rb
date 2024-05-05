@@ -61,7 +61,7 @@ module Shiva
       Char.unarm
       ttl = Time.now + 3
       wait_until {Char.right.nil? && Char.left.nil? or Time.now > ttl}
-      return Char.arm if foe.dead? or foe.gone?
+      return Arms.use if foe.dead? or foe.gone?
       self.garrote.use {
         3.times {fput "hide"; break if hidden?}
         next unless hidden?
@@ -76,7 +76,7 @@ module Shiva
         Containers.harness.add(*[Char.right, Char.left].compact)
       }
 
-      Char.arm
+      Arms.use
     end
   end
 end

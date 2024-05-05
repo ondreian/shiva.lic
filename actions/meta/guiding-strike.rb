@@ -5,7 +5,10 @@ module Shiva
     end
 
     def should?(foe)
+      return false if Effects::Debuffs.active?("Silenced")
+      return false if Spell[506].known?
       return false if %i(duskruin).include? self.env.name
+      return false unless foe.status.empty?
       return false if %i(escort bandits).include?(Bounty.type)
       return true if %w(shaper master).include?(foe.noun)
       return true if percentmana > 90
@@ -28,7 +31,9 @@ module Shiva
     end
 
     def apply()
-      Spell[117].cast
+      _result = dothistimeout "incant 117", 3, Regexp.union(
+        %r{An invisible force guides you}
+      )
       ttl = Time.now + 1
       wait_until {self.active? or Time.now > ttl}
     end

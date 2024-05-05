@@ -8,11 +8,14 @@ module Shiva
     end
 
     def self.eval_with_foe(action, method, foe)
-      #Log.out("%s.%s" % [action.class.name, method], label: %i(eval_with_foe))
-      if action.method(method).arity == 1
+      arity = action.method(method).arity
+      case arity
+      when 1
         action.send(method, foe)
-      else
+      when 0
         action.send(method)
+      else
+        fail "%s > method:%s is of unhandled arity %s" % [action.class.name, method, arity]
       end
     end
 

@@ -9,7 +9,7 @@ module Shiva
     def make_decision
       (proposed_action, foe) = self.env.best_action
       # prevent followers from drive-by poaching
-      return :noop if !Claim.mine? && !(Group.empty? || Group.leader?)
+      return :noop if !Lich::Claim.mine? && !(Group.empty? || Group.leader?)
       Action.call(proposed_action, foe)
       sleep 0.1
       return proposed_action if proposed_action.is_a?(Symbol)

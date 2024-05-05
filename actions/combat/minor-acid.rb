@@ -9,7 +9,7 @@ module Shiva
     end
 
     def available?(foe)
-      Claim.mine? and
+      Lich::Claim.mine? and
       not foe.nil? and
       not foe.name.include?("Vvrael") and
       not self.high_ds?(foe.noun) and

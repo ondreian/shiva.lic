@@ -1,7 +1,7 @@
 module Shiva
   class Cutthroat < Action
     Cutthroat = []
-    Immune    = %w(crawler cerebralite golem hinterboar)
+    Immune    = %w(crawler banshee cerebralite golem hinterboar grotesque conjurer)
     DeathMetal = %w(mastodon cannibal shield-maiden crusader destroyer)
 
     def priority

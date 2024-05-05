@@ -28,7 +28,7 @@ module Shiva
     end
 
     def count(action_name)
-      self.action_history.take_while {|action| action.to_sym.eql?(action_name.to_sym)}.size
+      self.action_history.reverse.take_while {|action| action.to_sym.eql?(action_name.to_sym)}.size
     end
 
     def divergence?
@@ -124,7 +124,7 @@ module Shiva
     end
 
     def foes
-      return [] unless Claim.mine?
+      return [] unless Lich::Claim.mine?
       return GameObj.targets.map {|f| Creature.new(f)} if self.foe_nouns.empty?
       Foes.select {|foe| self.foe_nouns.include?(foe.noun) }.sort_by do |foe|
         if foe.name =~ /grizzled|ancient/

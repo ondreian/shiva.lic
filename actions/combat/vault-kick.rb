@@ -1,6 +1,8 @@
 module Shiva
   class VaultKick < Action
 
+    Kicked = []
+
     def priority
       (89...100).to_a.sample
     end
@@ -12,12 +14,15 @@ module Shiva
       foe.status.empty? and
       CMan.vault_kick and
       Tactic.polearms? and
+      not Kicked.include?(foe.id) and
+      not %w(cerebralite).include?(foe.noun) and
       checkstamina > 30
     end
 
     def vault(foe)
       Stance.offensive
       fput "cman vault #%s" % foe.id
+      Kicked << foe.id
       Timer.await()
     end
 

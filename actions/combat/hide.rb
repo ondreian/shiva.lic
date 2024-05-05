@@ -25,6 +25,7 @@ module Shiva
     end
 
     def priority
+      return 1 if checkcastrt > 0
       return 7 if self.camo?
       return 1_000 if self.env.foes.any? {|foe| PERCEPTIVE_NOUNS.include?(foe.noun) }
       return 7
@@ -42,7 +43,7 @@ module Shiva
       Skills.stalkingandhiding > (Char.level * 2) and
       not Effects::Debuffs.active?("Jaws") and
       not invisible? and
-      not %i(bandits escort).include?(@env.name) and
+      not %i(escort).include?(@env.name) and
       not self.env.foes.any? {|foe| Perceptive.count(foe.id) > 2} and
       not hidden? and
       not Opts["open"] and

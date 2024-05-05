@@ -31,6 +31,7 @@ module SpamGuard
     @history.shift while @history.size > 300
     number_in_a_row = self.happened(cmd)
     if number_in_a_row > (UPPER_BOUND * 2)
+      Shiva::Base.go2
       _respond "<b>spam guard error: %s was sent %s times!</b>" % [cmd, number_in_a_row]
       Script.current.exit
     else

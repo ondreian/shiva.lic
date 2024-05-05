@@ -1,6 +1,6 @@
 module Shiva
   class Quickening < Action
-    NAME     = ":quickening"
+    NAME     = "shiva/sanctum/quickening"
     ATTACK   = /The <a exist="(\d+)" noun="(?<snake>[a-z]+)">(?:[a-z]+)<\/a> wriggles down your arm/
     FAIL     = /but your interference only enrages it!/
     SUCCESS  = /twisting violently until you hear something snap!/
@@ -8,12 +8,9 @@ module Shiva
     @@snake  = nil
 
     def self.register()
-      DownstreamHook.add(NAME, Proc.new do |str|       
+      Shiva::Hook.register(:quickening) do |str|
         Quickening.parse(str)
-        str
-      end)
-    
-      before_dying do DownstreamHook.remove(NAME) end
+      end
     end
 
     def self.parse(str)

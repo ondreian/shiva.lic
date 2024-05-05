@@ -8,6 +8,7 @@ module Shiva
     end
 
     def self.away
+      return unless checkpaths
       until GameObj.targets.empty? do walk end
     end
   end

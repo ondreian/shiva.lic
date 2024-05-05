@@ -9,12 +9,11 @@ module Shiva
     end
 
     def affordable?
-      return checkstamina > 65 if self.cooldown?
+      return checkstamina > 90 if self.cooldown?
       return checkstamina > 35
     end
 
     def available?
-      return false
       CMan.burst_of_swiftness > 2 &&
       self.affordable?
     end
@@ -22,7 +21,7 @@ module Shiva
     def apply
       waitcastrt?
       waitrt?
-      Spell["Burst of Swiftness"].cast
+      fput "cman burst"
       ttl = Time.now + 4
       wait_until {Spell["Burst of Swiftness"].active? or Time.now > ttl}
     end

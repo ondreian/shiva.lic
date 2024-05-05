@@ -13,8 +13,8 @@ module Shiva
 
     def available?(foe)
       not Immune.include?(foe.noun) and
+      not Effects::Debuffs.active?("Jaws") and
       Weapon.cripple > 3 and
-      not CMan.hamstring > 3 and
       Tactic.edged? and
       not Effects::Buffs.active?("Shadow Dance") and
       foe.status.empty? and

@@ -5,6 +5,7 @@ module Shiva
     end
 
     def available?
+      return false
       Spell[919].known? and
       checkmana > 100 and
       not Spell[919].active?

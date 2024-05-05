@@ -13,7 +13,7 @@ module Shiva
       coinhand = self
       DownstreamHook.add("shiva/coinhand", -> line {
         begin
-          coinhand.gained_silver = true if line.start_with?("You gather the remaining")
+          coinhand.gained_silver = true if line.start_with?("You gather the remaining") or line.include?("which takes off in search of silvers.  They locate a stack of")
         rescue => exception
           Log.out(exception)
         ensure

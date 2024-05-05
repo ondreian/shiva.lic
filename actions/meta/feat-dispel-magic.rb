@@ -2,29 +2,35 @@
 module Shiva
   class FeatDispel < Action
     def priority
-      Priority.get(:high)
+      -100
+    end
+
+    def cooldown
+      @cooldown ||= Time.now
+    end
+
+    def debuffs
+      Effects::Debuffs.to_h.keys.select {|k| k.is_a?(String)}.reject {|k| k =~ /Wall of Thorns|Vulnerable|Confused|Crippled/i}
     end
 
     def debuffed?
-      not Effects::Debuffs.to_h.keys.select {|k| k.is_a?(String)}.reject {|k| k =~ /Wall of Thorns|Vulnerable|Confused|Crippled/i}.empty?
+      not self.debuffs.empty?
     end
 
     def available?
       checkstamina > 40 and
-      not Effects::Buffs.active?("Dispel Magic") and
+      not Effects::Cooldowns.active?("Dispel Magic") and
       Feat.dispel_magic > 0 and
+      Time.now > self.cooldown and
       self.debuffed?
     end
 
     def apply()
       waitrt?
-      
-      Walk.apply do
-        wait_while { Effects::Cooldowns.active?("Dispel Magic") and GameObj.targets.empty? and self.debuffed? }
-        break if not Effects::Cooldowns.active?("Dispel Magic")
-        break if not self.debuffed?
-        fput "feat dispel" if self.debuffed?
-        sleep 0.1
+      if self.debuffed?
+        @cooldown = Time.now + 20
+        Log.out(self.debuffs)
+        fput "feat dispel"
       end
     end
   end

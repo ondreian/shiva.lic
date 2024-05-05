@@ -6,10 +6,11 @@ module Shiva
       warg mastodon hinterboar
       brawler warlock fanatic
       dreadsteed titan giant
+      bear lion
     )
 
     def priority
-      Priority.get(:high) - 1
+      Priority.get(:high) - 2
     end
 
     def dead
@@ -27,68 +28,32 @@ module Shiva
       return false
     end
 
-    def available?
-      Claim.mine? and
-      not self.env.name.eql?(:duskruin) and
-      not self.dead.empty? and
-      self.should_unhide? and
+    def not_wounded?
       Wounds.head < 2 and
       Wounds.nsys < 2 and
       Wounds.leftEye < 2 and
-      Wounds.rightEye < 2 and
+      Wounds.rightEye < 2
+    end
+
+    def available?
+      Lich::Claim.mine? and
+      not self.env.name.eql?(:duskruin) and
+      not self.dead.empty? and
+      self.should_unhide? and
+      self.not_wounded? and
       (Group.leader? or Group.empty?)
     end
 
-    def use_config_dagger
-      Config.skinning_weapon && Containers.harness.where(name: Config.skinning_weapon).first
-    end
-
-    def use_skinning_dagger
-      waitrt?
-      if dagger = self.use_config_dagger
-        prev_left_hand = Char.left
-        begin
-          3.times { waitrt?; Containers.harness.add(prev_left_hand); break if Char.left.nil? } unless prev_left_hand.nil?
-          dagger.take
-          yield(:left)
-          Containers.harness.add(dagger)
-          #prev_left_hand.take
-          return :ok
-        rescue => exception
-          Log.out(exception)
-          Containers.add(Char.left) unless Char.left.nil?
-          3.times { waitrt?; prev_left_hand.take; break if Char.left.id.eql?(prev_left_hand.id)}
-        end
-      elsif self.dagger_hand
-        yield Char.send(self.dagger_hand)
-      end
-    end
-
-    def dagger_hand
-      return :right if Tactic::Nouns::Dagger.include?(Char.right.noun)
-      return :left if Tactic::Nouns::Dagger.include?(Char.left.noun)
-      return nil
-    end
-
-    def maybe_skin(creature)
-      return :unskinnable unless Skinnable.include?(creature.noun)
-      return :no_skill unless (Skills.survival + Skills.firstaid) / (Char.level * 0.5) > 0.5
-      self.use_skinning_dagger do |hand|
-        fput "skin #%s %s" % [creature.id, hand]
-      end
-      return :ok
-    end
 
     def apply()
       waitrt?
       return if self.dead.empty?
-      left_hand = Char.left
-      lootable = self.dead.first
-      creature = Creature.new(lootable)
-      self.maybe_skin(creature)
-      creature.search()
-      wait_while { GameObj[creature.id] }
-      left_hand.take unless Char.left.id.eql?(left_hand) or left_hand.nil?
+      self.dead.each do |dead|
+        fput "search #%s" % dead.id
+        ttl = Time.now + 1
+        wait_while { GameObj[dead.id] and Time.now < ttl }
+        waitrt?
+      end
     end
   end
 end

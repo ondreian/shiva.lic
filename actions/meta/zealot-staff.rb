@@ -24,6 +24,8 @@ module Shiva
       Hand.right {
         staff.take 
         fput "raise #%s" % staff.id
+        ttl = Time.now + 2
+        wait_until {self.active? or Time.now > ttl}
         waitrt?
         Containers.harness.add(staff)
       }

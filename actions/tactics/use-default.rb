@@ -31,7 +31,7 @@ module Shiva
       waitcastrt?
       fput "rub gorget" if GameObj.inv.map(&:noun).grep(/^gorget$/) and not invisible?
       Containers.harness.add(*[Char.left, Char.right].compact)
-      Char.arm
+      Arms.use
     end
   end
 end

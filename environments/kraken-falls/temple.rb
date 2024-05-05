@@ -14,7 +14,7 @@ module Shiva
     end
 
     def self.before_teardown
-      Voln.fog
+      #Voln.fog
       Base.go2
       #Char.unarm
       #Script.run("eloot", "sell")

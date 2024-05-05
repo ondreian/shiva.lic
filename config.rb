@@ -15,6 +15,10 @@ module Shiva
         pickers: [],
       }
 
+      EnvironsConfig = {
+        drop: [],
+      }
+
       Weapons = {
         ranged: nil,
         main: nil,
@@ -50,6 +54,7 @@ module Shiva
 
       BountyConfig = {
         escort: [],
+        boost: [],
       }
 
       All = {
@@ -60,6 +65,7 @@ module Shiva
         exp:       Experience,
         loot:      Loot,
         bounty:    BountyConfig,
+        environs: EnvironsConfig
       }
     end
 
@@ -82,7 +88,17 @@ module Shiva
     end
 
     def self.show
-      Log.out(@config)
+      t = Terminal::Table.new
+      @config.each {|key, value|
+        if value.is_a?(Hash)
+          value.each {|sub_key, sub_val|
+            t << ["%s.%s" % [key, sub_key], sub_val]
+          }
+        else
+          t << [key, value]
+        end
+      }
+      _respond t
     end
 
     def self.load!
@@ -100,6 +116,14 @@ module Shiva
 
     def self.get(path)
       path.to_s.split(".").reduce(@config) {|acc, k| acc[k.to_sym] }
+    end
+
+    def self.bounty_boost()
+      self.get("bounty.boost")
+    end
+
+    def self.environs_drop()
+      self.get("environs.drop") || []
     end
 
     def self.town()
@@ -124,6 +148,10 @@ module Shiva
 
     def self.flee
       self.get("combat.flee")
+    end
+
+    def self.uac
+      (self.get("combat.uac") || []).map(&:to_sym)
     end
 
     def self.stockpile_bots

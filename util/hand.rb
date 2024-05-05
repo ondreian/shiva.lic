@@ -26,7 +26,8 @@ module Hand
   end
 
   def self.use(&block)
-    return self.right(&block) if Tactic.ranged?
+    return self.left(&block) if GameObj.inv.map(&:name).include?("enormous eonake gauntlet")
+    return self.right(&block) if Tactic.ranged? or Tactic.shield?
     self.left(&block)
   end
 

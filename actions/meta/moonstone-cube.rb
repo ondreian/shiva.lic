@@ -31,7 +31,7 @@ module Shiva
       rescue Exception => e
         Log.out(e)
         empty_hands
-        Char.arm
+        Arms.use
       end
     end
   end

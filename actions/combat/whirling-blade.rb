@@ -5,6 +5,7 @@ module Shiva
     end
 
     def available?(foe)
+      not Spell[506].active? and
       not Effects::Cooldowns.active?("Whirling Blade") and
       not self.env.foes.any? {|f| %w(brawler).include?(f.noun)} and
       Tactic.edged? and

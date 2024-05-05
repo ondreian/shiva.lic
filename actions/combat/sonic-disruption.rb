@@ -10,7 +10,7 @@ module Shiva
     end
 
     def priority
-      31
+      21
     end
 
     def duskruin?
@@ -18,9 +18,12 @@ module Shiva
     end
 
     def duskruin_check?
-      self.env.foes.size > 1 and
-      percentmana > 40 and
-      (self.env.main.round > 9 or self.env.main.round % 5 == 0)
+      return false if self.env.foes.size.eql?(1) && !self.env.foes.first.status.empty?
+      return true if self.env.foes.size.eql?(1) && %w(slave wildling).include?(self.env.foes.first.noun) && percentmana > 20
+      return true if self.env.round % 5 == 0 and percentmana > 10
+      return false if percentmana < 40
+      return true if self.env.round > 9 && rand > 0.5
+      return self.env.foes.size > 1
     end
 
     def normal_check?
@@ -29,6 +32,7 @@ module Shiva
     end
 
     def available?(foe)
+      return false if foe.nil?
       return false unless Spell[1030].known?
       return true if foe.noun.eql?("shaper") and Group.empty? and self.env.seen.include?(foe.id)
 
@@ -40,37 +44,62 @@ module Shiva
     end
 
     def aoe()
+      #if dothistimeout("incant 1030 #%s" % foe.id, 2, %r{You weave another verse into your harmony})
       multifput "prep 1030", "cast"
       @last_cast_type = :aoe
+      @renew_room = XMLData.room_id
     end
 
     def focus(foe)
-      fput "incant 1030 #%s" % foe.id
-      @last_cast_type = foe.id
+      if dothistimeout("incant 1030 #%s" % foe.id, 2, %r{You weave another verse into your harmony})
+        @last_cast_type = foe.id
+        @renew_room = XMLData.room_id
+      end
+    end
+
+    module Outcomes
+      Fail = %r{But you are not singing that spellsong.}
+      Ok = Regexp.union(
+        %r{Sing Roundtime 3 Seconds.},
+        %r{You weave another verse into your harmony.},
+        %r{You sing with renewed vigor!})
+
+      All = Regexp.union(Fail, Ok)
     end
 
     def renew()
-      fput "renew 1030"
+      result = dothistimeout("renew 1030", 3, Outcomes::All)
+      Log.out(result)
+      case result
+      when Outcomes::Fail
+        @renew_room = nil
+        Log.out( "%s <=> %s == %s" % [XMLData.room_id, @renew_room, XMLData.room_id.eql?(@renew_room)], label: %i(renew))
+      else
+        @renew_room = XMLData.room_id
+        :ok
+      end
     end
 
     def apply(foe)
+      waitcastrt?
+      waitrt?
       fput "release" unless checkprep.eql?("None") or checkprep.eql?("Sonic Disruption")
+      Log.out("{foe=%s, room=%s}" % [@last_cast_type, @renew_room], label: %i(sonic disruption state))
       if self.env.foes.size >= HordeSize
-        if @renew_room == XMLData.room_id.eql?(@renew_room) && @last_cast_type.eql?(:aoe)
+        if XMLData.room_id.eql?(@renew_room) && @last_cast_type.eql?(:aoe)
           self.renew
         else
           self.aoe
         end
       else
-        if @renew_room == XMLData.room_id.eql?(@renew_room) && @last_cast_type.eql?(foe.id)
+        if XMLData.room_id.eql?(@renew_room) && @last_cast_type.eql?(foe.id)
           self.renew
         else
           self.focus(foe)
         end
       end
-      @renew_room = XMLData.room_id
       sleep 1
-      waitcastrt?
+      #waitcastrt?
     end
   end
 end

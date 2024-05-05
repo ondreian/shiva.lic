@@ -7,7 +7,7 @@ module Shiva
     def available?
       self.env.foes.empty? and
       Society.status.eql?("Guardians of Sunfist") and
-      (Char.max_mana - checkmana) >= 50 and
+      (maxmana - checkmana) >= 50 and
       checkstamina > 50 and
       not Effects::Debuffs.active?("Overexerted")
     end

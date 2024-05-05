@@ -1,11 +1,15 @@
 module Shiva
   class Berserk < Action
     def priority
-      if muckled? or stunned? or Effects::Debuffs.active?("Net")
-        0
+      if self.break_out?
+        -100
       else
         (90...110).to_a.sample
       end
+    end
+
+    def break_out?
+      muckled? or stunned? or Effects::Debuffs.active?("Net")
     end
 
     def available?
@@ -13,7 +17,7 @@ module Shiva
       not Spell[1035].active? and
       CMan.berserk > 5 and
       Char.stamina > 35 and
-      muckled? and
+      self.break_out? and
       Group.empty?
     end
 
@@ -23,7 +27,8 @@ module Shiva
       ttl = Time.now + 3
       wait_until {Spell["Berserk"].active? or Time.now > ttl}
       loop do
-        sleep 0.1
+        ttl = Time.now + 3
+        wait_while {Spell["Berserk"].active? or Time.now < ttl}
         fput "stop berserk" #unless self.env.stage.eql?(:main)
         break unless Spell["Berserk"].active?
       end

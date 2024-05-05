@@ -7,7 +7,7 @@ module Shiva
     def available?(foe)
       Char.prof.eql?("Warrior") and
       checkstamina > 50 and
-      self.env.foes.reject{|f| f.name =~ /spectral|ethereal|psionicist/}.size > 1 and
+      self.env.foes.reject{|f| f.name =~ /spectral|ethereal|psionicist|siphon|destroyer/}.size > 1 and
       not foe.nil? and
       foe.status.empty?
     end

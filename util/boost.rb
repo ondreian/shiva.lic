@@ -4,7 +4,7 @@ module Shiva
       # no bounty, so probably will rest very quickly
       return false if Bounty.type.eql?(:none)
       # am I loot capped?
-      return false if defined?(Ledger) && Ledger::Character.monthly > 14_000_000
+      return false if defined?(Ledger) && Ledger::Character.estimate_loot_cap > 14_000_000
       # end of the month, probably approaching loot cap
       return false if !defined?(Ledger) && Time.now.day > 20
       # boost already active

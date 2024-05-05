@@ -37,7 +37,7 @@ module Shiva
 
     def scripts
       env_scripts = @env.scripts.is_a?(Array) ? @env.scripts : []
-      env_scripts.concat(Config.scripts)
+      (env_scripts + Config.scripts).uniq
     end
 
     def setup!

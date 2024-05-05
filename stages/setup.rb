@@ -36,15 +36,13 @@ module Shiva
     
     def apply()
       fput "flag obvious on" if Skills.stalkingandhiding > Char.level
-      #fput "exp"
-      #fput "bounty"
       Group.check
-      Char.arm
+      Arms.use
       return if @env.rooms.include?(Room.current.id.to_s)
       self.get_bounty!
       if percentencumbrance > 0
         Teardown.new(@env).box_routine 
-        Char.arm
+        Arms.use
       end
       fail "you are encumbered" unless percentencumbrance.eql?(0)
       Conditions::Injured.handle!

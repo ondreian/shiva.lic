@@ -120,17 +120,20 @@ module Shiva
         Bounty.ask_for_bounty
         self.advance(town)
       when :skin
-        return self.sell_by_tag(town, "furrier", Bounty.task.skin.slice(0..-2)) if Bounty.task.skin !~ /lich finger bones/
-        self.drop(town)
+        return self.sell_by_tag(town, "furrier", Bounty.task.skin.slice(0..-2))
       when :rescue
         guild.id.go2
         self.drop(town)
       when :heirloom
-        return :ok unless (Bounty.creature =~ /(lich|monstrosity|assassin|warden)$/ || checkbounty =~ /SEARCH the area until you find it/)
+        return :ok unless (Bounty.creature =~ /(monstrosity|assassin|warden)$/ || checkbounty =~ /SEARCH the area until you find it/)
         guild.id.go2
         self.drop(town)
-      when :dangerous, :cull
+      when :dangerous
         return :ok unless Bounty.creature =~ /(lich|monstrosity|assassin|warden)$/
+        guild.id.go2
+        self.drop(town)
+      when :cull
+        return :ok unless Bounty.creature =~ /(monstrosity|assassin|warden)$/
         guild.id.go2
         self.drop(town)
       when :heirloom_found

@@ -7,7 +7,9 @@ module Shiva
     end
 
     def available?(foe)
-      Beefy.include?(foe.noun)
+      return false
+      not foe.nil? and
+      Beefy.include?(foe.noun) and
       not Effects::Cooldowns.active?("Barrage") and
       Tactic.ranged?
     end

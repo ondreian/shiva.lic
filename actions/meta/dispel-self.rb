@@ -18,9 +18,12 @@ module Shiva
       Effects::Debuffs.active?("Vertigo")
     end
 
+    def cast?
+      Spell[119].known? or Spell[417].known?
+    end
+
     def available?
-      Spell[119].known? or
-      Spell[417].known?
+      self.cast? and
       self.effected?
     end
 

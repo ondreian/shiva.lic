@@ -2,6 +2,7 @@ module Shiva
   Environment.define :escort do
 
     def self.setup
+      Script.run("waggle", "--stop-at=1")
       return :noop
     end
 
@@ -14,7 +15,7 @@ module Shiva
         sleep 0.1
       end
       
-      return unless Claim.mine?
+      return unless Lich::Claim.mine?
       search = self.action(:loot)
       search.apply
       sleep 0.1

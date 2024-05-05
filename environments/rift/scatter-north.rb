@@ -1,5 +1,5 @@
 module Shiva
-  Environment.define :scatter do
+  Environment.define :scatter_north do
     @entry      = 12240
     @town       = %[Icemule Trace]
     @scripts    = %w(reaction)
@@ -9,7 +9,7 @@ module Shiva
     @level      = (100..110)
 
     def self.before_main
-      Boost.loot
+      #Boost.loot
     end
 
     def self.before_teardown

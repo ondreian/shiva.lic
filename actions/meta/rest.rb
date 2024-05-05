@@ -53,6 +53,7 @@ module Shiva
       return :mana if self.out_of_mana?
       # environ effects
       return :hypothermia if Conditions::Hypothermia.status > 40
+      return :wall_of_thorns if Conditions::WallOfThorns.status > 2
       return :dread if Conditions::Dread.crushing > 1
       return :bandits_done if self.env.name.eql?(:bandits) and Bounty.type.eql?(:report_to_guard)
 
@@ -75,7 +76,7 @@ module Shiva
 
     def apply()
       Log.out(@reason, label: %i(rest reason))
-      return unless Claim.mine?
+      return unless Lich::Claim.mine?
       sleep 1 unless @reason.eql?(:wounded)
       loot_area = self.env.action(:lootarea)
       search_dead_creatures = self.env.action(:loot)
