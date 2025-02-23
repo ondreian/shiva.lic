@@ -1,5 +1,7 @@
 module Shiva
   class SymbolOfMana < Action
+    @tags = %i(setup)
+    
     def priority
       Priority.get(10_000)
     end

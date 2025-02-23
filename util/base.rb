@@ -24,11 +24,11 @@ module Shiva
         Script.run("go2", self.closest.to_s)
       else
         $cluster_cli.stop("shiva") if Group.leader? and not Group.empty?
-        Script.run("rally", self.closest.to_s)
-        fput "disband"
+        Rally.group(self.closest.to_s)
+        #fput "disband"
       end
-      Team.request_healing if Char.total_wound_severity > 0 or percenthealth < 100
-      wait_while("waiting on healing") {Char.total_wound_severity > 1}
+      #Team.request_healing if Char.total_wound_severity > 0 or percenthealth < 100
+      #wait_while("waiting on healing") {Char.total_wound_severity > 1}
     end
   end
 end

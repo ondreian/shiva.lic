@@ -28,7 +28,8 @@ module Shiva
 
     def normal_check?
       percentmana > 60 and
-      self.env.foes.size >= HordeSize
+      self.env.foes.size >= HordeSize and
+      not %i(moonsedge_castle).include?(self.env.name)
     end
 
     def available?(foe)

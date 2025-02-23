@@ -34,14 +34,21 @@ module Shiva
     end
 
     def overwhelmed?
-      return true if GameObj.loot.find {|i| i.noun.eql?(%[phylactery])} and self.env.foes.map(&:noun).count {|n| n.eql?("lich")} > 0
-      return true if self.env.foes.map(&:noun).count {|n| n.eql?("lich")} > 1
+      return true if GameObj.loot.find {|i| i.noun.eql?(%[phylactery])} and self.env.foes.map(&:noun).count {|n| n.eql?("lich")} > 0 and !Spell[506].active?
+      return true if self.env.foes.map(&:noun).count {|n| n.eql?("lich")} > 1  and not Spell[506].active?
       return self.env.foes.size > self.max_foes
     end
 
+    def moonsedge_equation
+      return 4 if Skills.multiopponentcombat > 100 and Spell[506].known?
+      return 3 if Skills.multiopponentcombat > 100
+      return 2
+    end
+
     def max_foes
+      return Config.flee_count.to_i unless Config.flee_count.nil?
       return 3 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Hinterwilds")
-      return 2 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Moonsedge")
+      return self.moonsedge_equation if Room.current.location.include?("Moonsedge")
       return 1 if Char.exp < 15_000_000 and Room.current.location.include?("Rift")
       return 1 if %w(Cleric Empath Wizard).include?(Char.prof)
       return 10 if self.env.name.eql?(:bandits)
@@ -52,11 +59,11 @@ module Shiva
     end
 
     def available?(foe)
-      return false if Opts["manual"]
+      return false if Opts["manual"] or $shiva_manual.eql?(true)
       return false if self.env.rooms.empty? #self.env.boundaries.is_a?(Array) and not self.env.boundaries.empty?
       return false if Script.running?("mend") && GameObj.targets.empty?
       return false unless Group.leader? or Group.empty?
-      return false if Group.members.map(&:status).flatten.compact.size > 0
+      return false if Group.members.map(&:status).reject{|status| status =~ /hiding/}.flatten.compact.size > 0
       return false if Injuries.wounds.any? {|w| w > 0} and Char.prof.eql?("Empath") and GameObj.targets.empty?
       return false if Injuries.scars.any? {|s| s > 0} and Char.prof.eql?("Empath") and GameObj.targets.empty?
       return self.reason.is_a?(Symbol)
@@ -68,12 +75,11 @@ module Shiva
 
     def reason()
       return :claim  unless Lich::Claim.mine?
-      return :monstrosity if GameObj.targets.any? {|f| f.noun.eql?("monstrosity")}
+      return :flee        if GameObj.targets.any? {|f| Shiva::Config.flee.include?(f.noun)} and Group.empty?
       return :brawlers    if GameObj.targets.map(&:noun).select {|n| n.eql?("brawler") or n.eql?("psionicist")}.size > 1
       return nil          if Script.running?("give")
       return :dolls       if GameObj.targets.any? {|f| f.noun.eql?("doll")}
       return :fissure     if checkloot.include?('fissure')
-      return :flee        if Config.flee.is_a?(String) && GameObj.targets.any? {|f| Config.flee.include?(foe.noun)}
       return :swarm       if self.overwhelmed?
       return :magma       if self.room_objs.include?("mass of undulating liquified rock")
       return :cyclone     if self.room_objs.include?("frigid cyclone") and GameObj.targets.any? {|f| f.noun.eql?("wendigo")}
@@ -118,9 +124,10 @@ module Shiva
       self.stance!
       case self.env.name.downcase.to_sym
       when :bandits
-        Log.out("wander -> bandits", label: %i(action))
-        #Stance.forward
         self.env.crawl
+        if Society.rank.eql?(26) && Society.member.include?("Voln") && Lich::Claim.mine?
+          fput "symbol of sleep"
+        end
       else
         self.wander(reason: self.reason)
       end

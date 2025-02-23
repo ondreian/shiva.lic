@@ -1,5 +1,7 @@
 module Shiva
   class RequestHealing < Action
+    @tags = %i(setup)
+
     def priority
       Priority.get(:high) - 1
     end

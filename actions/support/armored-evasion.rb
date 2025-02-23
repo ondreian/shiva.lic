@@ -1,5 +1,7 @@
 module Shiva
   class ArmoredEvasion < Action
+    @tags = %i(setup)
+    
     def priority
       5
     end

@@ -18,7 +18,7 @@ module Shiva
       if Group.empty?
         Script.run("go2", "%s --disable-confirm" % self.env.entry.to_s)
       else
-        Script.run("rally", "%s" % self.env.entry.to_s)
+        Rally.group(self.env.entry.to_s)
       end
     end
 
@@ -52,6 +52,7 @@ module Shiva
         wait_while("wait/mana") { percentmana < 80 }
       end
       fail "entry not defined for #{self.env.name}" unless self.env.entry
+      Script.run("shiva_setup") if Script.exists?("shiva_setup")
       self.travel_to_hunting_area
       self.activate_group
       fail "did not travel to #{Room[self.env.entry].title.first}" unless Room.current.id.eql?(self.env.entry)

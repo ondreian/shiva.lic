@@ -1,5 +1,7 @@
 module Shiva
   class SymbolOfDisruption < Action
+    @tags = %i(setup)
+    
     def priority
       Priority.get(:high)
     end

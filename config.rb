@@ -174,6 +174,10 @@ module Shiva
       self.get("bounty.escort")
     end
 
+    def self.bounty_allowed_list()
+      (self.get("bounty.allowed") || []).to_a.map(&:to_sym)
+    end
+
     def self.main_weapon
       self.get("combat.weapons.main")
     end
@@ -188,6 +192,14 @@ module Shiva
 
     def self.shield
       self.get("combat.weapons.shield")
+    end
+
+    def self.flee_count
+      self.get("combat.flee_count") || nil
+    end
+
+    def self.chain_spear
+      self.get("combat.weapons.chain_spear") || nil
     end
 
     def self.ranged_weapon

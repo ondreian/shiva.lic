@@ -20,13 +20,19 @@ module Shiva
       foe.tags.include?(:noncorporeal)
     end
 
+    Ok = Regexp.union(
+      %r{is held in the corporeal plane!},
+      %r[is unwillingly drawn into the corporeal plane]
+    )
+
     def smite(foe)
       Stance.offensive
       result = dothistimeout "smite #%s" % foe.id, 1, Regexp.union(
-        %r[is unwillingly drawn into the corporeal plane],
+        Ok,
         %r[wait]
       )
-      Smited << foe.id if result =~ %r{is unwillingly drawn into the corporeal plane}
+
+      Smited << foe.id if result =~ Ok
       sleep 0.5
       Timer.await() if checkrt > 6
     end

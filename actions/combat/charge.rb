@@ -2,7 +2,7 @@ module Shiva
   Charged = []
   class Charge < Action
     def priority
-      (80..90).to_a.sample
+      (30..90).to_a.sample
     end
 
     def available?(foe)
@@ -12,6 +12,7 @@ module Shiva
       Wounds.rightLeg < 2 and
       Tactic.polearms? and
       checkstamina > 30 and
+      not foe.type.include?("noncorporeal") and
       not Charged.include?(foe.id) and
       not hidden? and
       rand > 0.6

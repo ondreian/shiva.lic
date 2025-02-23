@@ -1,27 +1,26 @@
 # Mystic Focus
 module Shiva
-  class WhiteCrystal < Action
+  class QuartzOrb < Action
+    @tags = %i(setup)
+    
     def priority
       Priority.get(:high)
     end
 
-    def crystal
-      Containers.lootsack.where(name: /white crystal/).first
-    end
-
-    def active?
-      Effects::Spells.active?("Strength")
+    def orb
+      Containers.lootsack.where(name: /quartz orb/).first
     end
 
     def available?(foe)
-      return false if self.crystal.nil?
-      return false if self.active?
+      return false if %w(Rogue Warrior).include?(Char.prof)
+      return false if self.orb.nil?
+      return false if Effects::Spells.active?("Mystic Focus")
       return false if Feat.kroderine_soul > 0
       return self.env.foes.size == 0
     end
 
     def apply()
-      item = self.crystal
+      item = self.orb
       waitcastrt?
       Hand.use {
         item.take
@@ -30,7 +29,7 @@ module Shiva
         Containers.lootsack.add(item) if [Char.left.id, Char.right.id].include?(item.id)
       }
       ttl = Time.now + 2
-      wait_until {self.active? or Time.now > ttl}
+      wait_until {Effects::Spells.active?("Mystic Focus") or Time.now > ttl}
     end
   end
 end

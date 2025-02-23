@@ -85,10 +85,41 @@ module Shiva
       self.advance Shiva::Config.town
     end
 
+    def self.allowed?(allowed_list = Config.bounty_allowed_list)
+      return true if allowed_list.empty?
+      case Bounty.type
+      when :none, :failed, :succeeded, :report_to_guard, :heirloom_found
+        true
+      when  :creature_problem
+        allowed_list.include?(:dangerous) or allowed_list.include?(:cull)
+      when :get_bandits, :bandits
+        allowed_list.include?(:bandits)
+      when :gem, :get_gem_bounty
+        allowed_list.include?(:gem)
+      when :get_skin_bounty, :skin
+        allowed_list.include?(:skin)
+      when :rescue, :get_rescue
+        allowed_list.include?(:rescue)
+      when :heirloom, :get_heirloom
+        allowed_list.include?(:heirloom)
+      when :dangerous
+        allowed_list.include?(:dangerous)
+      when :cull
+        allowed_list.include?(:cull)
+      when :herb, :get_herb_bounty
+        allowed_list.include?(:herb)
+      when :get_escort, :escort
+        allowed_list.include?(:escort)
+      else
+        fail "Bounty(#{Bounty.task.type}) / could not match"
+      end
+    end
+
     def self.advance(town)
       guild = self.room(town, "advguild")
       guild.id.go2
       self.log()
+      return self.drop(town) unless Task.allowed?
       sleep 0.2
       case Bounty.type
       when :none, :failed
@@ -129,7 +160,7 @@ module Shiva
         guild.id.go2
         self.drop(town)
       when :dangerous
-        return :ok unless Bounty.creature =~ /(lich|monstrosity|assassin|warden)$/
+        return :ok unless Bounty.creature =~ /(monstrosity|assassin|warden)$/
         guild.id.go2
         self.drop(town)
       when :cull

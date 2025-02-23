@@ -22,6 +22,7 @@ module Shiva
       checkstamina > (self.cost * 3) and
       not hidden? and
       foe.status.empty? and
+      not CMan.hamstring > 0 and
       rand > 0.2
     end
 

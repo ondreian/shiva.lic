@@ -3,7 +3,7 @@ module Shiva
     Immune = %w(cerebralite siphon)
 
     def priority(foe)
-      50
+      self.env.foes.size > 1 ? 10 : 50
     end
 
     def available?(foe)
@@ -13,7 +13,7 @@ module Shiva
       self.env.foes.size > 1 and
       not foe.tall? and
       not Immune.include?(foe.noun) and
-      CMan.eviscerate > 3 and
+      CMan.eviscerate > 2 and
       (Tactic.edged? or Tactic.polearms?) and
       checkstamina > 40 and
       hidden? and

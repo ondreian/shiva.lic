@@ -9,7 +9,7 @@ module Shiva
     end
 
     def available?
-      %i(moonsedge).include?(self.env.name) and
+      %i(moonsedge_castle moonsedge_village).include?(self.env.name) and
       Society.status.eql?("Order of Voln") and
       Society.rank > 20 and
       not self.active?

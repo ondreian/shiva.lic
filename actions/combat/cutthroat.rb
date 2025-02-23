@@ -32,6 +32,8 @@ module Shiva
       Tactic.edged? and
       hidden? and
       not foe.nil? and
+      foe.status.empty? and
+      not foe.type.include?("noncorporeal") and
       not Cutthroat.include?(foe.id) and
       self.reachable?(foe) and
       self.reasonable?(foe)

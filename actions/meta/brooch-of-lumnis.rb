@@ -1,5 +1,7 @@
 module Shiva
   class BroochOfLumnis < Action
+    @tags = %i(setup)
+    
     @@used ||= false
     @@planar_used ||= false
 
@@ -22,9 +24,9 @@ module Shiva
     end
 
     def planar
-      return if @@planar_used
+      return if @@planar_used.eql?(self.day)
       multifput "whisper my brooch planar", "rub my brooch", "whisper my brooch spirit"
-      @@planar_used = true
+      @@planar_used = self.day
     end
 
     def day
@@ -57,6 +59,7 @@ module Shiva
         when Outcomes::Err
           Log.out("used for the day!", label: %i(brooch))
           @@used = self.day
+          $shiva_graceful_exit=true if Script.current.vars.include?("--brooch")
           Script.start("lte")
         end
       }

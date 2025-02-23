@@ -2,7 +2,7 @@ module Shiva
   Environment.define :escort do
 
     def self.setup
-      Script.run("waggle", "--stop-at=1")
+      #Script.run("shiva_setup") if Script.exists?("shiva_setup")
       return :noop
     end
 

@@ -55,7 +55,7 @@ module Shiva
       self.activate_group
       $shiva_graceful_exit = false
       return if Rooms.combat.include?(Room.current.id)
-      Script.run("waggle", "--stop-at=1")
+      Script.run("shiva_setup") if Script.exists?("shiva_setup")
       empty_hands
       self.entry.go2 if Group.leader? or Group.empty?
       booklet = Containers.harness.where(name: /(booklet|stamped voucher)$/).first or fail "no booklet in #{Containers.harness.name}"
@@ -66,7 +66,7 @@ module Shiva
         wait_until("waiting for arena") {Rooms.combat.include?(Room.current.id)}
       end
       Containers.harness.add(booklet) if Char.right
-      Arms.ready
+      Arms.use
       if Group.leader? or Group.empty?
         while line=get
           break if line =~ /An announcer shouts/
@@ -93,6 +93,7 @@ module Shiva
     end
 
     def self.teardown
+      sleep 1.0
       waitrt?
       Char.unarm unless Char.right.noun.eql?("package")
       #fput "pray" if Rooms.combat.include?(Room.current.id)
@@ -100,12 +101,20 @@ module Shiva
       fput "renew all" if Char.prof.eql?("Bard")
       num = %w(430 120 425 103 107 101).select {|num| Spell[num].known? && Spell[num].timeleft < 60}.sort_by {|num| Spell[num].timeleft}.sample
       Spell[num].cast if Rooms.combat.include?(Room.current.id) && !num.nil?
-      wait_until {Char.right.noun.eql?("package")}
-      multifput "open #%s" % Char.right.id, "look in #%s" % Char.right.id
-      wait_until {Containers.right_hand.contents.is_a?(Array) or get? =~ /You have instantly absorbed 15 experience points|He hands you 310 bloodscrip/}
-      Containers.lootsack.add(*Containers.right_hand)
-      fail "could not unload package" unless Containers.right_hand.contents.empty?
-      fput "drop #%s" % Char.right.id
+      
+      wait_until {
+        Char.right.noun.eql?("package") or get? =~ /You have instantly absorbed 20 experience points|He hands you 310 bloodscrip/
+      }
+
+      if Char.right.noun.eql?("package")
+        multifput "open #%s" % Char.right.id, "look in #%s" % Char.right.id
+        wait_until{Containers.right_hand.contents.is_a?(Array)}
+        Containers.lootsack.add(*Containers.right_hand)
+        fail "could not unload package" unless Containers.right_hand.contents.empty?
+        fput "drop #%s" % Char.right.id
+      end
+      
+      
       self.entry.go2 if Group.leader? or Group.empty?
       exit if $shiva_graceful_exit.eql?(true)
     end

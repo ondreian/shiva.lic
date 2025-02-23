@@ -33,9 +33,8 @@ module Shiva
 
     def env?
       return false if Group.leader? and not Group.empty?
-      return false if self.env.name.eql?(:bandits) and not Group.empty?
+      return false if self.env.name.eql?(:bandits)
       return false if self.env.name.eql?(:osa)
-      return self.env.foes.size > 0 if self.env.name.eql?(:bandits)
       return true
     end
 

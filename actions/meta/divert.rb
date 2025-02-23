@@ -27,6 +27,7 @@ module Shiva
       Lich::Claim.mine? and
       not self.env.name.eql?(:duskruin) and
       not self.divertables.empty? and
+      not XMLData.room_exits.empty? and
       self.environ? and
       CMan.divert > 3 and
       checkstamina > 20 and

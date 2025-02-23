@@ -16,12 +16,14 @@ module Shiva
 
     def available?
       Lich::Claim.mine? and
-      not self.phylactery.nil? and
-      self.lich.nil?
+      not self.phylactery.nil?# and
+      #self.lich.nil?
     end
 
     def apply
       Char.arm if checkright.nil?
+      haste = @env.action(:haste)
+      haste.apply if haste.available?
       Char.unhide if hidden?
       Stance.defensive
       Char.stand unless standing?

@@ -12,9 +12,14 @@ module Shiva
       return !Effects::Buffs.active?("Shadow Dance")
     end
 
+    def below_lootcap?
+      defined?(Ledger) and Ledger::Character.estimate_loot_cap < 20_000_000
+    end
+
     def available?(foe)
       not self.env.name.eql?(:duskruin) and
       not foe.nil? and
+      self.below_lootcap? and
       not checkloot.to_a.include?("thorny vine") and
       self.situationals(foe) and
       not Mugged.include?(foe.id) and

@@ -1,41 +1,43 @@
 module Shiva
   class Spellup < Action
-    DefensiveSpells = %w(
-      101 103 107 120
-      211 215
-      303 313 319 310 307
-      401 406 414 425 430
-      503 507 508 509 513 520
-      913
-      1109
-      1606
-    ).map(&:to_i)
+    @tags = %i(setup)
 
     def priority
       1
     end
 
-    def missing
-      DefensiveSpells.select {|num|
-        next unless num
-        Spell[num].known? and 
-        not Spell[num].active? and
-        Spell[num].affordable?
-      }
+    def available?
+      not ::Spellup.queue.empty?
     end
 
-    def available?(foe)
-      self.missing.size > 0 && !%i(escort).include?(Bounty.type)
+    def grouped
+      Script.run("spellup")
+    end
+
+    def moonsedge
+      Stance.guarded
+      room = Room.current.id
+      32469.go2
+      Script.run("spellup")
+      room.go2
+    end
+
+    def other
+      Stance.guarded
+      Walk.apply do
+        Script.run("spellup")
+      end
     end
 
     def apply(foe)
-      Stance.guarded
-      Walk.apply do
-        self.missing.each { |num|
-          Walk.away
-          return if num.nil?
-          Spell[num].cast
-        }
+      Log.out "missing spells: %s" % ::Spellup.queue.map(&:name).join(", ")
+      return self.grouped if not Group.empty?
+      if %i(moonsedge_castle moonsedge_village).include?(self.env.name)
+        self.moonsedge
+      elsif %i(escort)
+        Script.run("spellup")
+      else
+        self.other
       end
     end
   end

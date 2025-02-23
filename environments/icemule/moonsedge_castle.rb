@@ -1,6 +1,6 @@
 module Shiva
   Environment.define :moonsedge_castle do
-    @entry      = 32443
+    @entry      = 32468
     # boundary rooms: 
     # 32330 (gate between imt and moonsedge town)
     # 32442 (bridge between moonsedge town and castle)
@@ -17,6 +17,7 @@ module Shiva
     end
 
     def self.before_teardown
+      Rally.group(Base.closest) if Group.leader? and not Group.empty?
       Teleport.teleport(1) if defined?(Teleport) && Teleport.teleporter
     end
   end

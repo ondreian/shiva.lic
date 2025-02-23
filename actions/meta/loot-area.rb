@@ -1,7 +1,7 @@
 module Shiva
   # You note some treasure of interest and manage to pick up an engraved thanot chest but quickly realize you have no space in which to stow it.
   class LootArea < Action
-    Dangerous = /doomstone|urglaes/
+    Dangerous = /doomstone|urglaes|heavy quartz orb/
     Charm = "crystallized silvery fossil charm"
 
     attr_reader :seen

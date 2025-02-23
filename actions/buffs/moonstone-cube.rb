@@ -1,6 +1,8 @@
 # Martial Prowess
 module Shiva
   class MoonstoneCube < Action
+    @tags = %i(setup)
+    
     def priority
       Priority.get(:high)
     end

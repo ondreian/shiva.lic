@@ -1,6 +1,6 @@
 module Shiva
   class Hamstring < Action
-    Immune = %w(crawler cerebralite siphon worm)
+    Immune = %w(crawler cerebralite siphon worm banshee conjurer)
 
     def priority
       5
@@ -14,6 +14,8 @@ module Shiva
       CMan.hamstring > 2 and
       Tactic.edged? and
       not hidden? and
+      (Group.empty? && %w(Bard).include?(Char.prof)) and
+      not foe.type.include?("noncorporeal") and
       not Effects::Debuffs.active?("Jaws") and
       checkstamina > (self.cost * 6) and
       ((foe.tall? and foe.status.empty?) or (not hidden? and foe.status.empty? and percentstamina > 80)) and

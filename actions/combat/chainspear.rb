@@ -12,12 +12,14 @@ module Shiva
     end
 
     def holding_chainspear?
+      Char.right.name.eql?(Config.chain_spear) or
       Char.right.name.eql?("razern spear") or
       Char.right.noun.eql?("shaft")
     end
 
     def available?(foe)
       not foe.nil? and
+      Config.chain_spear and
       Skills.thrownweapons > Char.level and
       Skills.polearmweapons > Char.level and
       self.holding_chainspear? and

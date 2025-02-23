@@ -31,6 +31,10 @@ module Shiva
       self.to_s
     end
 
+    def tags
+      self.class.instance_variable_get(:@tags) || []
+    end
+
     def to_sym
       self.class.name.split("::").last.downcase.to_sym
     end

@@ -40,7 +40,7 @@ module Shiva
     end
 
     def uptime()
-      Time.now - @start_time
+      Time.now - @start_time ||= Time.now
     end
 
     def native_foes
@@ -147,6 +147,10 @@ module Shiva
       else
         self.actions.find {|a| a.class.name =~ /#{query}/i}
       end
+    end
+
+    def available_actions
+      Shiva::Actions.available_actions(@actions, self.foe)
     end
 
     def best_action

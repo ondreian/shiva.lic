@@ -1,5 +1,7 @@
 module Shiva
   class FeatherCharm < Action
+    @tags = %i(setup)
+
     def priority
       Priority.get(:high) - 10
     end

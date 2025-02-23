@@ -26,13 +26,17 @@ module Shiva
     Log.out "loaded %s files" % files.size
   end
 
+  def self.actions
+    Dir[File.join(self.root, "actions", "**", "*.rb")] + 
+    Dir[File.join(DATA_DIR, "shiva", "actions", "**", "*.rb")]
+  end
+
   def self.reload_actions(verbose: false)
     Shiva::Trash.reload
-    Dir[File.join(self.root, "actions", "**", "*.rb")]
-      .each {|asset|
-        load(asset)
-        Log.out "loaded %s" % asset, label: %i(load) if verbose
-      }
+    self.actions.each {|asset|
+      load(asset)
+      Log.out "loaded %s" % asset, label: %i(load) if verbose
+    }
   end
 
   def self.cleanup!
@@ -84,6 +88,12 @@ module Shiva
     }
   end
 
+  def self.sample_best_env(candidate_environments)
+    return candidate_environments.sample if not Effects::Buffs.active?("Sword Hymn")
+    moonsedge_envs = candidate_environments.select {|env| env.name.to_s =~ /^moonsedge/ }
+    moonsedge_envs.sample
+  end
+
   def self.best_env(town = self.town)
     candidate_environments = self.available_environments()
     creature = Bounty.task.creature
@@ -92,6 +102,7 @@ module Shiva
     creature_noun = creature.split.last
     matching_environments = candidate_environments.select {|env| env.native_foes.include?(creature_noun)}
     fail "did not find a matching environment for #{creature}" if matching_environments.empty?
+    
     matching_environments.sample
   end
 
@@ -135,14 +146,14 @@ module Shiva
     when :dangerous, :cull, :heirloom, :skin, :gem
       self.hunt
     when :herb
-      if %w(Moonsedge).include?(Bounty.area)
-        Bounty.remove
-      else
+      #if %w(Moonsedge).include?(Bounty.area)
+      #  Bounty.remove
+      #else
         fail "eforage.lic not detected to run herb tasks" unless Script.exists?("eforage")
         # previous_task = checkbounty
         Script.run("eforage", "--bounty")
         self.task
-      end
+      #end
     when :bandits
       if %(rogue warrior).include? Char.prof.downcase
         self.bandits
@@ -199,7 +210,6 @@ module Shiva
     Base.go2
     Log.out(":preflight! returned to base")
     self.stockpile_gems!
-    Script.run("waggle", "--stop-at=1")
     self.handle_conditions!
   end
 

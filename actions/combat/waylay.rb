@@ -3,11 +3,11 @@ module Shiva
     Nouns = %w(monstrosity crawler crusader golem psionicist protector automaton grotesque banshee conjurer)
 
     def priority(foe)
-      return 100 unless Tactic.edged?
+      #return 100 unless Tactic.edged?
       if Nouns.include?(foe.noun) && !Smite.smited?(foe)
         89
       else
-        100
+        90
       end
     end
 

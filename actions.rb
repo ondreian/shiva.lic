@@ -19,16 +19,19 @@ module Shiva
       end
     end
 
-    def self.best_action(actions, foe)
-      actions.uniq
+    def self.available_actions(actions, foe)
+       actions.uniq
         .select {|action| self.eval_with_foe(action, :available?, foe) }
         .sort_by {|action| self.eval_with_foe(action, :priority, foe) }
-        .first or :noop
+    end
+
+    def self.best_action(actions, foe)
+     self.available_actions(actions, foe).first or :noop
     end
 
     def self.create(controller)
       Known.map {|action|
-        Log.out(action.name, label: %i(action loaded)) if Opts["debug"]
+        Log.out(action.name, label: %i(action created)) if Opts["debug"]
         action.new(controller)
       }
     end

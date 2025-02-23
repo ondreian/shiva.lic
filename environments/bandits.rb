@@ -31,7 +31,7 @@ module Shiva
     end
 
     def self.setup
-      Script.run("waggle", "--stop-at=1")
+      Script.run("shiva_setup") if Script.exists?("shiva_setup")
       self.rooms!
       Arms.use
 
@@ -39,7 +39,7 @@ module Shiva
       if Group.empty?
         Script.run("go2", "%s --disable-confirm" % self.entry)
       else
-        Script.run("rally", "%s" % self.entry)
+        Rally.group(self.entry)
       end
     end
 

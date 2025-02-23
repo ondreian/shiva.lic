@@ -47,8 +47,8 @@ module Shiva
       Wounds.nsys < 2 and
       Wounds.leftEye < 2 and
       Wounds.rightEye < 2 and
+      (self.use_config_dagger or self.dagger_hand) and
       (Group.leader? or Group.empty?)
-
     end
 
     def use_config_dagger

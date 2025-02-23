@@ -32,6 +32,10 @@ module Shiva
     end
 
     def apply
+      num = self.which.num
+      if num.to_i.eql?(435) and Spell["Symbol of Sleep"].known?
+        fput "symbol of sleep"
+      end
       fput "prep %s\rcast #%s" % [self.which.num, GameObj.inv.sample.id]
       @ttl = Time.now + 10
     end

@@ -1,7 +1,7 @@
 module Tactic
   module Nouns
     Dagger   = %w(dagger dirk knife tanto)
-    Edged    = Dagger + %w(sword shortsword axe hatchet wakizashi kris coustille)
+    Edged    = Dagger + %w(sword shortsword axe hatchet wakizashi kris coustille baselard)
     Ranged   = %w(bow longbow crossbow)
     Polearms = %w(spear harpoon longhammer)
     Shields  = %w(buckler targe shield)

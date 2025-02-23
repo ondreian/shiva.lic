@@ -1,6 +1,8 @@
 # perm flaming aura item
 module Shiva
   class PermaFlamingAura < Action
+    @tags = %i(setup)
+
     def priority
       Priority.get(:high)
     end

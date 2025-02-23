@@ -16,7 +16,7 @@ module Shiva
       Spell[211].affordable? and
       not self.env.divergence? and
       Group.size > 0 and
-      Config.support_bravery?
+      false # Config.support_bravery?
     end
 
     def apply(foe)

@@ -8,7 +8,7 @@ module Shiva
     @level      = (95..105)
 
     def self.before_main
-      Boost.loot
+      #Boost.loot
     end
 
     def self.before_teardown

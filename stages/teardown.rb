@@ -14,7 +14,7 @@ module Shiva
     end
 
     def others?
-      (GameObj.pcs.to_a.map(&:noun) - Cluster.connected - %w(Greys)).size > 0
+      (GameObj.pcs.to_a.map(&:noun) - Cluster.connected).size > 0
     end
 
     def box?
@@ -35,10 +35,11 @@ module Shiva
     end
 
     def cleanup(town)
+      Rally.group(Base.closest) if Group.leader? and not Group.empty?
       self.turn_in_bounty(town) if %i(report_to_guard skin heirloom_found).include? Bounty.type
       Base.go2
       Conditions::Injured.handle!
-      wait_while("waiting on healing") {Char.total_wound_severity > 1}
+      wait_while("cleanup:waiting on healing") {Char.total_wound_severity > 1}
       Char.unarm
       
       wait_while("waiting on hands") {Char.left or Char.right} unless Char.left.type =~ /box/
