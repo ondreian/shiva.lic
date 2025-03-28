@@ -15,9 +15,24 @@ module Shiva
       XMLData.room_id.eql? 113001
     end
 
+    def find_dagger
+      dagger = Containers.harness.find {|item| Tactic::Nouns::Dagger.include?(item.noun) }
+      fail "todo: handle this!!! you're gonna die"
+      dagger.take
+      return dagger
+      #fput "swap" if Tactic::Nouns::Dagger.include?(Char.left)
+    end
+
     def apply
-      fput "swap" if Tactic::Nouns::Dagger.include?(Char.left)
-      fput "attack wall" if Tactic.dagger?
+      Char.unarm
+      dagger = self.find_dagger
+      while XMLData.room_id.eql?(113001)
+        fput "attack wall" if Tactic.dagger?
+        sleep 0.1
+        waitrt?
+      end
+      Containers.harness.add(dagger)
+      Char.arm
     end
   end
 end

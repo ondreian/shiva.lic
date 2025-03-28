@@ -1,6 +1,6 @@
 module Shiva
   class Sweep < Action
-    Immune = %w(crawler cerebralite worm banshee conjurer)
+    Immune = %w(crawler cerebralite worm banshee conjurer undansormr angargeist ooze oozeling disir siren elemental)
 
     def priority
       6
@@ -21,10 +21,14 @@ module Shiva
 
     def sweep(foe)
       Stance.offensive
-      dothistimeout "sweep #%s" % foe.id, 1, Regexp.union(
+      result = dothistimeout "sweep #%s" % foe.id, 1, Regexp.union(
         %r[You spring from hiding],
-        %r[wait]
+        %r{You cannot sweep},
+        %r[wait],
       )
+      if result =~ %r{You cannot sweep}
+        Immune << foe.noun
+      end
       sleep 0.5
       Timer.await() if checkrt > 6
     end

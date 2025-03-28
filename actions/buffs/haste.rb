@@ -20,6 +20,7 @@ module Shiva
       wait_until {checkprep.eql?("None") or checkprep.eql?("Haste")}
       #Spell[506].cast
       fput "incant 506"
+      fput "hide" if Skills.stalking_and_hiding > Char.level * 2 and self.env.foes.size > 0
       #waitcastrt?
       ttl = Time.now + 1
       wait_while {Time.now < ttl and self.low_duration?}

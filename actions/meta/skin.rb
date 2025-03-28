@@ -37,6 +37,7 @@ module Shiva
     end
 
     def available?
+      return false
       Lich::Claim.mine? and
       # not Tactic.uac? and
       self.skilled? and

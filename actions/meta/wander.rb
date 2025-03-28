@@ -46,7 +46,10 @@ module Shiva
     end
 
     def max_foes
+      return 10 if Opts["risky"]
+      return 10 if (self.env.level.last + 10) < Char.level
       return Config.flee_count.to_i unless Config.flee_count.nil?
+      return 1 if self.env.foes.map(&:noun).count {|noun| %w(undansormr disir angargeist).include?(noun)} > 0
       return 3 if Skills.multiopponentcombat > 100 and Room.current.location.include?("Hinterwilds")
       return self.moonsedge_equation if Room.current.location.include?("Moonsedge")
       return 1 if Char.exp < 15_000_000 and Room.current.location.include?("Rift")

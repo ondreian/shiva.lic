@@ -31,7 +31,7 @@ module Shiva
 
     def self.create(controller)
       Known.map {|action|
-        Log.out(action.name, label: %i(action created)) if Opts["debug"]
+        #Log.out(action.name, label: %i(action created)) if Opts["debug"]
         action.new(controller)
       }
     end

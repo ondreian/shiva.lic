@@ -15,7 +15,7 @@ module Shiva
     end
 
     def environ?
-      return true if GameObj.targets.any? {|f| f.noun.eql?("monstrosity")}
+      #return true if GameObj.targets.any? {|f| f.noun.eql?("monstrosity")}
       return true if self.env.foes.size > self.env.action(:wander).max_foes
       return true if self.fissure?
       return true if self.room_objs.include?("mass of undulating liquified rock")

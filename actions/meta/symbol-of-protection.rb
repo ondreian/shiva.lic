@@ -9,7 +9,8 @@ module Shiva
     def available?
       Society.status.eql?("Order of Voln") and
       Society.rank > 10 and
-      not Effects::Buffs.active?("Symbol of Protection")
+      not Effects::Buffs.active?("Symbol of Protection") and
+      not (self.env.level.last + 10) < Char.level
     end
 
     def apply()

@@ -1,7 +1,7 @@
 module Shiva
   class StunningShout < Action
     def priority
-      10
+      10 # ? 100 : 10
     end
 
     def swap?
@@ -14,7 +14,8 @@ module Shiva
       not foe.dead? and
       Spell[1008].known? and
       Spell[1008].affordable? and
-      self.swap?
+      self.swap? and
+      (self.env.level.last + 10) > Char.level
     end
 
     def apply(foe)

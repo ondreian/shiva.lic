@@ -7,7 +7,18 @@ module Shiva
     @last_expedite_expiry = Time.now
 
     def self.log()
-      Log.out(Bounty::Util.short_bounty, label: %i(bounty current))
+      if Opts["debug"]
+       
+        begin
+          raise Exception.new("debug")
+        rescue Exception => e
+          Log.out("#{Bounty::Util.short_bounty}", label: %i(bounty current))
+          respond(e.backtrace.join("\n"))
+        end
+        
+      else
+        Log.out(Bounty::Util.short_bounty, label: %i(bounty current))
+      end
     end
 
     def self.waiver!
@@ -120,6 +131,12 @@ module Shiva
       guild.id.go2
       self.log()
       return self.drop(town) unless Task.allowed?
+      if Mind.saturated? and Opts["daemon"] and Opts["xp"]
+        Log.out(':saturated')
+        Shiva::Base.go2
+        Conditions::Saturated.handle!
+        return :saturated 
+      end
       sleep 0.2
       case Bounty.type
       when :none, :failed
@@ -240,7 +257,7 @@ module Shiva
     end
 
     def self.skin_bounty_complete?
-      return Task.sellables.size >= Bounty.task.number if (Skills.survival + Skills.firstaid) > Char.level * 3
+      return Task.sellables.size >= [Bounty.task.number, 10].max if (Skills.survival + Skills.firstaid) > Char.level * 3
 
       if %w(fine).include?(Bounty.quality)
         Task.sellables.size >= (Bounty.task.number * 4)
