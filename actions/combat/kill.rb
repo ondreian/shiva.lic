@@ -20,7 +20,7 @@ module Shiva
 
     def kill(foe)
       Stance.offensive
-      if Skills.ambush < 25 || (foe.tall? && !foe.status.include?(:prone)) || foe.name =~ /spectral|ethereal|triton protector|fallen crusader/
+      if Skills.ambush < 25 || (foe.tall? && !foe.status.include?(:prone)) || foe.type.include?("noncorporeal")
         put "attack #%s clear" % foe.id
       else
         area = self.get_best_area(foe)

@@ -33,16 +33,17 @@ module Shiva
     end
 
     def mug(foe)
-      waitrt?
+      Timer.await
       Stance.offensive
-      put "cman mug #%s" % foe.id
+      Martial::Stance.swap {
+        dothistimeout "cman mug #%s" % foe.id, 2, %r{You boldly accost}
+      }
       Mugged << foe.id
       sleep 0.5
-      waitrt?
+      Timer.await
     end
 
     def apply(foe)
-      waitrt?
       return self.mug foe
     end
   end

@@ -102,7 +102,7 @@ module Shiva
     end
 
     def self.load!
-      @config = TomlRB.load_file(self.file, symbolize_keys: true) 
+      @config = TomlRB.load_file(self.file, symbolize_keys: true)
     end
 
     def self.set(path, value)

@@ -5,14 +5,15 @@ module Shiva
     end
 
     def should?(foe)
+      return true if Room.current.location.eql?("the Hinterwilds") and foe.nil? and percentmana > 60
       return false if Effects::Debuffs.active?("Silenced")
-      return false if Spell[506].known?
       return false if %i(duskruin).include? self.env.name
+      return true if %w(valravn).include?(foe.noun) and foe.status.include?(:flying)
       return false unless foe.status.empty?
       return false if %i(escort bandits).include?(Bounty.type)
-      return true if %w(shaper master).include?(foe.noun)
+      return false if Spell[506].known?
+      return true if %w(shaper master valravn).include?(foe.noun)
       return true if percentmana > 90
-      return true if Room.current.location.eql?("the Hinterwilds") and foe.nil?
       return false
     end
 
@@ -26,7 +27,7 @@ module Shiva
       percentmana > 20 and
       Char.prof.eql?("Rogue") and
       self.should?(foe) and
-      not hidden? and
+      #not hidden? and
       Group.empty?
     end
 
@@ -34,6 +35,7 @@ module Shiva
       _result = dothistimeout "incant 117", 3, Regexp.union(
         %r{An invisible force guides you}
       )
+      fput "hide" if Skills.stalking_and_hiding > Char.level * 2
       ttl = Time.now + 1
       wait_until {self.active? or Time.now > ttl}
     end

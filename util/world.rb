@@ -3,7 +3,10 @@ module World
   @_cache = {}
 
   def self.by_town(tag)
-    Hash[Towns.map {|town| [town.location, Room[town.find_nearest_by_tag(tag)]] }]
+    $teleport_disabled = true
+    result = Hash[Towns.map {|town| [town.location, Room[town.find_nearest_by_tag(tag)]] }]
+    $teleport_disabled = false
+    result
   end
 
   def self.tag_for_town(town, tag)

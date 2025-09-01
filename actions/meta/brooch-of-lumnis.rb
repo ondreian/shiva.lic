@@ -1,7 +1,7 @@
 module Shiva
   class BroochOfLumnis < Action
     @tags = %i(setup)
-    
+
     @@used ||= false
     @@planar_used ||= false
 
@@ -59,7 +59,7 @@ module Shiva
         when Outcomes::Err
           Log.out("used for the day!", label: %i(brooch))
           @@used = self.day
-          $shiva_graceful_exit=true if Script.current.vars.include?("--brooch")
+          return $shiva_graceful_exit=true if Script.current.vars.include?("--brooch")
           Script.start("lte")
         end
       }

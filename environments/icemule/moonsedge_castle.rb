@@ -1,7 +1,8 @@
 module Shiva
   Environment.define :moonsedge_castle do
     @entry      = 32468
-    # boundary rooms: 
+    @tags = %i(ascension)
+    # boundary rooms:
     # 32330 (gate between imt and moonsedge town)
     # 32442 (bridge between moonsedge town and castle)
     # 32443 (portcullis into moonsedge castle)

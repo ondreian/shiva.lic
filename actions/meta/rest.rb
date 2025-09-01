@@ -56,7 +56,7 @@ module Shiva
       return :wall_of_thorns if Conditions::WallOfThorns.status > 2
       return :dread if Conditions::Dread.crushing > 1
       return :bandits_done if self.env.name.eql?(:bandits) and Bounty.type.eql?(:report_to_guard)
-      return false if Boost.loot? or @env.name.eql?(:sanctum)
+      return false if @env.name.eql?(:sanctum)
       return :bounty_turn_in if Task.can_complete? && (percentmind.eql?(100) && !Mind.saturated?) && Group.empty? && !Boost.loot?
       return :uptime if @env.uptime > (20 * Minute) && percentmind.eql?(100)
       return :get_bounty if Bounty.type.eql?(:none) and not Task.cooldown? and not Boost.loot? and @env.uptime < (10 * Minute)

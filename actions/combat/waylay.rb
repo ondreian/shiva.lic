@@ -3,6 +3,7 @@ module Shiva
     Nouns = %w(monstrosity crawler crusader golem psionicist protector automaton grotesque banshee conjurer)
 
     def priority(foe)
+      return 10 if %w(ooze oozeling undansormr).include?(foe)
       #return 100 unless Tactic.edged?
       if Nouns.include?(foe.noun) && !Smite.smited?(foe)
         89
@@ -35,11 +36,13 @@ module Shiva
       #Char.aim :clear
       Timer.await()
       Stance.offensive
-      if Effects::Buffs.active?("Shadow Dance") && hidden?
-        fput "feat silentstrike waylay #%s clear" % foe.id
-      else
-        fput "waylay #%s clear" % foe.id
-      end
+      Martial::Stance.swap {
+        if Effects::Buffs.active?("Shadow Dance") && hidden?
+          fput "feat silentstrike waylay #%s clear" % foe.id
+        else
+          fput "waylay #%s clear" % foe.id
+        end
+      }
     end
 
     def apply(foe)

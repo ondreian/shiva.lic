@@ -35,6 +35,7 @@ module Shiva
     end
 
     def available?
+      return false
       self.env.foes.empty? and
       !self.hand.nil? and
       self.gained_silver?

@@ -1,7 +1,12 @@
 module Shiva
   class Cutthroat < Action
     Cutthroat = []
-    Immune    = %w(crawler banshee cerebralite golem hinterboar grotesque conjurer)
+    Immune    = %w(
+      crawler banshee cerebralite golem 
+      hinterboar grotesque conjurer ooze 
+      oozeling undansormr disir angargeist
+      elemental
+    )
     DeathMetal = %w(mastodon cannibal shield-maiden crusader destroyer)
 
     def priority
@@ -21,6 +26,7 @@ module Shiva
     def reasonable?(foe)
       return false if Immune.include?(foe.noun)
       return false if foe.name.include?("gigas")
+      return false if %w(mutant draugr).include?(foe.noun) and foe.status.empty?
       return Tactic.death_metal? if DeathMetal.include?(foe.noun)
       return true
     end
@@ -45,9 +51,10 @@ module Shiva
       Stance.offensive
       result = dothistimeout "cman cutthroat #%s" % foe.id, 1, Regexp.union(
         %r[You slice deep into],
-        %r[wait]
+        %r{is out of reach!},
+        %r[wait],
       )
-      Cutthroat << foe.id if result =~ %r[You slice deep into]
+      Cutthroat << foe.id if result =~ %r[You slice deep into|out of reach]
       sleep 0.5
       Timer.await() if checkrt > 6
     end

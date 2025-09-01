@@ -35,6 +35,10 @@ module Shiva
       @divergence.eql?(true)
     end
 
+    def tags
+      @tags ||= []
+    end
+
     def reset_start_time!
       @start_time = Time.now
     end
@@ -156,7 +160,7 @@ module Shiva
     def best_action
       current_foe = self.foe
       proposed_action = Shiva::Actions.best_action(@actions, current_foe)
-      Log.out(proposed_action.is_a?(Symbol) ? proposed_action : proposed_action.to_sym, 
+      Log.out(proposed_action.is_a?(Symbol) ? proposed_action : proposed_action.to_sym,
         label: %i(proposed action)) unless proposed_action == @action_history.last
       @action_history << proposed_action
       @action_history.shift while @action_history.size > 10

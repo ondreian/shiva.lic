@@ -1,11 +1,11 @@
 module Shiva
   module Trash
     @db = File.read(
-      File.join(__dir__, "trash.db")).split("\n")
+      File.join(__dir__, "trash.log")).split("\n")
 
     def self.reload
       @db = File.read(
-        File.join(__dir__, "trash.db")).split("\n")
+        File.join(__dir__, "trash.log")).split("\n")
     end
 
     def self.cursed?(item)
@@ -29,7 +29,7 @@ module Shiva
       item.name.eql?("spiraling ghostly rift") or
       item.name.include?("flying ") or
       item.name.eql?("violently lashing emerald briar") or
-      %w(wagon sign mandrake bandana kitten puppy disk tempest signpost bramble vine).include?(item.noun) or
+      %w(wagon sign mandrake bandana kitten puppy disk tempest wyrm signpost bramble vine arrows).include?(item.noun) or
       self.cursed?(item)
     end
   end

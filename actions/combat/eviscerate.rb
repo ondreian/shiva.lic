@@ -1,15 +1,15 @@
 module Shiva
   class Eviscerate < Action
-    Immune = %w(cerebralite siphon)
+    Immune = %w(cerebralite siphon ooze oozeling undansormr angargeist draugr elemental)
 
     def priority(foe)
-      self.env.foes.size > 1 ? 10 : 50
+      self.env.foes.size > 2 ? 10 : 50
     end
 
     def available?(foe)
       not foe.nil? and
       not self.env.seen.include?(foe.id) and
-      not foe.status.empty? and
+      self.env.foes.map(&:status).select {|status| status.empty?}.size > 2  and
       self.env.foes.size > 1 and
       not foe.tall? and
       not Immune.include?(foe.noun) and
@@ -23,13 +23,18 @@ module Shiva
     def eviscerate(foe)
       waitrt?
       Stance.offensive
-      put "cman eviscerate #%s" % foe.id
+      dothistimeout "cman eviscerate #%s" % foe.id, 1, %r{You uncoil from the shadows}
       self.env.seen << foe.id
       Timer.await()
     end
 
     def apply(foe)
-      return self.eviscerate foe
+      corps = self.env.foes.select {|foe| 
+        !foe.type.include?("noncorporeal") && !%w(grotesque).include?(foe.noun)
+      }
+      target = corps.find {|foe| foe.status.empty?} || corps.sample || foe
+      self.env.seen << foe.id
+      return self.eviscerate(target)
     end
   end
 end
